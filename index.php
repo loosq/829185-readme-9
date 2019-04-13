@@ -242,22 +242,95 @@ $user_name = 'Sergei'; // укажите здесь ваше имя
                 <p><!--здесь текст--></p>
             </div>
 
-            <article class="popular__post post">
+            <?php
+            $cardsList = [
+                [
+                    'userName' => 'Лариса',
+                    'avatar'   => 'userpic-larisa-small.jpg',
+                    'title'    =>'Цитата',
+                    'content'  =>'Мы в жизни любим только раз, а после ищем лишь похожих',
+                    'type'     =>'post-quote'
+                ],
+                [
+                    'userName' => 'Владик',
+                    'avatar'   => 'userpic.jpg',
+                    'title'    =>'Игра престолов',
+                    'content'  =>'Не могу дождаться начала финального сезона своего любимого сериала!',
+                    'type'     =>'post-text'
+                ],
+                [
+                    'userName' => 'Виктор',
+                    'avatar'   => 'userpic-mark.jpg',
+                    'title'    =>'Наконец, обработал фотки!',
+                    'content'  =>'rock-medium.jpg',
+                    'type'     =>'post-photo'
+                ],
+                [
+                    'userName' => '	Лариса',
+                    'avatar'   => 'userpic-larisa-small.jpg',
+                    'title'    =>'Моя мечта',
+                    'content'  =>'coast-medium.jpg',
+                    'type'     =>'post-photo'
+                ],
+                [
+                    'userName' => 'Владик',
+                    'avatar'   => 'userpic.jpg',
+                    'title'    =>'Лучшие курсы',
+                    'content'  =>'www.htmlacademy.ru',
+                    'type'     =>'post-link'
+                ]
+            ];?>
+
+            <?php foreach ($cardsList as $key => $item):?>
+
+            <article class="popular__post post <?=$item['type']?>">
                 <header class="post__header">
-                    <h2><!--здесь заголовок--></h2>
+                    <h2><?=$item['title']?><!--здесь заголовок--></h2>
                 </header>
                 <div class="post__main">
                     <!--здесь содержимое карточки-->
+                    <?php if($item['type'] === 'post-quote'):?>
+                    <!--содержимое для поста-цитаты-->
+                    <blockquote>
+                        <p>
+                            <?=$item['content']?><!--здесь текст-->
+                        </p>
+                        <cite>Неизвестный Автор</cite>
+                    </blockquote>
+                    <?php elseif ($item['type'] === 'post-link'):?>
+                    <!--содержимое для поста-ссылки-->
+                    <div class="post-link__wrapper">
+                        <a class="post-link__external" href="http://" title="Перейти по ссылке">
+                            <div class="post-link__info-wrapper">
+                                <div class="post-link__icon-wrapper">
+                                    <img src="img/logo-vita.jpg" alt="Иконка">
+                                </div>
+                                <div class="post-link__info">
+                                    <h3><?=$item['title']?><!--здесь заголовок--></h3>
+                                </div>
+                            </div>
+                            <span><?=$item['content']?><!--здесь ссылка--></span>
+                        </a>
+                    </div>
+                    <?php elseif ($item['type'] === 'post-photo'):?>
+                    <!--содержимое для поста-фото-->
+                    <div class="post-photo__image-wrapper">
+                        <img src="img/<?=$item['content']?>" alt="Фото от пользователя" width="360" height="240">
+                    </div>
+                    <?php elseif ($item['type'] === 'post-text'):?>
+                    <!--содержимое для поста-текста-->
+                    <p><?=$item['content']?><!--здесь текст--></p>
+                    <?php endif;?>
                 </div>
                 <footer class="post__footer">
                     <div class="post__author">
                         <a class="post__author-link" href="#" title="Автор">
                             <div class="post__avatar-wrapper">
                                 <!--укажите путь к файлу аватара-->
-                                <img class="post__author-avatar" src="img/" alt="Аватар пользователя">
+                                <img class="post__author-avatar" src="img/<?=$item['avatar']?>" alt="Аватар пользователя">
                             </div>
                             <div class="post__info">
-                                <b class="post__author-name"><!--здесь имя пользоателя--></b>
+                                <b class="post__author-name"><?=$item['userName']?><!--здесь имя пользоателя--></b>
                                 <time class="post__time" datetime="">дата</time>
                             </div>
                         </a>
@@ -285,6 +358,7 @@ $user_name = 'Sergei'; // укажите здесь ваше имя
                     </div>
                 </footer>
             </article>
+            <?php endforeach;?>
         </div>
     </div>
 </section>
