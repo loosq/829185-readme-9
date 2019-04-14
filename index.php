@@ -279,7 +279,7 @@ $user_name = 'Sergei'; // укажите здесь ваше имя
                     'type'     => 'post-link'
                 ]
             ];
-
+            
             function cutText ($text, $maxLength = 300)
             {
                 if (strlen($text) > $maxLength){
