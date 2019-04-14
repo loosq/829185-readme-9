@@ -279,28 +279,26 @@ $user_name = 'Sergei'; // укажите здесь ваше имя
                     'type'     => 'post-link'
                 ]
             ];
-            
+
             function cutText ($text, $maxLength = 300)
-            {
-                if (strlen($text) > $maxLength){
+             {
+                if (strlen($text) > $maxLength) {
                     $textArr = explode(' ', $text);
                     $i = 0;
                     $j = 0;
-                    foreach ($textArr as $word){
+                    foreach ($textArr as $word) {
                         $i += strlen($word);
                         $j++;
-                        if ($i > $maxLength){
+                        if ($i > $maxLength) {
                             //Блоку "Читать далее" добавил левый отступ 0, потому что не получилось выровнить по умолчанию.
                             print (implode(' ', array_slice($textArr, 0, $j)) . '...' . '<br/><a class="post-text__more-link" href="#" style="margin-left: 0">Читать далее</a>');
                             break;
                         }
                     }
-                }
-                else
-                {
+                } else {
                     print ($text);
                 }
-            }
+             }
 
             foreach ($cardsList as $key => $item): ?>
 
@@ -340,7 +338,7 @@ $user_name = 'Sergei'; // укажите здесь ваше имя
                     </div>
                     <?php elseif ($item['type'] === 'post-text'): ?>
                     <!--содержимое для поста-текста-->
-                    <p><?php cutText($item['content']) ?><!--здесь текст--></p>
+                    <p><?= cutText($item['content']) ?><!--здесь текст--></p>
                     <?php endif ?>
                 </div>
                 <footer class="post__footer">
