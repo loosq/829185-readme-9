@@ -10,7 +10,7 @@
  * is_date_valid('10/10/2010'); // false
  *
  * @param string $date Дата в виде строки
- * 
+ *
  * @return bool true при совпадении с форматом 'ГГГГ-ММ-ДД', иначе false
  */
 function is_date_valid(string $date) : bool {
@@ -118,4 +118,115 @@ function get_noun_plural_form (int $number, string $one, string $two, string $ma
         default:
             return $many;
     }
+}
+
+/**
+ * Подключает шаблон, передает туда данные и возвращает итоговый HTML контент
+ * @param string $name Путь к файлу шаблона относительно папки templates
+ * @param array $data Ассоциативный массив с данными для шаблона
+ * @return string Итоговый HTML
+ */
+function include_template($name, array $data = []) {
+    $name = 'templates/' . $name;
+    $result = '';
+
+    if (!is_readable($name)) {
+        return $result;
+    }
+
+    ob_start();
+    extract($data);
+    require $name;
+
+    $result = ob_get_clean();
+
+    return $result;
+}
+
+/**
+ * Проверяет, что переданная ссылка ведет на публично доступное видео с youtube
+ * @param string $youtube_url Ссылка на youtube видео
+ * @return bool
+ */
+function check_youtube_url($youtube_url) {
+    $res = false;
+    $id = extract_youtube_id($youtube_url);
+
+    if ($id) {
+        $api_data = ['id' => $id, 'part' => 'id,status', 'key' => 'AIzaSyC-n4aQQk0mZrZNsfswKcaljExfM1UG57c'];
+        $url = "https://www.googleapis.com/youtube/v3/videos?" . http_build_query($api_data);
+
+        $resp = file_get_contents($url);
+
+        if ($resp && $json = json_decode($resp, true)) {
+            $res = $json['pageInfo']['totalResults'] > 0 && $json['items'][0]['status']['privacyStatus'] == 'public';
+        }
+    }
+
+    return $res;
+}
+
+/**
+ * Возвращает код iframe для вставки youtube видео на страницу
+ * @param string $youtube_url Ссылка на youtube видео
+ * @return string
+ */
+function embed_youtube_video($youtube_url) {
+    $res = "";
+    $id = extract_youtube_id($youtube_url);
+
+    if ($id) {
+        $src = "https://www.youtube.com/embed/" . $id;
+        $res = '<iframe width="760" height="400" src="' . $src . '" frameborder="0"></iframe>';
+    }
+
+    return $res;
+}
+
+/**
+ * Извлекает из ссылки на youtube видео его уникальный ID
+ * @param string $youtube_url Ссылка на youtube видео
+ * @return array
+ */
+function extract_youtube_id($youtube_url){
+    $id = false;
+
+    $parts = parse_url($youtube_url);
+
+    if ($parts) {
+        if ($parts['path'] == '/watch') {
+            parse_str($parts['query'], $vars);
+            $id = $vars['v'] ?? null;
+        } else if ($parts['host'] == 'youtu.be') {
+            $id = substr($parts['path'], 1);
+        }
+    }
+
+    return $id;
+}
+
+/**
+ * @param $index
+ * @return false|string
+ */
+function generate_random_date($index) {
+    $deltas = [['minutes' => 59], ['hours' => 23], ['days' => 6], ['weeks' => 4], ['months' => 11]];
+    $dcnt = count($deltas);
+
+    if ($index < 0) {
+        $index = 0;
+    }
+
+    if ($index >= $dcnt) {
+        $index = $dcnt - 1;
+    }
+
+    $delta = $deltas[$index];
+    $timeval = rand(1, current($delta));
+    $timename = key($delta);
+
+    $ts = strtotime("$timeval $timename ago");
+    $dt = date('Y-m-d H:i:s', $ts);
+
+    return $dt;
 }
