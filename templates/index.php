@@ -119,6 +119,10 @@
             </div>
 
             <?php
+
+            date_default_timezone_set('Europe/Moscow');
+            setlocale(LC_ALL, 'ru_RU');
+
             $cardsList = [
                 [
                     'userName' => 'Лариса',
@@ -168,16 +172,46 @@
                         $j++;
                         if ($i > $maxLength) {
                             //Блоку "Читать далее" добавил левый отступ 0, потому что не получилось выровнить по умолчанию.
-                            print (implode(' ', array_slice($textArr, 0, $j)) . '...' . '<br/><a class="post-text__more-link" href="#" style="margin-left: 0">Читать далее</a>');
+                            echo implode(' ', array_slice($textArr, 0, $j)) . '...' . '<br/><a class="post-text__more-link" href="#" style="margin-left: 0">Читать далее</a>';
                             break;
                         }
                     }
                 } else {
-                    print ($text);
+                    echo $text;
                 }
             }
 
-            foreach ($cardsList as $key => $item): ?>
+            foreach ($cardsList as $key => $item):
+
+            $nowTime = time();
+            $postTime = generate_random_date($item);
+            $diffTime = $nowTime - strtotime($postTime);
+
+            if ($diffTime < 3600)
+            {
+                $diffTime = ceil($diffTime / 60) . ' ' .get_noun_plural_form(ceil($diffTime / 60), 'минута', 'минуты', 'минут') . ' назад';
+            }
+            elseif ($diffTime > 3600 && $diffTime < 86400)
+            {
+                $diffTime = ceil($diffTime / 3600) . ' ' .get_noun_plural_form(ceil($diffTime / 3600), 'час', 'часа', 'часов') . ' назад';
+            }
+            elseif ($diffTime > 86400 && $diffTime < 604800)
+            {
+                $diffTime = ceil($diffTime / 86400) . ' ' .get_noun_plural_form(ceil($diffTime / 86400), 'день', 'дня', 'дней') . ' назад';
+            }
+            elseif ($diffTime > 604800 && $diffTime < 2629743)
+            {
+                $diffTime = ceil($diffTime / 604800) . ' ' .get_noun_plural_form(ceil($diffTime / 604800), 'неделя', 'недели', 'недель') . ' назад';
+            }
+            elseif ($diffTime > 2629743 && $diffTime < 31556926)
+            {
+                $diffTime = ceil($diffTime / 2629743) . ' ' .get_noun_plural_form(ceil($diffTime / 2629743), 'месяц', 'месяца', 'месяцев') . ' назад';
+            }
+            else
+            {
+                $diffTime = ceil($diffTime / 31556926) . ' ' .get_noun_plural_form(ceil($diffTime / 31556926), 'год', 'года', 'лет') . ' назад';
+            }
+            ?>
 
                 <article class="popular__post post <?= $item['type'] ?>">
                     <header class="post__header">
@@ -227,7 +261,7 @@
                                 </div>
                                 <div class="post__info">
                                     <b class="post__author-name"><?= htmlspecialchars($item['userName']) ?><!--здесь имя пользоателя--></b>
-                                    <time class="post__time" datetime="">дата</time>
+                                    <time class="post__time" datetime="<?= $postTime ?>"  title="<?= date( 'd.m.Y H:i',strtotime($postTime)) ?>"><?= $diffTime ?></time>
                                 </div>
                             </a>
                         </div>

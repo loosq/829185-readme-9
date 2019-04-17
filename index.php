@@ -44,12 +44,14 @@ $cardsList = [
 
 $content = include_template('index.php', $cardsList);
 
-$layoutContent = include_template('layout.php',[
+$layoutContent = include_template('layout.php',
+    [
     'content' => $content,
     'title'   => $title,
-    'user'    => $user_name]);
+    'user'    => $user_name
+    ]);
 
-print ($layoutContent);
+echo $layoutContent;
 
 ?>
 
