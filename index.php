@@ -7,11 +7,6 @@ include_once 'helpers.php';
 include_once 'cardsList.php';
 include_once 'functions.php';
 
-
-$title = 'ReadMe';
-$user_name = 'Sergei';
-
-
 $content = include_template('index.php', $cardsList);
 
 $layoutContent = include_template('layout.php',
