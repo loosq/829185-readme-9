@@ -118,71 +118,7 @@
                 <p><!--здесь текст--></p>
             </div>
 
-            <?php
-
-            $cardsList = [
-                [
-                    'userName' => 'Лариса',
-                    'avatar'   => 'userpic-larisa-small.jpg',
-                    'title'    => 'Цитата',
-                    'content'  => 'Мы в жизни любим только раз, а после ищем лишь похожих',
-                    'type'     => 'post-quote'
-                ],
-                [
-                    'userName' => 'Владик',
-                    'avatar'   => 'userpic.jpg',
-                    'title'    => 'Игра престолов',
-                    'content'  => 'Не могу дождаться начала финального сезона своего любимого сериала!',
-                    'type'     => 'post-text'
-                ],
-                [
-                    'userName' => 'Виктор',
-                    'avatar'   => 'userpic-mark.jpg',
-                    'title'    => 'Наконец, обработал фотки!',
-                    'content'  => 'rock-medium.jpg',
-                    'type'     => 'post-photo'
-                ],
-                [
-                    'userName' => '	Лариса',
-                    'avatar'   => 'userpic-larisa-small.jpg',
-                    'title'    => 'Моя мечта',
-                    'content'  => 'coast-medium.jpg',
-                    'type'     => 'post-photo'
-                ],
-                [
-                    'userName' => 'Владик',
-                    'avatar'   => 'userpic.jpg',
-                    'title'    => 'Лучшие курсы',
-                    'content'  => 'www.htmlacademy.ru',
-                    'type'     => 'post-link'
-                ]
-            ];
-
-            foreach ($cardsList as $key => $item):
-
-            $nowTime = time();
-            $postTime = generate_random_date($item);
-            $diffTime = $nowTime - strtotime($postTime);
-
-            if ($diffTime < 3600) {
-                $diffTime = ceil($diffTime / 60) . ' ' .get_noun_plural_form(ceil($diffTime / 60), 'минута', 'минуты', 'минут') . ' назад';
-            }
-            elseif ($diffTime > 3600 && $diffTime < 86400) {
-                $diffTime = ceil($diffTime / 3600) . ' ' .get_noun_plural_form(ceil($diffTime / 3600), 'час', 'часа', 'часов') . ' назад';
-            }
-            elseif ($diffTime > 86400 && $diffTime < 604800) {
-                $diffTime = ceil($diffTime / 86400) . ' ' .get_noun_plural_form(ceil($diffTime / 86400), 'день', 'дня', 'дней') . ' назад';
-            }
-            elseif ($diffTime > 604800 && $diffTime < 2629743) {
-                $diffTime = ceil($diffTime / 604800) . ' ' .get_noun_plural_form(ceil($diffTime / 604800), 'неделя', 'недели', 'недель') . ' назад';
-            }
-            elseif ($diffTime > 2629743 && $diffTime < 31556926) {
-                $diffTime = ceil($diffTime / 2629743) . ' ' .get_noun_plural_form(ceil($diffTime / 2629743), 'месяц', 'месяца', 'месяцев') . ' назад';
-            }
-            else {
-                $diffTime = ceil($diffTime / 31556926) . ' ' .get_noun_plural_form(ceil($diffTime / 31556926), 'год', 'года', 'лет') . ' назад';
-            }
-            ?>
+            <?php foreach ($cardsList as $key => $item): ?>
 
                 <article class="popular__post post <?= $item['type'] ?>">
                     <header class="post__header">
@@ -190,7 +126,7 @@
                     </header>
                     <div class="post__main">
                         <!--здесь содержимое карточки-->
-                        <?php if($item['type'] === 'post-quote'): ?>
+                        <?php if ($item['type'] === 'post-quote'): ?>
                             <!--содержимое для поста-цитаты-->
                             <blockquote>
                                 <p>

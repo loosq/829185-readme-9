@@ -38,4 +38,5 @@ $cardsList = [
     ]
 ];
 
-?>
+foreach ($cardsList as $key => $item):
+
