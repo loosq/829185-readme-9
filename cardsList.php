@@ -37,6 +37,3 @@ $cardsList = [
         'type'     => 'post-link'
     ]
 ];
-
-foreach ($cardsList as $key => $item):
-
