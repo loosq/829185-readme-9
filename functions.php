@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Проверяет текст на количество символов, если символов больше, то
  * подставляет ссылку "Читать далее" с открытием по клику.
@@ -17,12 +18,44 @@ function cutText ($text, $maxLength = 300)
             $countLetters += strlen($word);
             $j++;
             if ($countLetters > $maxLength) {
-                //Блоку "Читать далее" добавил левый отступ 0, потому что не получилось выровнить по умолчанию.
-
                 return implode(' ', array_slice($textArr, 0, $j)) . '...' . '<br/><a class="post-text__more-link" href="#" style="margin-left: 0">Читать далее</a>';
             }
         }
     }
 
     return $text;
+}
+
+/**
+ * Трансформирует дату в строку "Сколько прошло времени с этой даты"
+ * @param int $dataPoint Число дата, с которой будет показываться перод
+ *
+ * @return string Текст, количество времени прописью, например "2 минуты назад или 5 часов назад или 7 дней назад etc..."
+ */
+function showTimeGap ($dataPoint)
+{
+    $nowTime = time();
+    $diffTime = $nowTime - strtotime($dataPoint);
+
+    if ($diffTime < 3600) {
+        $diffTime = ceil($diffTime / 60) . ' ' . get_noun_plural_form(ceil($diffTime / 60), 'минута', 'минуты',
+                'минут') . ' назад';
+    } elseif ($diffTime > 3600 && $diffTime < 86400) {
+        $diffTime = ceil($diffTime / 3600) . ' ' . get_noun_plural_form(ceil($diffTime / 3600), 'час', 'часа',
+                'часов') . ' назад';
+    } elseif ($diffTime > 86400 && $diffTime < 604800) {
+        $diffTime = ceil($diffTime / 86400) . ' ' . get_noun_plural_form(ceil($diffTime / 86400), 'день', 'дня',
+                'дней') . ' назад';
+    } elseif ($diffTime > 604800 && $diffTime < 2629743) {
+        $diffTime = ceil($diffTime / 604800) . ' ' . get_noun_plural_form(ceil($diffTime / 604800), 'неделя', 'недели',
+                'недель') . ' назад';
+    } elseif ($diffTime > 2629743 && $diffTime < 31556926) {
+        $diffTime = ceil($diffTime / 2629743) . ' ' . get_noun_plural_form(ceil($diffTime / 2629743), 'месяц', 'месяца',
+                'месяцев') . ' назад';
+    } else {
+        $diffTime = ceil($diffTime / 31556926) . ' ' . get_noun_plural_form(ceil($diffTime / 31556926), 'год', 'года',
+                'лет') . ' назад';
+    }
+
+    return $diffTime;
 }

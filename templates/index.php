@@ -119,47 +119,25 @@
             </div>
 
             <?php
-                foreach ($cardsList as $key => $item):
-                $nowTime = time();
-                $postTime = generate_random_date($item);
-                $diffTime = $nowTime - strtotime($postTime);
-
-                if ($diffTime < 3600) {
-                    $diffTime = ceil($diffTime / 60) . ' ' . get_noun_plural_form(ceil($diffTime / 60), 'минута', 'минуты',
-                            'минут') . ' назад';
-                } elseif ($diffTime > 3600 && $diffTime < 86400) {
-                    $diffTime = ceil($diffTime / 3600) . ' ' . get_noun_plural_form(ceil($diffTime / 3600), 'час', 'часа',
-                            'часов') . ' назад';
-                } elseif ($diffTime > 86400 && $diffTime < 604800) {
-                    $diffTime = ceil($diffTime / 86400) . ' ' . get_noun_plural_form(ceil($diffTime / 86400), 'день', 'дня',
-                            'дней') . ' назад';
-                } elseif ($diffTime > 604800 && $diffTime < 2629743) {
-                    $diffTime = ceil($diffTime / 604800) . ' ' . get_noun_plural_form(ceil($diffTime / 604800), 'неделя', 'недели',
-                            'недель') . ' назад';
-                } elseif ($diffTime > 2629743 && $diffTime < 31556926) {
-                    $diffTime = ceil($diffTime / 2629743) . ' ' . get_noun_plural_form(ceil($diffTime / 2629743), 'месяц', 'месяца',
-                            'месяцев') . ' назад';
-                } else {
-                    $diffTime = ceil($diffTime / 31556926) . ' ' . get_noun_plural_form(ceil($diffTime / 31556926), 'год', 'года',
-                            'лет') . ' назад';
-                }
+                foreach ($cards as $key => $card):
+                $postTime = generate_random_date($card);
             ?>
 
-                <article class="popular__post post <?= $item['type'] ?>">
+                <article class="popular__post post <?= $card['type'] ?>">
                     <header class="post__header">
-                        <h2><?= htmlspecialchars($item['title']) ?><!--здесь заголовок--></h2>
+                        <h2><?= htmlspecialchars($card['title']) ?><!--здесь заголовок--></h2>
                     </header>
                     <div class="post__main">
                         <!--здесь содержимое карточки-->
-                        <?php if ($item['type'] === 'post-quote'): ?>
+                        <?php if ($card['type'] === 'post-quote'): ?>
                             <!--содержимое для поста-цитаты-->
                             <blockquote>
                                 <p>
-                                    <?= htmlspecialchars($item['content']) ?><!--здесь текст-->
+                                    <?= htmlspecialchars($card['content']) ?><!--здесь текст-->
                                 </p>
                                 <cite>Неизвестный Автор</cite>
                             </blockquote>
-                        <?php elseif ($item['type'] === 'post-link'): ?>
+                        <?php elseif ($card['type'] === 'post-link'): ?>
                             <!--содержимое для поста-ссылки-->
                             <div class="post-link__wrapper">
                                 <a class="post-link__external" href="http://" title="Перейти по ссылке">
@@ -168,20 +146,20 @@
                                             <img src="img/logo-vita.jpg" alt="Иконка">
                                         </div>
                                         <div class="post-link__info">
-                                            <h3><?= htmlspecialchars($item['title']) ?><!--здесь заголовок--></h3>
+                                            <h3><?= htmlspecialchars($card['title']) ?><!--здесь заголовок--></h3>
                                         </div>
                                     </div>
-                                    <span><?= htmlspecialchars($item['content']) ?><!--здесь ссылка--></span>
+                                    <span><?= htmlspecialchars($card['content']) ?><!--здесь ссылка--></span>
                                 </a>
                             </div>
-                        <?php elseif ($item['type'] === 'post-photo'): ?>
+                        <?php elseif ($card['type'] === 'post-photo'): ?>
                             <!--содержимое для поста-фото-->
                             <div class="post-photo__image-wrapper">
-                                <img src="img/<?= htmlspecialchars($item['content']) ?>" alt="Фото от пользователя" width="360" height="240">
+                                <img src="img/<?= htmlspecialchars($card['content']) ?>" alt="Фото от пользователя" width="360" height="240">
                             </div>
-                        <?php elseif ($item['type'] === 'post-text'): ?>
+                        <?php elseif ($card['type'] === 'post-text'): ?>
                             <!--содержимое для поста-текста-->
-                            <p><?= htmlspecialchars(cutText($item['content'])) ?><!--здесь текст--></p>
+                            <p><?= htmlspecialchars(cutText($card['content'])) ?><!--здесь текст--></p>
                         <?php endif ?>
                     </div>
                     <footer class="post__footer">
@@ -189,11 +167,11 @@
                             <a class="post__author-link" href="#" title="Автор">
                                 <div class="post__avatar-wrapper">
                                     <!--укажите путь к файлу аватара-->
-                                    <img class="post__author-avatar" src="img/<?= htmlspecialchars($item['avatar']) ?>" alt="Аватар пользователя">
+                                    <img class="post__author-avatar" src="img/<?= htmlspecialchars($card['avatar']) ?>" alt="Аватар пользователя">
                                 </div>
                                 <div class="post__info">
-                                    <b class="post__author-name"><?= htmlspecialchars($item['userName']) ?><!--здесь имя пользоателя--></b>
-                                    <time class="post__time" datetime="<?= $postTime ?>"  title="<?= date( 'd.m.Y H:i',strtotime($postTime)) ?>"><?= $diffTime ?></time>
+                                    <b class="post__author-name"><?= htmlspecialchars($card['userName']) ?><!--здесь имя пользоателя--></b>
+                                    <time class="post__time" datetime="<?= $postTime ?>"  title="<?= date( 'd.m.Y H:i',strtotime($postTime)) ?>"><?= showTimeGap($postTime) ?></time>
                                 </div>
                             </a>
                         </div>

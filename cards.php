@@ -1,6 +1,6 @@
 <?php
 
-$cardsList = [
+$cards = [
     [
         'userName' => 'Лариса',
         'avatar'   => 'userpic-larisa-small.jpg',
