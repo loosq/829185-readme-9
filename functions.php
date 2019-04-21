@@ -8,7 +8,7 @@
  *
  * @return string текст с/без блоком-ссылкой "Читать далее"
  */
-function cutText ($text, $maxLength = 300)
+function cutText($text, $maxLength = 300)
 {
     if (strlen($text) > $maxLength) {
         $textArr = explode(' ', $text);
@@ -18,7 +18,8 @@ function cutText ($text, $maxLength = 300)
             $countLetters += strlen($word);
             $j++;
             if ($countLetters > $maxLength) {
-                return implode(' ', array_slice($textArr, 0, $j)) . '...' . '<br/><a class="post-text__more-link" href="#" style="margin-left: 0">Читать далее</a>';
+                return implode(' ', array_slice($textArr, 0,
+                        $j)) . '...' . '<br/><a class="post-text__more-link" href="#" style="margin-left: 0">Читать далее</a>';
             }
         }
     }
@@ -27,35 +28,51 @@ function cutText ($text, $maxLength = 300)
 }
 
 /**
- * Трансформирует дату в строку "Сколько прошло времени с этой даты"
- * @param int $dataPoint Число дата, с которой будет показываться перод
+ * Трансформирует дату в "человеческую" строку "Сколько прошло времени с этой даты"
+ * @param int $datePoint Число дата, с которой будет показываться перод
  *
  * @return string Текст, количество времени прописью, например "2 минуты назад или 5 часов назад или 7 дней назад etc..."
  */
-function showTimeGap ($dataPoint)
+function showTimeGap($datePoint)
 {
     $nowTime = time();
-    $diffTime = $nowTime - strtotime($dataPoint);
+    $diffTime = $nowTime - strtotime($datePoint);
 
     if ($diffTime < 3600) {
-        $diffTime = ceil($diffTime / 60) . ' ' . get_noun_plural_form(ceil($diffTime / 60), 'минута', 'минуты',
-                'минут') . ' назад';
+        $num = ceil($diffTime / 60);
+        $word = get_noun_plural_form(ceil($diffTime / 60), 'минута', 'минуты', 'минут');
+        $human = $num . ' ' . $word . ' назад';
+
     } elseif ($diffTime > 3600 && $diffTime < 86400) {
-        $diffTime = ceil($diffTime / 3600) . ' ' . get_noun_plural_form(ceil($diffTime / 3600), 'час', 'часа',
-                'часов') . ' назад';
+
+        $num = ceil($diffTime / 3600);
+        $word = get_noun_plural_form(ceil($diffTime / 3600), 'час', 'часа', 'часов');
+        $human = $num . ' ' . $word . ' назад';
+
     } elseif ($diffTime > 86400 && $diffTime < 604800) {
-        $diffTime = ceil($diffTime / 86400) . ' ' . get_noun_plural_form(ceil($diffTime / 86400), 'день', 'дня',
-                'дней') . ' назад';
+
+        $num = ceil($diffTime / 86400);
+        $word = get_noun_plural_form(ceil($diffTime / 86400), 'день', 'дня', 'дней');
+        $human = $num . ' ' . $word . ' назад';
+
     } elseif ($diffTime > 604800 && $diffTime < 2629743) {
-        $diffTime = ceil($diffTime / 604800) . ' ' . get_noun_plural_form(ceil($diffTime / 604800), 'неделя', 'недели',
-                'недель') . ' назад';
+
+        $num = ceil($diffTime / 604800);
+        $word = get_noun_plural_form(ceil($diffTime / 604800), 'неделя', 'недели', 'недель');
+        $human = $num . ' ' . $word . ' назад';
+
     } elseif ($diffTime > 2629743 && $diffTime < 31556926) {
-        $diffTime = ceil($diffTime / 2629743) . ' ' . get_noun_plural_form(ceil($diffTime / 2629743), 'месяц', 'месяца',
-                'месяцев') . ' назад';
+
+        $num = ceil($diffTime / 2629743);
+        $word = get_noun_plural_form(ceil($diffTime / 2629743), 'месяц', 'месяца', 'месяцев');
+        $human = $num . ' ' . $word . ' назад';
+
     } else {
-        $diffTime = ceil($diffTime / 31556926) . ' ' . get_noun_plural_form(ceil($diffTime / 31556926), 'год', 'года',
-                'лет') . ' назад';
+
+        $num = ceil($diffTime / 31556926);
+        $word = get_noun_plural_form(ceil($diffTime / 31556926), 'год', 'года', 'лет');
+        $human = $num . ' ' . $word . ' назад';
     }
 
-    return $diffTime;
+    return $human;
 }

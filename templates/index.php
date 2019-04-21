@@ -118,9 +118,9 @@
                 <p><!--здесь текст--></p>
             </div>
 
+            <?php foreach ($cards as $key => $card): ?>
             <?php
-                foreach ($cards as $key => $card):
-                $postTime = generate_random_date($card);
+                $postTime = generate_random_date($key);
             ?>
 
                 <article class="popular__post post <?= $card['type'] ?>">

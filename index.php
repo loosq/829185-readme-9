@@ -9,12 +9,15 @@ include_once 'functions.php';
 
 $content = include_template('index.php', ['cards' => $cards]);
 
-$layoutContent = include_template('layout.php',
-    [
+$is_auth = rand(0, 1);
+$user_name = 'Sergei';
+$title = 'Readme';
+
+$layoutContent = include_template('layout.php', [
     'content' => $content,
     'title'   => $title,
-    'user'    => $user_name
-    ]
-);
+    'user'    => $user_name,
+    'is_auth' => $is_auth
+]);
 
 echo $layoutContent;
