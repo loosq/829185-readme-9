@@ -118,82 +118,26 @@
                 <p><!--здесь текст--></p>
             </div>
 
+            <?php foreach ($cards as $key => $card): ?>
             <?php
-            $cardsList = [
-                [
-                    'userName' => 'Лариса',
-                    'avatar'   => 'userpic-larisa-small.jpg',
-                    'title'    => 'Цитата',
-                    'content'  => 'Мы в жизни любим только раз, а после ищем лишь похожих',
-                    'type'     => 'post-quote'
-                ],
-                [
-                    'userName' => 'Владик',
-                    'avatar'   => 'userpic.jpg',
-                    'title'    => 'Игра престолов',
-                    'content'  => 'Не могу дождаться начала финального сезона своего любимого сериала!',
-                    'type'     => 'post-text'
-                ],
-                [
-                    'userName' => 'Виктор',
-                    'avatar'   => 'userpic-mark.jpg',
-                    'title'    => 'Наконец, обработал фотки!',
-                    'content'  => 'rock-medium.jpg',
-                    'type'     => 'post-photo'
-                ],
-                [
-                    'userName' => '	Лариса',
-                    'avatar'   => 'userpic-larisa-small.jpg',
-                    'title'    => 'Моя мечта',
-                    'content'  => 'coast-medium.jpg',
-                    'type'     => 'post-photo'
-                ],
-                [
-                    'userName' => 'Владик',
-                    'avatar'   => 'userpic.jpg',
-                    'title'    => 'Лучшие курсы',
-                    'content'  => 'www.htmlacademy.ru',
-                    'type'     => 'post-link'
-                ]
-            ];
+                $postTime = generate_random_date($key);
+            ?>
 
-            function cutText ($text, $maxLength = 300)
-            {
-                if (strlen($text) > $maxLength) {
-                    $textArr = explode(' ', $text);
-                    $i = 0;
-                    $j = 0;
-                    foreach ($textArr as $word) {
-                        $i += strlen($word);
-                        $j++;
-                        if ($i > $maxLength) {
-                            //Блоку "Читать далее" добавил левый отступ 0, потому что не получилось выровнить по умолчанию.
-                            print (implode(' ', array_slice($textArr, 0, $j)) . '...' . '<br/><a class="post-text__more-link" href="#" style="margin-left: 0">Читать далее</a>');
-                            break;
-                        }
-                    }
-                } else {
-                    print ($text);
-                }
-            }
-
-            foreach ($cardsList as $key => $item): ?>
-
-                <article class="popular__post post <?= $item['type'] ?>">
+                <article class="popular__post post <?= $card['type'] ?>">
                     <header class="post__header">
-                        <h2><?= htmlspecialchars($item['title']) ?><!--здесь заголовок--></h2>
+                        <h2><?= htmlspecialchars($card['title']) ?><!--здесь заголовок--></h2>
                     </header>
                     <div class="post__main">
                         <!--здесь содержимое карточки-->
-                        <?php if($item['type'] === 'post-quote'): ?>
+                        <?php if ($card['type'] === 'post-quote'): ?>
                             <!--содержимое для поста-цитаты-->
                             <blockquote>
                                 <p>
-                                    <?= htmlspecialchars($item['content']) ?><!--здесь текст-->
+                                    <?= htmlspecialchars($card['content']) ?><!--здесь текст-->
                                 </p>
                                 <cite>Неизвестный Автор</cite>
                             </blockquote>
-                        <?php elseif ($item['type'] === 'post-link'): ?>
+                        <?php elseif ($card['type'] === 'post-link'): ?>
                             <!--содержимое для поста-ссылки-->
                             <div class="post-link__wrapper">
                                 <a class="post-link__external" href="http://" title="Перейти по ссылке">
@@ -202,20 +146,20 @@
                                             <img src="img/logo-vita.jpg" alt="Иконка">
                                         </div>
                                         <div class="post-link__info">
-                                            <h3><?= htmlspecialchars($item['title']) ?><!--здесь заголовок--></h3>
+                                            <h3><?= htmlspecialchars($card['title']) ?><!--здесь заголовок--></h3>
                                         </div>
                                     </div>
-                                    <span><?= htmlspecialchars($item['content']) ?><!--здесь ссылка--></span>
+                                    <span><?= htmlspecialchars($card['content']) ?><!--здесь ссылка--></span>
                                 </a>
                             </div>
-                        <?php elseif ($item['type'] === 'post-photo'): ?>
+                        <?php elseif ($card['type'] === 'post-photo'): ?>
                             <!--содержимое для поста-фото-->
                             <div class="post-photo__image-wrapper">
-                                <img src="img/<?= htmlspecialchars($item['content']) ?>" alt="Фото от пользователя" width="360" height="240">
+                                <img src="img/<?= htmlspecialchars($card['content']) ?>" alt="Фото от пользователя" width="360" height="240">
                             </div>
-                        <?php elseif ($item['type'] === 'post-text'): ?>
+                        <?php elseif ($card['type'] === 'post-text'): ?>
                             <!--содержимое для поста-текста-->
-                            <p><?= htmlspecialchars(cutText($item['content'])) ?><!--здесь текст--></p>
+                            <p><?= htmlspecialchars(cutText($card['content'])) ?><!--здесь текст--></p>
                         <?php endif ?>
                     </div>
                     <footer class="post__footer">
@@ -223,11 +167,11 @@
                             <a class="post__author-link" href="#" title="Автор">
                                 <div class="post__avatar-wrapper">
                                     <!--укажите путь к файлу аватара-->
-                                    <img class="post__author-avatar" src="img/<?= htmlspecialchars($item['avatar']) ?>" alt="Аватар пользователя">
+                                    <img class="post__author-avatar" src="img/<?= htmlspecialchars($card['avatar']) ?>" alt="Аватар пользователя">
                                 </div>
                                 <div class="post__info">
-                                    <b class="post__author-name"><?= htmlspecialchars($item['userName']) ?><!--здесь имя пользоателя--></b>
-                                    <time class="post__time" datetime="">дата</time>
+                                    <b class="post__author-name"><?= htmlspecialchars($card['userName']) ?><!--здесь имя пользоателя--></b>
+                                    <time class="post__time" datetime="<?= $postTime ?>"  title="<?= date( 'd.m.Y H:i',strtotime($postTime)) ?>"><?= showTimeGap($postTime) ?></time>
                                 </div>
                             </a>
                         </div>
