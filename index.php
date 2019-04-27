@@ -3,6 +3,7 @@
 date_default_timezone_set('Europe/Moscow');
 setlocale(LC_ALL, 'ru_RU');
 
+include_once  'sql/sql.php';
 include_once 'helpers.php';
 include_once 'cards.php';
 include_once 'functions.php';
