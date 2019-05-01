@@ -1,13 +1,10 @@
 <?php
 
-date_default_timezone_set('Europe/Moscow');
-setlocale(LC_ALL, 'ru_RU');
-
-include_once  'sql/sql.php';
+include_once 'init.php';
 include_once 'helpers.php';
-include_once 'cards.php';
 include_once 'functions.php';
 
+$cards = db_read_users_posts($con);
 $content = include_template('index.php', ['cards' => $cards]);
 
 $is_auth = rand(0, 1);

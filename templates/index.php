@@ -1,3 +1,40 @@
+<?php
+
+if (isset($_GET['tab'])){
+    $tab = $_GET['tab'];
+
+    if ($_GET['tab'] === 'photo'){
+        $photoActive = 'filters__button--active';
+    } else {
+        $photoActive = '';
+    }
+
+    if ($_GET['tab'] === 'video'){
+        $videoActive = 'filters__button--active';
+    } else {
+        $videoActive = '';
+    }
+
+    if ($_GET['tab'] === 'text'){
+        $textActive = 'filters__button--active';
+    } else {
+        $textActive = '';
+    }
+
+    if ($_GET['tab'] === 'quote'){
+        $quoteActive = 'filters__button--active';
+    } else {
+        $quoteActive = '';
+    }
+
+    if ($_GET['tab'] === 'url'){
+        $urlActive = 'filters__button--active';
+    } else {
+        $urlActive = '';
+    }
+}
+?>
+
 <section class="page__main page__main--popular">
     <div class="container">
         <h1 class="page__title page__title--popular">Популярное</h1>
@@ -37,12 +74,12 @@
                 <b class="popular__filters-caption filters__caption">Тип контента:</b>
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
-                        <a class="filters__button filters__button--ellipse filters__button--all filters__button--active" href="#">
+                        <a class="filters__button filters__button--ellipse filters__button--all filters__button--active" href="/?tab=all">
                             <span>Все</span>
                         </a>
                     </li>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--photo button" href="#">
+                        <a class="filters__button filters__button--photo button <?= $photoActive ?>" href="/?tab=photo">
                             <span class="visually-hidden">Фото</span>
                             <svg class="filters__icon" width="22" height="18">
                                 <use xlink:href="#icon-filter-photo"></use>
@@ -50,7 +87,7 @@
                         </a>
                     </li>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--video button" href="#">
+                        <a class="filters__button filters__button--video button <?= $videoActive ?>" href="/?tab=video">
                             <span class="visually-hidden">Видео</span>
                             <svg class="filters__icon" width="24" height="16">
                                 <use xlink:href="#icon-filter-video"></use>
@@ -58,15 +95,15 @@
                         </a>
                     </li>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--text button" href="#">
-                            <span class="visually-hidden">Текст</span>
+                        <a class="filters__button filters__button--text button <?= $textActive ?>" href="/?tab=text">
+                            <span class ="visually-hidden">Текст</span>
                             <svg class="filters__icon" width="20" height="21">
                                 <use xlink:href="#icon-filter-text"></use>
                             </svg>
                         </a>
                     </li>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--quote button" href="#">
+                        <a class="filters__button filters__button--quote button <?= $quoteActive ?>" href="/?tab=quote">
                             <span class="visually-hidden">Цитата</span>
                             <svg class="filters__icon" width="21" height="20">
                                 <use xlink:href="#icon-filter-quote"></use>
@@ -74,7 +111,7 @@
                         </a>
                     </li>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--link button" href="#">
+                        <a class="filters__button filters__button--link button <?= $urlActive ?>" href="/?tab=url">
                             <span class="visually-hidden">Ссылка</span>
                             <svg class="filters__icon" width="21" height="18">
                                 <use xlink:href="#icon-filter-link"></use>
@@ -119,17 +156,20 @@
             </div>
 
             <?php foreach ($cards as $key => $card): ?>
+
             <?php
                 $postTime = generate_random_date($key);
             ?>
 
                 <article class="popular__post post <?= $card['type'] ?>">
                     <header class="post__header">
+                        <a href='post.php?postId=<?= $card['id']?>'>
                         <h2><?= htmlspecialchars($card['title']) ?><!--здесь заголовок--></h2>
+                        </a>
                     </header>
                     <div class="post__main">
                         <!--здесь содержимое карточки-->
-                        <?php if ($card['type'] === 'post-quote'): ?>
+                        <?php if ($card['type'] === 'quote'): ?>
                             <!--содержимое для поста-цитаты-->
                             <blockquote>
                                 <p>
@@ -137,7 +177,7 @@
                                 </p>
                                 <cite>Неизвестный Автор</cite>
                             </blockquote>
-                        <?php elseif ($card['type'] === 'post-link'): ?>
+                        <?php elseif ($card['type'] === 'url'): ?>
                             <!--содержимое для поста-ссылки-->
                             <div class="post-link__wrapper">
                                 <a class="post-link__external" href="http://" title="Перейти по ссылке">
@@ -152,12 +192,12 @@
                                     <span><?= htmlspecialchars($card['content']) ?><!--здесь ссылка--></span>
                                 </a>
                             </div>
-                        <?php elseif ($card['type'] === 'post-photo'): ?>
+                        <?php elseif ($card['type'] === 'picture'): ?>
                             <!--содержимое для поста-фото-->
                             <div class="post-photo__image-wrapper">
                                 <img src="img/<?= htmlspecialchars($card['content']) ?>" alt="Фото от пользователя" width="360" height="240">
                             </div>
-                        <?php elseif ($card['type'] === 'post-text'): ?>
+                        <?php elseif ($card['type'] === 'text'): ?>
                             <!--содержимое для поста-текста-->
                             <p><?= htmlspecialchars(cutText($card['content'])) ?><!--здесь текст--></p>
                         <?php endif ?>
@@ -170,7 +210,7 @@
                                     <img class="post__author-avatar" src="img/<?= htmlspecialchars($card['avatar']) ?>" alt="Аватар пользователя">
                                 </div>
                                 <div class="post__info">
-                                    <b class="post__author-name"><?= htmlspecialchars($card['userName']) ?><!--здесь имя пользоателя--></b>
+                                    <b class="post__author-name"><?= htmlspecialchars($card['name']) ?><!--здесь имя пользоателя--></b>
                                     <time class="post__time" datetime="<?= $postTime ?>"  title="<?= date( 'd.m.Y H:i',strtotime($postTime)) ?>"><?= showTimeGap($postTime) ?></time>
                                 </div>
                             </a>
