@@ -60,3 +60,148 @@ function showTimeGap($datePoint)
 
     return $num . ' ' . $word . ' назад';
 }
+
+/**
+ * Возвращает ресура соединения с указанной базой данных.
+ * @param string $db_host Строка, имя сервера, по умолчанию localhost
+ * @param string $db_user Строка, имя для входа в базу данных
+ * @param string $db_password Строка, пароль для входа в базу
+ * @param string $db_name Строка, имя базы данных
+ *
+ * @return mysqli $con ресурс соединения при удачном соединении или строку с ошибкой
+ */
+function db_connect($db_host = 'localhost', $db_user, $db_password, $db_name)
+{
+    $con = mysqli_connect($db_host, $db_user, $db_password, $db_name);
+    if (!$con) {
+        $con = 'Ошибка соединения ' . mysqli_connect_error();
+    }
+
+    return $con;
+}
+
+/**
+ * Возвращает массив постов с сортировкой по типу контента.
+ * @param mysqli $con ресурс соединения
+ * @param string $getTab строка, данные из $_GET['tab']
+ *
+ * @return array $rows массив с постами по установленному типу контента
+ */
+function db_read_users_posts($con, $getTab = 'all')
+{
+    $sql = 'SELECT p.id, u.name, avatar, title, content, c.type FROM posts p 
+            LEFT JOIN users u
+            ON p.users_id = u.id
+            LEFT JOIN content_types c
+            ON p.content_types_id = c.id';
+
+    $getTab = $_GET['tab'];
+
+    if (isset($getTab)) {
+        if ($getTab === 'all' || $getTab === '') {
+            $sql = 'SELECT p.id, u.name, avatar, title, content, c.type FROM posts p 
+            LEFT JOIN users u
+            ON p.users_id = u.id
+            LEFT JOIN content_types c
+            ON p.content_types_id = c.id';
+        } elseif ($getTab === 'text') {
+            $sql = 'SELECT p.id, u.name, avatar, title, content, c.type FROM posts p 
+            LEFT JOIN users u
+            ON p.users_id = u.id
+            LEFT JOIN content_types c
+            ON p.content_types_id = c.id 
+            WHERE p.content_types_id = 1';
+        } elseif ($getTab === 'quote') {
+            $sql = 'SELECT p.id, u.name, avatar, title, content, c.type FROM posts p 
+            LEFT JOIN users u
+            ON p.users_id = u.id
+            LEFT JOIN content_types c
+            ON p.content_types_id = c.id 
+            WHERE p.content_types_id = 2';
+        } elseif ($getTab === 'photo') {
+            $sql = 'SELECT p.id, u.name, avatar, title, content, c.type FROM posts p 
+            LEFT JOIN users u
+            ON p.users_id = u.id
+            LEFT JOIN content_types c
+            ON p.content_types_id = c.id 
+            WHERE p.content_types_id = 3';
+        } elseif ($getTab === 'video') {
+            $sql = 'SELECT p.id, u.name, avatar, title, content, c.type FROM posts p 
+            LEFT JOIN users u
+            ON p.users_id = u.id
+            LEFT JOIN content_types c
+            ON p.content_types_id = c.id 
+            WHERE p.content_types_id = 4';
+        } elseif ($getTab === 'url') {
+            $sql = 'SELECT p.id, u.name, avatar, title, content, c.type FROM posts p 
+            LEFT JOIN users u
+            ON p.users_id = u.id
+            LEFT JOIN content_types c
+            ON p.content_types_id = c.id 
+            WHERE p.content_types_id = 5';
+        }
+    }
+
+    $result = mysqli_query($con, $sql);
+    $sqlError = mysqli_error($con);
+
+    if ($result) {
+        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    } else {
+        echo 'Ошибка базы данных ' . $sqlError;
+    }
+
+    return $rows;
+}
+
+/**
+ * Возвращает массив данных о посте по id.
+ * @param mysqli $con ресурс соединения
+ * @param int $postId число, id поста в базе данных
+ *
+ * @return array $rows массив данных о посте по id;
+ */
+function db_read_posts_id($con, $postId){
+    $sql = 'SELECT p.id, u.name, avatar, title, content, c.type, p.img_url FROM posts p 
+            LEFT JOIN users u
+            ON p.users_id = u.id
+            LEFT JOIN content_types c
+            ON p.content_types_id = c.id
+            WHERE p.id =' . $postId;
+    $result = mysqli_query($con, $sql);
+    $sqlError = mysqli_error($con);
+
+    if ($result) {
+        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    } else {
+        echo 'Ошибка базы данных ' . $sqlError;
+    }
+
+    return $rows;
+};
+
+/**
+ * Возвращает массив данных о посте по типу поста.
+ * @param mysqli $con ресурс соединения
+ * @param int $postType число, тип контента
+ *
+ * @return array $rows массив данных отсортированных по типу контента
+ */
+function db_read_posts_types($con, $postType){
+    $sql = 'SELECT p.id, u.name, avatar, title, content, c.type, p.img_url FROM posts p 
+            LEFT JOIN users u
+            ON p.users_id = u.id
+            LEFT JOIN content_types c
+            ON p.content_types_id = c.id
+            WHERE p.content_types_id =' . $postType;
+    $result = mysqli_query($con, $sql);
+    $sqlError = mysqli_error($con);
+
+    if ($result) {
+        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    } else {
+        echo 'Ошибка базы данных ' . $sqlError;
+    }
+
+    return $rows;
+};
