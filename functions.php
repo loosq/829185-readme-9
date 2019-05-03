@@ -62,11 +62,11 @@ function showTimeGap($datePoint)
 }
 
 /**
- * Возвращает ресура соединения с указанной базой данных.
- * @param string $db_host Строка, имя сервера, по умолчанию localhost
- * @param string $db_user Строка, имя для входа в базу данных
- * @param string $db_password Строка, пароль для входа в базу
- * @param string $db_name Строка, имя базы данных
+ * Возвращает ресурc соединения с указанной базой данных.
+ * @param string $db_host имя сервера, по умолчанию localhost
+ * @param string $db_user имя для входа в базу данных
+ * @param string $db_password пароль для входа в базу
+ * @param string $db_name имя базы данных
  *
  * @return mysqli $con ресурс соединения при удачном соединении или строку с ошибкой
  */
@@ -83,64 +83,51 @@ function db_connect($db_host = 'localhost', $db_user, $db_password, $db_name)
 /**
  * Возвращает массив постов с сортировкой по типу контента.
  * @param mysqli $con ресурс соединения
- * @param string $getTab строка, данные из $_GET['tab']
+ * @param string $getTab, принимает значения типа контента:
+ *                                               text - будут показаны посты с типом контента текст;
+ *                                               url - будут показаны посты с типом контента ссылка;
+ *                                               picture  - будут показаны посты с типом контента картинка;
+ *                                               video - будут показаны посты с типом контента видео;
+ *                                               quote  - будут показаны посты с типом контента цитата;
+ *                                               all  - будут показаны все посты.
  *
- * @return array $rows массив с постами по установленному типу контента
+ * @return array $rows посты, сгруппированные по установленному типу контента
  */
-function db_read_users_posts($con, $getTab = 'all')
+function db_read_users_posts($con, $getTab)
 {
-    $sql = 'SELECT p.id, u.name, avatar, title, content, c.type FROM posts p 
-            LEFT JOIN users u
-            ON p.users_id = u.id
-            LEFT JOIN content_types c
-            ON p.content_types_id = c.id';
-
-    $getTab = $_GET['tab'];
-
     if (isset($getTab)) {
-        if ($getTab === 'all' || $getTab === '') {
-            $sql = 'SELECT p.id, u.name, avatar, title, content, c.type FROM posts p 
-            LEFT JOIN users u
-            ON p.users_id = u.id
-            LEFT JOIN content_types c
-            ON p.content_types_id = c.id';
-        } elseif ($getTab === 'text') {
-            $sql = 'SELECT p.id, u.name, avatar, title, content, c.type FROM posts p 
-            LEFT JOIN users u
-            ON p.users_id = u.id
-            LEFT JOIN content_types c
-            ON p.content_types_id = c.id 
-            WHERE p.content_types_id = 1';
+
+        if ($getTab === 'text') {
+            $number = 1;
         } elseif ($getTab === 'quote') {
-            $sql = 'SELECT p.id, u.name, avatar, title, content, c.type FROM posts p 
-            LEFT JOIN users u
-            ON p.users_id = u.id
-            LEFT JOIN content_types c
-            ON p.content_types_id = c.id 
-            WHERE p.content_types_id = 2';
+            $number = 2;
         } elseif ($getTab === 'photo') {
-            $sql = 'SELECT p.id, u.name, avatar, title, content, c.type FROM posts p 
-            LEFT JOIN users u
-            ON p.users_id = u.id
-            LEFT JOIN content_types c
-            ON p.content_types_id = c.id 
-            WHERE p.content_types_id = 3';
+            $number = 3;
         } elseif ($getTab === 'video') {
-            $sql = 'SELECT p.id, u.name, avatar, title, content, c.type FROM posts p 
-            LEFT JOIN users u
-            ON p.users_id = u.id
-            LEFT JOIN content_types c
-            ON p.content_types_id = c.id 
-            WHERE p.content_types_id = 4';
+            $number = 4;
         } elseif ($getTab === 'url') {
-            $sql = 'SELECT p.id, u.name, avatar, title, content, c.type FROM posts p 
-            LEFT JOIN users u
-            ON p.users_id = u.id
-            LEFT JOIN content_types c
-            ON p.content_types_id = c.id 
-            WHERE p.content_types_id = 5';
+            $number = 5;
+        } elseif ($getTab === 'all'){
+            $number = '0 OR p.content_types_id > 0';
         }
-    }
+
+        $sql = 'SELECT p.id, u.name, avatar, title, content, c.type FROM posts p 
+                LEFT JOIN users u
+                ON p.users_id = u.id
+                LEFT JOIN content_types c
+                ON p.content_types_id = c.id 
+                WHERE p.content_types_id = ' . $number;
+
+    } else {
+
+        $sql = 'SELECT p.id, u.name, avatar, title, content, c.type FROM posts p 
+                LEFT JOIN users u
+                ON p.users_id = u.id
+                LEFT JOIN content_types c
+                ON p.content_types_id = c.id';
+}
+
+
 
     $result = mysqli_query($con, $sql);
     $sqlError = mysqli_error($con);
@@ -157,9 +144,9 @@ function db_read_users_posts($con, $getTab = 'all')
 /**
  * Возвращает массив данных о посте по id.
  * @param mysqli $con ресурс соединения
- * @param int $postId число, id поста в базе данных
+ * @param int $postId id поста в базе данных
  *
- * @return array $rows массив данных о посте по id;
+ * @return array $rows данные о посте по id;
  */
 function db_read_posts_id($con, $postId){
     $sql = 'SELECT p.id, u.name, avatar, title, content, c.type, p.img_url FROM posts p 
@@ -183,9 +170,9 @@ function db_read_posts_id($con, $postId){
 /**
  * Возвращает массив данных о посте по типу поста.
  * @param mysqli $con ресурс соединения
- * @param int $postType число, тип контента
+ * @param int $postType тип контента
  *
- * @return array $rows массив данных отсортированных по типу контента
+ * @return array $rows данные отсортированные по типу контента
  */
 function db_read_posts_types($con, $postType){
     $sql = 'SELECT p.id, u.name, avatar, title, content, c.type, p.img_url FROM posts p 
