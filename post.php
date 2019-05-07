@@ -1,6 +1,6 @@
 <?php
 
-if (0 < $_GET['postId'] && $_GET['postId']  < 5){
+if (0 < $_GET['postId'] && $_GET['postId']  < 2000){
 
     include_once 'init.php';
     include_once 'helpers.php';
@@ -10,6 +10,7 @@ if (0 < $_GET['postId'] && $_GET['postId']  < 5){
     $content = include_template('post.php', [
         'cards' => $cards
     ]);
+
 
     $title = 'Post';
 

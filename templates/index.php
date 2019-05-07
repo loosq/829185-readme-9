@@ -37,12 +37,12 @@
                 <b class="popular__filters-caption filters__caption">Тип контента:</b>
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
-                        <a class="filters__button filters__button--ellipse filters__button--all <?php echo ($getTab === 'all') ? 'filters__button--active' : '' ?>" href="/?tab=all">
+                        <a class="filters__button filters__button--ellipse filters__button--all <?= ($getTab === 'all') ? 'filters__button--active' : '' ?>" href="/?tab=all">
                             <span>Все</span>
                         </a>
                     </li>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--photo button <?php echo ($getTab === 'photo') ? 'filters__button--active' : '' ?>" href="/?tab=photo">
+                        <a class="filters__button filters__button--photo button<?= ($getTab === 'photo') ? ' filters__button--active' : '' ?>" href="/?tab=photo">
                             <span class="visually-hidden">Фото</span>
                             <svg class="filters__icon" width="22" height="18">
                                 <use xlink:href="#icon-filter-photo"></use>
@@ -50,7 +50,7 @@
                         </a>
                     </li>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--video button <?php echo ($getTab === 'video') ? 'filters__button--active' : '' ?>" href="/?tab=video">
+                        <a class="filters__button filters__button--video button<?= ($getTab === 'video') ? ' filters__button--active' : '' ?>" href="/?tab=video">
                             <span class="visually-hidden">Видео</span>
                             <svg class="filters__icon" width="24" height="16">
                                 <use xlink:href="#icon-filter-video"></use>
@@ -58,7 +58,7 @@
                         </a>
                     </li>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--text button <?php echo ($getTab === 'text') ? 'filters__button--active' : '' ?>" href="/?tab=text">
+                        <a class="filters__button filters__button--text button<?= ($getTab === 'text') ? ' filters__button--active' : '' ?>" href="/?tab=text">
                             <span class ="visually-hidden">Текст</span>
                             <svg class="filters__icon" width="20" height="21">
                                 <use xlink:href="#icon-filter-text"></use>
@@ -66,7 +66,7 @@
                         </a>
                     </li>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--quote button <?php echo ($getTab === 'quote') ? 'filters__button--active' : '' ?>" href="/?tab=quote">
+                        <a class="filters__button filters__button--quote button<?= ($getTab === 'quote') ? ' filters__button--active' : '' ?>" href="/?tab=quote">
                             <span class="visually-hidden">Цитата</span>
                             <svg class="filters__icon" width="21" height="20">
                                 <use xlink:href="#icon-filter-quote"></use>
@@ -74,7 +74,7 @@
                         </a>
                     </li>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--link button <?php echo ($getTab === 'url') ? 'filters__button--active' : '' ?>" href="/?tab=url">
+                        <a class="filters__button filters__button--link button<?= ($getTab === 'url') ? ' filters__button--active' : '' ?>" href="/?tab=url">
                             <span class="visually-hidden">Ссылка</span>
                             <svg class="filters__icon" width="21" height="18">
                                 <use xlink:href="#icon-filter-link"></use>
@@ -158,7 +158,7 @@
                         <?php elseif ($card['type'] === 'picture'): ?>
                             <!--содержимое для поста-фото-->
                             <div class="post-photo__image-wrapper">
-                                <img src="img/<?= htmlspecialchars($card['content']) ?>" alt="Фото от пользователя" width="360" height="240">
+                                <img src="<?= htmlspecialchars($card['content']) ?>" alt="Фото от пользователя" width="360" height="240">
                             </div>
                         <?php elseif ($card['type'] === 'text'): ?>
                             <!--содержимое для поста-текста-->
