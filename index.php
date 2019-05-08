@@ -18,11 +18,11 @@ $is_auth = rand(0, 1);
 $user_name = 'Sergei';
 $title = 'Readme';
 
-$layoutContent = include_template('layout.php', [
+$html = include_template('layout.php', [
     'content' => $content,
     'title'   => $title,
     'user'    => $user_name,
     'is_auth' => $is_auth,
 ]);
 
-echo $layoutContent;
+echo $html;
