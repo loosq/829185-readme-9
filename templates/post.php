@@ -1,5 +1,4 @@
-<?php
-foreach ($cards as $key => $card) ?>
+<?php foreach ($cards as $key => $card) ?>
 <main class="page__main page__main--publication">
     <div class="container">
         <h1 class="page__title page__title--publication"><?= $card['title'] ?></h1>

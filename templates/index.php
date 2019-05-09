@@ -85,45 +85,8 @@
             </div>
         </div>
         <div class="popular__posts">
-            <div class="visually-hidden" id="donor">
-                <!--содержимое для поста-цитаты-->
-                <blockquote>
-                    <p>
-                        <!--здесь текст-->
-                    </p>
-                    <cite>Неизвестный Автор</cite>
-                </blockquote>
-
-                <!--содержимое для поста-ссылки-->
-                <div class="post-link__wrapper">
-                    <a class="post-link__external" href="http://" title="Перейти по ссылке">
-                        <div class="post-link__info-wrapper">
-                            <div class="post-link__icon-wrapper">
-                                <img src="img/logo-vita.jpg" alt="Иконка">
-                            </div>
-                            <div class="post-link__info">
-                                <h3><!--здесь заголовок--></h3>
-                            </div>
-                        </div>
-                        <span><!--здесь ссылка--></span>
-                    </a>
-                </div>
-
-                <!--содержимое для поста-фото-->
-                <div class="post-photo__image-wrapper">
-                    <img src="img/" alt="Фото от пользователя" width="360" height="240">
-                </div>
-
-                <!--содержимое для поста-текста-->
-                <p><!--здесь текст--></p>
-            </div>
-
             <?php foreach ($cards as $key => $card): ?>
-
-            <?php
-                $postTime = generate_random_date($key);
-            ?>
-
+            <?php $postTime = generate_random_date($key); ?>
                 <article class="popular__post post <?= $card['type'] ?>">
                     <header class="post__header">
                         <a href='post.php?postId=<?= $card['id']?>'>
@@ -159,6 +122,11 @@
                             <!--содержимое для поста-фото-->
                             <div class="post-photo__image-wrapper">
                                 <img src="<?= htmlspecialchars($card['content']) ?>" alt="Фото от пользователя" width="360" height="240">
+                            </div>
+                        <?php elseif ($card['type'] === 'video'): ?>
+                            <!--содержимое для поста-фото-->
+                            <div class="post-photo__image-wrapper">
+                                <iframe width="100%" height="240" src="<?= $card['video_url'] ?>" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                             </div>
                         <?php elseif ($card['type'] === 'text'): ?>
                             <!--содержимое для поста-текста-->
