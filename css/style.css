@@ -1,0 +1,9 @@
+.popular__posts {
+    justify-content: space-around;
+}
+
+.popular__post {
+    margin: 0;
+    margin-bottom: 3%;
+    width: 30%;
+}
