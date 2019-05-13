@@ -1,6 +1,57 @@
 <?php
 
 /** Функции проверки форм */
+/**
+ * Проверяет форму входа на сайт.
+ * @param mysqli $con ресурс соединения
+ * @param string $email адресс электронной почты
+ * @param string $password пароль
+ *
+ * @return string $html html контент
+ */
+function loginFormValidation($con, $email, $password)
+{
+    if (isset($_SESSION['user-name'])) {
+        header('Location: /feed.php');
+    } else {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            $required = ['email', 'password'];
+            $errors = [];
+
+            if (empty($email)) {
+                $errors['email'] = 'Это поле необходимо заполнить';
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $errors['email'] = 'Введите почту в правильном формате';
+            } elseif (!db_is_email_valid($con, $email)) {
+                $errors['email'] = 'Пользователь с такой электронной почтой не зарегистрирован';
+            } else {
+                $hashToEmail = db_get_hash_to_email($con, $email);
+            }
+
+            if (empty($password)) {
+                $errors['password'] = 'Это поле необходимо заполнить';
+            } elseif (!password_verify($password, $hashToEmail)) {
+                $errors['password'] = 'Пароль указан неверно';
+            }
+
+            $html = include_template('index.php', [
+                'errors' => $errors,
+            ]);
+
+            if (!count($errors)) {
+                session_start();
+                db_usser_session_by_email($con, $email);
+                header('Location: /feed.php?tab=feed');
+            }
+
+        } else {
+            $html = include_template('index.php');
+        }
+    }
+
+    return $html;
+}
 
 /**
  * Проверяет форму для регистрации нового пользователя.
@@ -17,7 +68,7 @@ function regFormValidation($con)
             'name'            => 'Логин.',
             'password'        => 'Пароль.',
             'password-repeat' => 'Повтор пароля.',
-            'email'           => 'Электронная почта.'
+            'email'           => 'Электронная почта.',
         ];
 
         $userPicFile = $_FILES['userpic-file']['name'];
@@ -32,7 +83,7 @@ function regFormValidation($con)
 
         if (empty($_POST['email'])) {
             $errors['email'] = 'Это поле необходимо заполнить';
-        }elseif (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)){
+        } elseif (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
             $errors['email'] = 'Введите электронную почту в правильном формате';
         } elseif (strlen($_POST['email']) > 70) {
             $errors['email'] = 'Это поле не может быть длиннее 70 символов';
@@ -124,6 +175,29 @@ function db_is_email_valid($con, $newUserEmail)
     }
 
     return $result;
+}
+
+/**
+ * Возвращает хеш пароля по введённому адресу почты.
+ * @param mysqli $con ресурс соединения
+ * @param string $email эмейл пользователя
+ *
+ * @return bool $row хеш пароля;
+ */
+function db_get_hash_to_email($con, $email)
+{
+    $row = false;
+    $sql = 'SELECT password FROM users WHERE email = ?';
+    $stmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($stmt, 's', $email);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+
+    if ($res) {
+        $row = mysqli_fetch_row($res);
+    }
+
+    return $row[0];
 }
 
 /**
@@ -318,7 +392,7 @@ function quoteFormValidation($con)
         $dict = [
             'quote-heading' => 'Заголовок.',
             'quote-text'    => 'Текст поста.',
-            'quote-author'  => 'Автор цитаты.'
+            'quote-author'  => 'Автор цитаты.',
         ];
 
         $errors = [];
@@ -394,7 +468,7 @@ function urlFormValidation($con)
         if (count($errors)) {
             $linkForm = include_template('add.php', [
                 'errors' => $errors,
-                'dict'   => $dict
+                'dict'   => $dict,
             ]);
         } else {
             $linkForm = db_new_post($con, $_POST['link-heading'], '', $_POST['link-url'], '', '', '', 3,
@@ -527,7 +601,8 @@ function db_new_post($con, $postTitle, $postContent, $userSiteUrl = '', $quoteAu
                        VALUES (NOW(), ?, ?, ?, ?, ?, ?, ?, ?)';
 
     $stmt = mysqli_prepare($con, $sql);
-    mysqli_stmt_bind_param($stmt, 'ssssssii', $postTitle, $postContent,$quoteAuthor, $userSiteUrl, $imgUrl, $videoUrl, $userId, $contentType);
+    mysqli_stmt_bind_param($stmt, 'ssssssii', $postTitle, $postContent, $quoteAuthor, $userSiteUrl, $imgUrl, $videoUrl,
+        $userId, $contentType);
     mysqli_stmt_execute($stmt);
     $postId = mysqli_insert_id($con);
 
@@ -562,19 +637,21 @@ function db_new_post($con, $postTitle, $postContent, $userSiteUrl = '', $quoteAu
  *
  * @return int $result если true, то добавление прошло успешно.;
  */
-function db_new_user($con, $newUserEmail,$newUserName, $newUserPwd, $newUserAva = '', $newUserInfo = '')
+function db_new_user($con, $newUserEmail, $newUserName, $newUserPwd, $newUserAva = '', $newUserInfo = '')
 {
 
     $sql = 'INSERT INTO users (registration_date, email, name, password, avatar, contact_info) 
                        VALUES (NOW(), ?, ?, ?, ?, ?)';
 
     $stmt = mysqli_prepare($con, $sql);
-    mysqli_stmt_bind_param($stmt, 'sssss', $newUserEmail,$newUserName, $newUserPwd, $newUserAva, $newUserInfo);
+    mysqli_stmt_bind_param($stmt, 'sssss', $newUserEmail, $newUserName, $newUserPwd, $newUserAva, $newUserInfo);
     mysqli_stmt_execute($stmt);
     $result = mysqli_insert_id($con);
 
     if ($result) {
-        header('Location:/');
+        session_start();
+        db_usser_session_by_email($con, $newUserEmail);
+        header('Location:/feed.php?tab=feed');
     } else {
         echo 'Ошибка базы данных' . mysqli_error($con);
     }
@@ -667,7 +744,7 @@ function db_read_posts_id($con, $postId)
     }
 
     return $rows;
-};
+}
 
 /**
  * Возвращает массив данных о посте по типу поста.
@@ -691,6 +768,40 @@ function db_read_posts_types($con, $postType)
         $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
     } else {
         echo 'Ошибка базы данных ' . $sqlError;
+    }
+
+    return $rows;
+}
+
+/**
+ * Записывает в сессию данные о пользователе по электронной почте.
+ * @param mysqli $con ресурс соединения
+ * @param string $email электронная почта пользователя
+ *
+ * @return array $rows данные пользователя
+ */
+function db_usser_session_by_email($con, $email)
+{
+    $sql = 'SELECT * FROM users WHERE email = ?';
+    $stmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($stmt, 's', $email);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if ($result) {
+        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    } else {
+        echo 'Ошибка базы данных ' . mysqli_error($con);
+    }
+
+
+    foreach ($rows as $row) {
+
+        $_SESSION['user-id'] = $row['id'];
+        $_SESSION['user-reg-date'] = $row['registration_date'];
+        $_SESSION['user-name'] = $row['name'];
+        $_SESSION['user-ava'] = $row['avatar'];
+        $_SESSION['user-contact-info'] = $row['contact_info'];
     }
 
     return $rows;
