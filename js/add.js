@@ -7,6 +7,7 @@ $(document).ready(function () {
         blockElement: 'article'
     });
 });
+
 //Добавление\удаление лайков
 $(document).ready(function () {
     var likeBtn = $('.post__indicator--likes');
@@ -47,4 +48,17 @@ $(document).ready(function () {
             });
         }
     });
+});
+
+//переадресует на страницу поиска и передаёт поле поисковой формы
+$(document).ready(function () {
+    var localUrl = window.location.pathname;
+
+    if (!(localUrl === '/search.php')) {
+        var searchSubmtBtn = $('.header__search-button');
+        var getQ = $('.header__search-input').text();
+        $(searchSubmtBtn).on('click', function () {
+            window.location.replace('search.php?q=' + getQ);
+        });
+    }
 });

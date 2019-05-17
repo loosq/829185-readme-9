@@ -14,6 +14,8 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 -- Schema readme
 -- -----------------------------------------------------
+DROP DATABASE IF EXISTS `readme`;
+
 CREATE SCHEMA IF NOT EXISTS `readme` DEFAULT CHARACTER SET utf8 ;
 USE `readme` ;
 
@@ -206,6 +208,7 @@ SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
+CREATE FULLTEXT INDEX `posts_search` ON `readme`.`posts` (`content`, `title`);
 -- -----------------------------------------------------
 -- Data for table `readme`.`users`
 -- -----------------------------------------------------
@@ -267,4 +270,3 @@ INSERT INTO `readme`.`likes` (`likes_id`, `post_id`, `user_id`) VALUES (1, 1, 1)
 INSERT INTO `readme`.`likes` (`likes_id`, `post_id`, `user_id`) VALUES (2, 2, 2);
 
 COMMIT;
-

@@ -2,6 +2,10 @@
 
 include_once 'init.php';
 
+if (!isUserLoggedIn()) {
+    redirectHome();
+}
+
 $userId = $_SESSION['user-id'];
 $postId = $_GET['postId'];
 $getLike = db_get_like($con, $postId, $userId);

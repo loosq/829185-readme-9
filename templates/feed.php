@@ -28,7 +28,6 @@
             <div class="feed__main-wrapper">
                 <div class="feed__wrapper">
                     <?php foreach ($cards
-
                     as $key => $card): ?>
                     <?php
                     $cardType = $card['type'];
@@ -135,7 +134,6 @@
                         </footer>
                     </article>
                         <?php endforeach ?>
-
                 </div>
             </div>
             <ul class="feed__filters filters">

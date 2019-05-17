@@ -2,6 +2,10 @@
 
 include_once 'init.php';
 
+if (!isUserLoggedIn()) {
+    redirectHome();
+}
+
 $userSub = $_GET['user'];
 $userId = $_SESSION['user-id'];
 

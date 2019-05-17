@@ -58,13 +58,13 @@
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
                         <a class="filters__button filters__button--ellipse filters__button--all <?= $getTab === 'all' ? 'filters__button--active' : '' ?>"
-                           href="?tab=all&page=1">
+                           href="?block=pop&tab=all&page=1">
                             <span>Все</span>
                         </a>
                     </li>
                     <li class="popular__filters-item filters__item">
                         <a class="filters__button filters__button--photo button<?= $getTab === 'photo' ? ' filters__button--active' : '' ?>"
-                           href="?tab=photo&page=1">
+                           href="?block=pop&tab=photo&page=1">
                             <span class="visually-hidden">Фото</span>
                             <svg class="filters__icon" width="22" height="18">
                                 <use xlink:href="#icon-filter-photo"></use>
@@ -73,7 +73,7 @@
                     </li>
                     <li class="popular__filters-item filters__item">
                         <a class="filters__button filters__button--video button<?= $getTab === 'video' ? ' filters__button--active' : '' ?>"
-                           href="?tab=video&page=1">
+                           href="?block=pop&tab=video&page=1">
                             <span class="visually-hidden">Видео</span>
                             <svg class="filters__icon" width="24" height="16">
                                 <use xlink:href="#icon-filter-video"></use>
@@ -82,7 +82,7 @@
                     </li>
                     <li class="popular__filters-item filters__item">
                         <a class="filters__button filters__button--text button<?= $getTab === 'text' ? ' filters__button--active' : '' ?>"
-                           href="?tab=text&page=1">
+                           href="?block=pop&tab=text&page=1">
                             <span class="visually-hidden">Текст</span>
                             <svg class="filters__icon" width="20" height="21">
                                 <use xlink:href="#icon-filter-text"></use>
@@ -91,7 +91,7 @@
                     </li>
                     <li class="popular__filters-item filters__item">
                         <a class="filters__button filters__button--quote button<?= $getTab === 'quote' ? ' filters__button--active' : '' ?>"
-                           href="?tab=quote&page=1">
+                           href="?block=pop&tab=quote&page=1">
                             <span class="visually-hidden">Цитата</span>
                             <svg class="filters__icon" width="21" height="20">
                                 <use xlink:href="#icon-filter-quote"></use>
@@ -100,7 +100,7 @@
                     </li>
                     <li class="popular__filters-item filters__item">
                         <a class="filters__button filters__button--link button<?= $getTab === 'url' ? ' filters__button--active' : '' ?>"
-                           href="?tab=url&page=1">
+                           href="?block=pop&tab=url&page=1">
                             <span class="visually-hidden">Ссылка</span>
                             <svg class="filters__icon" width="21" height="18">
                                 <use xlink:href="#icon-filter-link"></use>
