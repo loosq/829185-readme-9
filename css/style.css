@@ -1,9 +1,26 @@
 .popular__posts {
-    justify-content: space-around;
+    position: relative;
+    left: 20px;
+    margin: 0;
 }
 
 .popular__post {
-    margin: 0;
-    margin-bottom: 3%;
-    width: 30%;
+    margin: 0 !important;
+}
+
+.comments__form {
+    position: relative;
+}
+
+.comments__error {
+    position: absolute;
+    bottom: 10px;
+    left: 100px;
+
+    color: red;
+    font-size: 8px;
+}
+
+.form__textarea--error {
+    border: 1px solid red;
 }

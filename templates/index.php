@@ -1,10 +1,19 @@
+<?php
+/**
+ * @var string $title заголовок страницы
+ * @var string $userEmail электронная почта
+ * @var string $userPassword пароль пользователя
+ * @var array $errors массив с ошибками заполнения формы
+ */
+?>
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>readme: блог, каким он должен быть</title>
+    <title><?= $title ?></title>
     <link rel="stylesheet" href="css/main.css">
 </head>
 
@@ -131,7 +140,7 @@
                 <div class="authorization__input-wrapper form__input-wrapper">
                     <div class="form__input-section<?= isset($errors['email']) ? ' form__input-section--error' : '' ?>">
                         <input class="authorization__input authorization__input--login form__input" type="text"
-                               name="email" placeholder="email" value="<?= htmlspecialchars($_POST['email']) ?>">
+                               name="email" placeholder="email" value="<?= htmlspecialchars($userEmail) ?>">
                         <svg class="form__input-icon" width="19" height="18">
                             <use xlink:href="#icon-input-user"></use>
                         </svg>
@@ -142,7 +151,7 @@
                 <div class="authorization__input-wrapper form__input-wrapper">
                     <div class="form__input-section<?= isset($errors['password']) ? ' form__input-section--error' : '' ?>">
                         <input class="authorization__input authorization__input--password form__input" type="password"
-                               name="password" placeholder="Пароль" value="<?= htmlspecialchars($_POST['password']) ?>">
+                               name="password" placeholder="Пароль" value="<?= htmlspecialchars($userPassword) ?>">
                         <svg class="form__input-icon" width="16" height="20">
                             <use xlink:href="#icon-input-password"></use>
                         </svg>

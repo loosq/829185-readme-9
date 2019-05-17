@@ -1,4 +1,21 @@
+<?php
+/**
+ * @var array $errors массив с ошибками валидации поля комментария
+ * @var array $cards массив постов
+ * @var array $comments массив комментариев
+ * @var array $user массив информации о пользователе
+ * @var int $userDataPosts количество постов пользователя
+ * @var int $userDataSubs количество подписчиков пользователя
+ * @var int $postId id поста
+ * @var string $commentText текст комментария
+ */
+
+?>
 <?php foreach ($cards as $key => $card) ?>
+<?php foreach ($user
+
+as $key => $userData) ?>
+
 <main class="page__main page__main--publication">
     <div class="container">
         <h1 class="page__title page__title--publication"><?= $card['title'] ?></h1>
@@ -49,22 +66,22 @@
                     <?php endif ?>
                     <div class="post__indicators">
                         <div class="post__buttons">
-                            <a class="post__indicator post__indicator--likes button" href="#" title="Лайк">
+                            <a class="post__indicator post__indicator--likes button" title="Лайк"
+                               data-post-id='<?= $postId ?>'>
                                 <svg class="post__indicator-icon" width="20" height="17">
-                                    <use xlink:href="#icon-heart"></use>
+                                    <use xlink:href="#icon-heart<?= db_get_like($con, $postId,
+                                        $_SESSION['user-id']) ? '-active' : '' ?>"></use>
                                 </svg>
-                                <svg class="post__indicator-icon post__indicator-icon--like-active" width="20"
-                                     height="17">
-                                    <use xlink:href="#icon-heart-active"></use>
-                                </svg>
-                                <span>250</span>
+                                <span class="<?= db_get_like($con, $postId,
+                                    $_SESSION['user-id']) ? '' : 'like-counter' ?>"><?= db_count_likes_to_post($con,
+                                        $postId) ?></span>
                                 <span class="visually-hidden">количество лайков</span>
                             </a>
                             <a class="post__indicator post__indicator--comments button" href="#" title="Комментарии">
                                 <svg class="post__indicator-icon" width="19" height="17">
                                     <use xlink:href="#icon-comment"></use>
                                 </svg>
-                                <span>25</span>
+                                <span><?= db_count_comments_to_post($con, $postId) ?></span>
                                 <span class="visually-hidden">количество комментариев</span>
                             </a>
                             <a class="post__indicator post__indicator--repost button" href="#" title="Репост">
@@ -77,61 +94,66 @@
                         </div>
                         <span class="post__view">500 просмотров</span>
                     </div>
-                    <div class="comments">
-                        <form class="comments__form form" action="#" method="post">
+                    <div class="comments" id="comments">
+                        <form class="comments__form form" action="?postId=<?= $postId ?>" method="post">
                             <div class="comments__my-avatar">
-                                <img class="comments__picture" src="img/userpic.jpg" alt="Аватар пользователя">
+                                <img class="comments__picture" src="<?= $_SESSION['user-ava'] ?>"
+                                     alt="Аватар пользователя">
                             </div>
-                            <textarea class="comments__textarea form__textarea"
-                                      placeholder="Ваш комментарий"></textarea>
+                            <textarea
+                                    class="comments__textarea form__textarea<?= isset($errors['comment-error']) ? ' form__textarea--error' : '' ?>"
+                                    placeholder="Ваш комментарий"
+                                    name="comment-text"><?= htmlspecialchars($commentText) ?></textarea>
                             <label class="visually-hidden">Ваш комментарий</label>
                             <button class="comments__submit button button--green" type="submit">Отправить</button>
+                            <p class="<?= isset($errors) ? ' comments__error' : ' visually-hidden' ?>"><?= $errors['comment-error'] ?></p>
                         </form>
                         <div class="comments__list-wrapper">
                             <ul class="comments__list">
-                                <li class="comments__item user">
-                                    <div class="comments__avatar">
-                                        <a class="user__avatar-link" href="#">
-                                            <img class="comments__picture" src="img/userpic-larisa.jpg"
-                                                 alt="Аватар пользователя">
-                                        </a>
-                                    </div>
-                                    <div class="comments__info">
-                                        <div class="comments__name-wrapper">
-                                            <a class="comments__user-name" href="#">
-                                                <span>Лариса Роговая</span>
+                                <!--                                <li class="comments__item user">-->
+                                <!--                                    <div class="comments__avatar">-->
+                                <!--                                        <a class="user__avatar-link" href="#">-->
+                                <!--                                            <img class="comments__picture" src="img/userpic-larisa.jpg"-->
+                                <!--                                                 alt="Аватар пользователя">-->
+                                <!--                                        </a>-->
+                                <!--                                    </div>-->
+                                <!--                                    <div class="comments__info">-->
+                                <!--                                        <div class="comments__name-wrapper">-->
+                                <!--                                            <a class="comments__user-name" href="#">-->
+                                <!--                                                <span>Лариса Роговая</span>-->
+                                <!--                                            </a>-->
+                                <!--                                            <time class="comments__time" datetime="2019-03-20">1 ч назад</time>-->
+                                <!--                                        </div>-->
+                                <!--                                        <p class="comments__text">-->
+                                <!--                                            Красота!!!1!-->
+                                <!--                                        </p>-->
+                                <!--                                    </div>-->
+                                <!--                                </li>-->
+                                <?php foreach ($comments as $key => $comment): ?>
+                                    <li class="comments__item user">
+                                        <div class="comments__avatar">
+                                            <a class="user__avatar-link" href="#">
+                                                <img class="comments__picture" src="<?= $comment['avatar'] ?>"
+                                                     alt="Аватар пользователя">
                                             </a>
-                                            <time class="comments__time" datetime="2019-03-20">1 ч назад</time>
                                         </div>
-                                        <p class="comments__text">
-                                            Красота!!!1!
-                                        </p>
-                                    </div>
-                                </li>
-                                <li class="comments__item user">
-                                    <div class="comments__avatar">
-                                        <a class="user__avatar-link" href="#">
-                                            <img class="comments__picture" src="img/userpic-larisa.jpg"
-                                                 alt="Аватар пользователя">
-                                        </a>
-                                    </div>
-                                    <div class="comments__info">
-                                        <div class="comments__name-wrapper">
-                                            <a class="comments__user-name" href="#">
-                                                <span>Лариса Роговая</span>
-                                            </a>
-                                            <time class="comments__time" datetime="2019-03-18">2 дня назад</time>
+                                        <div class="comments__info">
+                                            <div class="comments__name-wrapper">
+                                                <a class="comments__user-name"
+                                                   href="profile.php?user=<?= $comment['users_id'] ?>&tab=posts">
+                                                    <span><?= $comment['name'] ?></span>
+                                                </a>
+                                                <time class="comments__time"
+                                                      datetime="<?= $comment['data_time_of_origin'] ?>"
+                                                      title="<?= date('d.m.Y H:i',
+                                                          strtotime($comment['data_time_of_origin'])) ?>"><?= showTimeGap($comment['data_time_of_origin']) . ' назад' ?></time>
+                                            </div>
+                                            <p class="comments__text">
+                                                <?= $comment['text'] ?>
+                                            </p>
                                         </div>
-                                        <p class="comments__text">
-                                            Озеро Байкал – огромное древнее озеро в горах Сибири к северу от монгольской
-                                            границы. Байкал считается самым глубоким озером в мире. Он окружен сетью
-                                            пешеходных маршрутов, называемых Большой байкальской тропой. Деревня
-                                            Листвянка, расположенная на западном берегу озера, – популярная отправная
-                                            точка для летних экскурсий. Зимой здесь можно кататься на коньках и собачьих
-                                            упряжках.
-                                        </p>
-                                    </div>
-                                </li>
+                                    </li>
+                                <?php endforeach ?>
                             </ul>
                             <a class="comments__more-link" href="#">
                                 <span>Показать все комментарии</span>
@@ -143,32 +165,35 @@
                 <div class="post-details__user user">
                     <div class="post-details__user-info user__info">
                         <div class="post-details__avatar user__avatar">
-                            <a class="post-details__avatar-link user__avatar-link" href="#">
-                                <img class="post-details__picture user__picture" src="img/userpic-elvira.jpg"
+                            <a class="post-details__avatar-link user__avatar-link"
+                               href="profile.php?user=<?= $card['users_id'] ?>">
+                                <img class="post-details__picture user__picture" src="<?= $card['avatar'] ?>"
                                      alt="Аватар пользователя">
                             </a>
                         </div>
                         <div class="post-details__name-wrapper user__name-wrapper">
-                            <a class="post-details__name user__name" href="#">
+                            <a class="post-details__name user__name"
+                               href="/profile.php?user=<?= $card['users_id'] ?>&tab=posts">
                                 <span><?= $card['name'] ?></span>
                             </a>
-                            <time class="post-details__time user__time" datetime="2014-03-20">5 лет на сайте</time>
+                            <time class="post-details__time user__time" datetime="<?= date('Y.m.d.',
+                                strtotime($userData['registration_date'])) ?>"><?= showTimeGap($userData['registration_date']) . ' на сайте' ?></time>
                         </div>
                     </div>
                     <div class="post-details__rating user__rating">
                         <p class="post-details__rating-item user__rating-item user__rating-item--subscribers">
-                            <span class="post-details__rating-amount user__rating-amount">1856</span>
+                            <span class="post-details__rating-amount user__rating-amount"><?= $userDataSubs ?></span>
                             <span class="post-details__rating-text user__rating-text">подписчиков</span>
                         </p>
                         <p class="post-details__rating-item user__rating-item user__rating-item--publications">
-                            <span class="post-details__rating-amount user__rating-amount">556</span>
+                            <span class="post-details__rating-amount user__rating-amount"><?= $userDataPosts ?></span>
                             <span class="post-details__rating-text user__rating-text">публикаций</span>
                         </p>
                     </div>
                     <div class="post-details__user-buttons user__buttons">
-                        <button class="user__button user__button--subscription button button--main" type="button">
-                            Подписаться
-                        </button>
+                        <a class="profile__user-button user__button user__button--subscription button button--main"
+                           href="/subscribe.php?user=<?= $userData['users_id'] ?>"><?= db_check_subscription($con,
+                                $_SESSION['user-id'], $userData['users_id']) ? 'Отписаться' : 'Подписаться' ?></a>
                         <a class="user__button user__button--writing button button--green" href="#">Сообщение</a>
                     </div>
                 </div>

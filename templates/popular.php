@@ -1,3 +1,23 @@
+<?php
+/**
+ * @var string $getTab тип контента из строки запроса
+ * @var array $cards массив постов
+ * @var string $cardType  тип поста
+ * @var string $cardPostId id поста
+ * @var string $cardPostDate дата поста
+ * @var string $cardAva ссылка на картинку аватар автора поста
+ * @var string $cardName имя автор поста
+ * @var string $cardUserId id автора поста
+ * @var string $cardTitle заголовок поста
+ * @var string $cardContent контент поста
+ * @var string $cardQuoteAuthor автор цитаты для поста-цитаты
+ * @var string $cardUserSiteId ссылка для поста-ссылки
+ * @var string $cardVideoUrl ссылка на видео для поста-видео
+ * @var mysqli $con ресурс соединения
+ * @var array $pagesCount массив с количеством страниц
+ */
+?>
+
 <section class="page__main page__main--popular">
     <div class="container">
         <h1 class="page__title page__title--popular">Популярное</h1>
@@ -37,14 +57,14 @@
                 <b class="popular__filters-caption filters__caption">Тип контента:</b>
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
-                        <a class="filters__button filters__button--ellipse filters__button--all <?= ($getTab === 'all') ? 'filters__button--active' : '' ?>"
-                           href="popular.php?tab=all">
+                        <a class="filters__button filters__button--ellipse filters__button--all <?= $getTab === 'all' ? 'filters__button--active' : '' ?>"
+                           href="?tab=all&page=1">
                             <span>Все</span>
                         </a>
                     </li>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--photo button<?= ($getTab === 'photo') ? ' filters__button--active' : '' ?>"
-                           href="popular.php?tab=photo">
+                        <a class="filters__button filters__button--photo button<?= $getTab === 'photo' ? ' filters__button--active' : '' ?>"
+                           href="?tab=photo&page=1">
                             <span class="visually-hidden">Фото</span>
                             <svg class="filters__icon" width="22" height="18">
                                 <use xlink:href="#icon-filter-photo"></use>
@@ -52,8 +72,8 @@
                         </a>
                     </li>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--video button<?= ($getTab === 'video') ? ' filters__button--active' : '' ?>"
-                           href="popular.php?tab=video">
+                        <a class="filters__button filters__button--video button<?= $getTab === 'video' ? ' filters__button--active' : '' ?>"
+                           href="?tab=video&page=1">
                             <span class="visually-hidden">Видео</span>
                             <svg class="filters__icon" width="24" height="16">
                                 <use xlink:href="#icon-filter-video"></use>
@@ -61,8 +81,8 @@
                         </a>
                     </li>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--text button<?= ($getTab === 'text') ? ' filters__button--active' : '' ?>"
-                           href="popular.php?tab=text">
+                        <a class="filters__button filters__button--text button<?= $getTab === 'text' ? ' filters__button--active' : '' ?>"
+                           href="?tab=text&page=1">
                             <span class="visually-hidden">Текст</span>
                             <svg class="filters__icon" width="20" height="21">
                                 <use xlink:href="#icon-filter-text"></use>
@@ -70,8 +90,8 @@
                         </a>
                     </li>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--quote button<?= ($getTab === 'quote') ? ' filters__button--active' : '' ?>"
-                           href="popular.php?tab=quote">
+                        <a class="filters__button filters__button--quote button<?= $getTab === 'quote' ? ' filters__button--active' : '' ?>"
+                           href="?tab=quote&page=1">
                             <span class="visually-hidden">Цитата</span>
                             <svg class="filters__icon" width="21" height="20">
                                 <use xlink:href="#icon-filter-quote"></use>
@@ -79,8 +99,8 @@
                         </a>
                     </li>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--link button<?= ($getTab === 'url') ? ' filters__button--active' : '' ?>"
-                           href="popular.php?tab=url">
+                        <a class="filters__button filters__button--link button<?= $getTab === 'url' ? ' filters__button--active' : '' ?>"
+                           href="?tab=url&page=1">
                             <span class="visually-hidden">Ссылка</span>
                             <svg class="filters__icon" width="21" height="18">
                                 <use xlink:href="#icon-filter-link"></use>
@@ -90,94 +110,97 @@
                 </ul>
             </div>
         </div>
-        <div class="popular__posts">
+        <div class="popular__posts" id="popular__posts">
             <?php foreach ($cards as $key => $card): ?>
-                <?php $postTime = generate_random_date($key); ?>
-                <article class="popular__post post <?= $card['type'] ?>">
+            <?php
+                $cardType = $card['type'];
+                $cardPostId = $card['posts_id'];
+                $cardPostDate = $card['post_date'];
+                $cardAva = $card['avatar'];
+                $cardName = $card['name'];
+                $cardUserId = $card['users_id'];
+                $cardTitle = $card['title'];
+                $cardContent = $card['content'];
+                $cardQuoteAuthor = $card['quote_author'];
+                $cardUserSiteId = $card['users_site_url'];
+                $cardVideoUrl = $card['video_url'];
+                ?>
+                <article class="popular__post post <?= $cardType ?>">
                     <header class="post__header">
-                        <a href='post.php?postId=<?= $card['id'] ?>'>
-                            <h2><?= htmlspecialchars($card['title']) ?><!--здесь заголовок--></h2>
-                        </a>
+                        <h2><a href='post.php?postId=<?= $cardPostId ?>'><?= $cardTitle ?></a></h2>
                     </header>
                     <div class="post__main">
-                        <!--здесь содержимое карточки-->
-                        <?php if ($card['type'] === 'quote'): ?>
-                            <!--содержимое для поста-цитаты-->
+                        <?php if ($cardType === 'quote'): ?>
                             <blockquote>
                                 <p>
-                                    <?= htmlspecialchars($card['content']) ?><!--здесь текст-->
+                                    <?= htmlspecialchars($cardContent) ?>
                                 </p>
-                                <cite>Неизвестный Автор</cite>
+                                <cite><?= htmlspecialchars($cardQuoteAuthor) ?></cite>
                             </blockquote>
-                        <?php elseif ($card['type'] === 'url'): ?>
-                            <!--содержимое для поста-ссылки-->
+                        <?php elseif ($cardType === 'url'): ?>
                             <div class="post-link__wrapper">
-                                <a class="post-link__external" href="http://" title="Перейти по ссылке">
+                                <a class="post-link__external" href="<?= $cardUserSiteId ?>"
+                                   title="Перейти по ссылке">
                                     <div class="post-link__info-wrapper">
-                                        <div class="post-link__icon-wrapper">
-                                            <img src="img/logo-vita.jpg" alt="Иконка">
-                                        </div>
                                         <div class="post-link__info">
-                                            <h3><?= htmlspecialchars($card['title']) ?><!--здесь заголовок--></h3>
+                                            <h3><?= htmlspecialchars($cardTitle) ?></h3>
                                         </div>
                                     </div>
-                                    <span><?= htmlspecialchars($card['content']) ?><!--здесь ссылка--></span>
+                                    <span><?= htmlspecialchars($cardContent) ?></span>
                                 </a>
                             </div>
-                        <?php elseif ($card['type'] === 'picture'): ?>
-                            <!--содержимое для поста-фото-->
+                        <?php elseif ($cardType === 'picture'): ?>
                             <div class="post-photo__image-wrapper">
-                                <img src="<?= htmlspecialchars($card['content']) ?>" alt="Фото от пользователя"
+                                <img src="<?= htmlspecialchars($cardContent) ?>" alt="Фото от пользователя"
                                      width="360" height="240">
                             </div>
-                        <?php elseif ($card['type'] === 'video'): ?>
-                            <!--содержимое для поста-фото-->
+                        <?php elseif ($cardType === 'video'): ?>
                             <div class="post-photo__image-wrapper">
-                                <iframe width="100%" height="240" src="<?= $card['video_url'] ?>" frameborder="0"
+                                <iframe width="100%" height="240" src="<?= $cardVideoUrl ?>" frameborder="0"
                                         allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                                         allowfullscreen></iframe>
                             </div>
-                        <?php elseif ($card['type'] === 'text'): ?>
-                            <!--содержимое для поста-текста-->
+                        <?php elseif ($cardType === 'text'): ?>
                             <p style="margin-left: 7%">
-                                <?= htmlspecialchars(cutText($card['content'])) ?><!--здесь текст--></p>
+                                <?= htmlspecialchars(cutText($cardContent)) ?></p>
                         <?php endif ?>
                     </div>
                     <footer class="post__footer">
                         <div class="post__author">
-                            <a class="post__author-link" href="#" title="Автор">
+                            <a class="post__author-link" href="profile.php?user=<?= $cardUserId ?>&tab=posts"
+                               title="<?= $cardName ?>">
                                 <div class="post__avatar-wrapper">
-                                    <!--укажите путь к файлу аватара-->
-                                    <img class="post__author-avatar" src="img/<?= htmlspecialchars($card['avatar']) ?>"
-                                         alt="Аватар пользователя">
+                                    <img class="post__author-avatar" src="img/<?= htmlspecialchars($cardAva) ?>">
                                 </div>
                                 <div class="post__info">
                                     <b class="post__author-name">
-                                        <?= htmlspecialchars($card['name']) ?><!--здесь имя пользоателя--></b>
-                                    <time class="post__time" datetime="<?= $postTime ?>" title="<?= date('d.m.Y H:i',
-                                        strtotime($postTime)) ?>"><?= showTimeGap($postTime) ?></time>
+                                        <?= htmlspecialchars($cardName) ?></b>
+                                    <time class="post__time" datetime="<?= $cardPostDate ?>"
+                                          title="<?= date('d.m.Y H:i',
+                                              strtotime($cardPostDate)) ?>"><?= showTimeGap($cardPostDate) . ' назад' ?></time>
                                 </div>
                             </a>
                         </div>
                         <div class="post__indicators">
                             <div class="post__buttons">
-                                <a class="post__indicator post__indicator--likes button" href="#" title="Лайк">
+                                <a class="post__indicator post__indicator--likes button" title="Лайк"
+                                   data-post-id='<?= $cardPostId ?>'>
                                     <svg class="post__indicator-icon" width="20" height="17">
-                                        <use xlink:href="#icon-heart"></use>
+                                        <use xlink:href="#icon-heart<?= db_get_like($con, $cardPostId,
+                                            $_SESSION['user-id']) ? '-active' : '' ?>"></use>
                                     </svg>
-                                    <svg class="post__indicator-icon post__indicator-icon--like-active" width="20"
-                                         height="17">
-                                        <use xlink:href="#icon-heart-active"></use>
-                                    </svg>
-                                    <span>0</span>
+                                    <span class="<?= db_get_like($con, $cardPostId,
+                                        $_SESSION['user-id']) ? '' : 'like-counter' ?>"><?= db_count_likes_to_post($con,
+                                            $cardPostId) ?></span>
                                     <span class="visually-hidden">количество лайков</span>
                                 </a>
-                                <a class="post__indicator post__indicator--comments button" href="#"
+                                <a class="post__indicator post__indicator--comments button"
+                                   href="post.php?postId=<?= $cardPostId ?>"
                                    title="Комментарии">
                                     <svg class="post__indicator-icon" width="19" height="17">
                                         <use xlink:href="#icon-comment"></use>
                                     </svg>
-                                    <span>0</span>
+                                    <span><?= db_count_comments_to_post($con, $cardPostId) ?></span>
                                     <span class="visually-hidden">количество комментариев</span>
                                 </a>
                             </div>
@@ -185,6 +208,18 @@
                     </footer>
                 </article>
             <?php endforeach ?>
+            <p class="<?= isset($cardTitle) ? 'visually-hidden' : '' ?>">По данному запросу ни одного поста не
+                найдено</p>
         </div>
+        <?php if($pagesCount > 1): ?>
+        <div class="popular__page-links">
+            <?php if($curPage > 1): ?>
+            <a class="popular__page-link popular__page-link--prev button button--gray" href="?tab=<?= $getTab ?>&page=<?= $curPage - 1 ?>">Предыдущая страница</a>
+            <?php endif; ?>
+            <?php if($pagesCount - $curPage): ?>
+            <a class="popular__page-link popular__page-link--next button button--gray" href="?tab=<?= $getTab ?>&page=<?= $curPage + 1 ?>">Следующая страница</a>
+            <?php endif; ?>
+        </div>
+        <?php endif ?>
     </div>
 </section>

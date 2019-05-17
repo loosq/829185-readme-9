@@ -1,4 +1,6 @@
 <?php
-session_start();
+
+include_once 'init.php';
+
 $_SESSION = [];
-header('Location:/');
+redirectHome();

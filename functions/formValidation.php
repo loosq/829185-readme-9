@@ -1,6 +1,5 @@
 <?php
 
-/** Функции проверки форм */
 /**
  * Проверяет форму входа на сайт.
  * @param mysqli $con ресурс соединения
@@ -11,12 +10,16 @@
  */
 function loginFormValidation($con, $email, $password)
 {
-    if (isset($_SESSION['user-name'])) {
-        header('Location: /feed.php');
+    $title = 'readme: блог, каким он должен быть';
+    $userName = $_SESSION['user-name'];
+    $userEmail = $email;
+    $userPassword = $password;
+
+    if (isset($userName)) {
+        redirect('feed.php?block=feed&tab=all');
     } else {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            $required = ['email', 'password'];
             $errors = [];
 
             if (empty($email)) {
@@ -36,17 +39,21 @@ function loginFormValidation($con, $email, $password)
             }
 
             $html = include_template('index.php', [
-                'errors' => $errors,
+                'userPassword' => $userPassword,
+                'userEmail'    => $userEmail,
+                'errors'       => $errors,
             ]);
 
             if (!count($errors)) {
                 session_start();
-                db_usser_session_by_email($con, $email);
-                header('Location: /feed.php?tab=feed');
+                db_user_session_by_email($con, $email);
+                header('Location:/feed.php?block=feed&tab=all');
             }
 
         } else {
-            $html = include_template('index.php');
+            $html = include_template('index.php', [
+                'title' => $title,
+            ]);
         }
     }
 
@@ -209,11 +216,17 @@ function db_get_hash_to_email($con, $email)
  */
 function photoFormValidation($con)
 {
+    $getTab = $_GET['tab'];
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $required = ['photo-heading'];
         $dict = ['photo-heading' => 'Заголовок.'];
+        $photoHeading = $_POST['photo-heading'];
+        $photoTags = $_POST['photo-tags'];
         $picture = $_FILES['photo-file-img']['name'];
         $url = $_POST['photo-url'];
+        $tmpPath = $_FILES['photo-file-img']['tmp_name'];
+        $tmpName = $_FILES['photo-file-img']['name'];
 
         $errors = [];
         foreach ($required as $key) {
@@ -225,9 +238,6 @@ function photoFormValidation($con)
         if (!$url && !$picture) {
             $errors['file-or-url'] = 'Укажите ссылку или загрузите изображение';
         } elseif (isset($picture) && !$url) {
-            $tmpPath = $_FILES['photo-file-img']['tmp_name'];
-            $tmpName = $_FILES['photo-file-img']['name'];
-
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $fileType = finfo_file($finfo, $tmpPath);
 
@@ -248,9 +258,6 @@ function photoFormValidation($con)
                 $photoContent = $_POST['photo-url'];
             }
         } elseif (isset($picture) && isset($url)) {
-            $tmpPath = $_FILES['photo-file-img']['tmp_name'];
-            $tmpName = $_FILES['photo-file-img']['name'];
-
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $fileType = finfo_file($finfo, $tmpPath);
 
@@ -268,15 +275,21 @@ function photoFormValidation($con)
 
         if (count($errors)) {
             $photoForm = include_template('add.php', [
-                'errors' => $errors,
-                'dict'   => $dict,
+                'photoTags'     => $photoTags,
+                'photoHeading'  => $photoHeading,
+                'url'           => $url,
+                'getTab'        => $getTab,
+                'errors'        => $errors,
+                'dict'          => $dict,
             ]);
         } else {
-            $photoForm = db_new_post($con, $_POST['photo-heading'], $photoContent, '', '', $_POST['photo-url'], '',
-                3, $_POST['photo-tags'], 3);
+            $photoForm = db_new_post($con, $photoHeading, $photoContent, '', '', $url, '',
+                $_SESSION['user-id'], $photoTags, 3);
         }
     } else {
-        $photoForm = include_template('add.php');
+        $photoForm = include_template('add.php', [
+            'getTab' => $getTab,
+        ]);
     }
 
     return $photoForm;
@@ -291,7 +304,12 @@ function photoFormValidation($con)
  */
 function videoFormValidation($con)
 {
+    $getTab = $_GET['tab'];
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $videoHeading = $_POST['video-heading'];
+        $videoUrl = $_POST['video-url'];
+        $videoTags = $_POST['video-tags'];
         $required = ['video-heading', 'video-url'];
         $dict = ['video-heading' => 'Заголовок.', 'video-url' => 'Ссылка.'];
 
@@ -302,30 +320,37 @@ function videoFormValidation($con)
             }
         }
 
-        if (!$_POST['video-heading']) {
+        if (!$videoHeading) {
             $errors['video-heading'] = 'Это поле необходимо заполнить';
         }
 
-        if (!$_POST['video-url']) {
+        if (!$videoUrl) {
             $errors['video-url'] = 'Это поле необходимо заполнить';
-        } elseif (!filter_var($_POST['video-url'], FILTER_VALIDATE_URL)) {
+        } elseif (!filter_var($videoUrl, FILTER_VALIDATE_URL)) {
             $errors['video-url'] = 'Укажите верный формат ссылки';
-        } elseif (!check_youtube_url($_POST['video-url'])) {
+        } elseif (!check_youtube_url($videoUrl)) {
             $errors['video-url'] = 'Укажите ссылку на http://youtube.com';
         }
 
 
         if (count($errors)) {
             $videoForm = include_template('add.php', [
-                'errors' => $errors,
-                'dict'   => $dict,
+                'videoHeading'  => $videoHeading,
+                'videoUrl'      => $videoUrl,
+                'videoTags'     => $videoTags,
+                'getTab'        => $getTab,
+                'errors'        => $errors,
+                'dict'          => $dict,
             ]);
         } else {
-            $videoForm = db_new_post($con, $_POST['video-heading'], '', '', '', '', $_POST['video-url'], 3,
-                $_POST['video-tags'], 4);
+            $videoForm = db_new_post($con, $videoHeading, '', '', '', '', $videoUrl,
+                $_SESSION['user-id'],
+                $videoTags, 4);
         }
     } else {
-        $videoForm = include_template('add.php');
+        $videoForm = include_template('add.php', [
+            'getTab' => $getTab,
+        ]);
     }
 
     return $videoForm;
@@ -340,9 +365,14 @@ function videoFormValidation($con)
  */
 function textFormValidation($con)
 {
+    $getTab = $_GET['tab'];
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $required = ['text-heading', 'text-content'];
         $dict = ['text-heading' => 'Заголовок.', 'text-content' => 'Текст поста.'];
+        $textHeading = $_POST['text-heading'];
+        $textContent = $_POST['text-content'];
+        $textTags = $_POST['text-tags'];
 
         $errors = [];
         foreach ($required as $key) {
@@ -351,27 +381,34 @@ function textFormValidation($con)
             }
         }
 
-        if (empty($_POST['text-heading'])) {
+        if (empty($textHeading)) {
             $errors['text-heading'] = 'Это поле необходимо заполнить';
         }
 
-        if (empty($_POST['text-content'])) {
+        if (empty($textContent)) {
             $errors['text-content'] = 'Это поле необходимо заполнить';
-        } elseif (strlen($_POST['text-content']) > 70) {
+        } elseif (strlen($textContent) > 70) {
             $errors['text-content'] = 'Максимальная величина текста с пробелами 70 символов';
         }
 
         if (count($errors)) {
             $textForm = include_template('add.php', [
-                'errors' => $errors,
-                'dict'   => $dict,
+                'textHeading' => $textHeading,
+                'textContent' => $textContent,
+                'textTags'    => $textTags,
+                'getTab'      => $getTab,
+                'errors'      => $errors,
+                'dict'        => $dict,
             ]);
         } else {
-            $textForm = db_new_post($con, $_POST['text-heading'], $_POST['text-content'], '', '', '', '', 3,
-                $_POST['text-tags'], 1);
+            $textForm = db_new_post($con, $textHeading, $textContent, '', '', '', '',
+                $_SESSION['user-id'],
+                $textTags, 1);
         }
     } else {
-        $textForm = include_template('add.php');
+        $textForm = include_template('add.php', [
+            'getTab' => $getTab,
+        ]);
     }
 
     return $textForm;
@@ -386,8 +423,13 @@ function textFormValidation($con)
  */
 function quoteFormValidation($con)
 {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $getTab = $_GET['tab'];
 
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $quoteHeading = $_POST['quote-heading'];
+        $quoteText = $_POST['quote-text'];
+        $quoteAuthor = $_POST['quote-author'];
+        $quoteTags = $_POST['quote-tags'];
         $required = ['quote-heading', 'quote-text', 'quote-author'];
         $dict = [
             'quote-heading' => 'Заголовок.',
@@ -402,33 +444,40 @@ function quoteFormValidation($con)
             }
         }
 
-        if (empty($_POST['quote-heading'])) {
+        if (empty($quoteHeading)) {
             $errors['quote-heading'] = 'Это поле необходимо заполнить';
         }
 
-        if (empty($_POST['quote-text'])) {
+        if (empty($quoteText)) {
             $errors['quote-text'] = 'Это поле необходимо заполнить';
-        } elseif (strlen($_POST['quote-text']) > 70) {
+        } elseif (strlen($quoteText) > 70) {
             $errors['quote-text'] = 'Максимальная величина текста с пробелами 70 символов';
         }
 
-        if (empty($_POST['quote-author'])) {
+        if (empty($quoteAuthor)) {
             $errors['quote-author'] = 'Это поле необходимо заполнить';
-        } elseif (strlen($_POST['quote-author']) > 70) {
+        } elseif (strlen($quoteAuthor) > 70) {
             $errors['quote-author'] = 'Максимальная величина текста с пробелами 70 символов';
         }
 
         if (count($errors)) {
             $quoteForm = include_template('add.php', [
-                'errors' => $errors,
-                'dict'   => $dict,
+                'getTab'       => $getTab,
+                'quoteHeading' => $quoteHeading,
+                'quoteText'    => $quoteText,
+                'quoteAuthor'  => $quoteAuthor,
+                'quoteTags'    => $quoteTags,
+                'errors'       => $errors,
+                'dict'         => $dict,
             ]);
         } else {
-            $quoteForm = db_new_post($con, $_POST['quote-heading'], $_POST['quote-text'], '',
-                $_POST['quote-author'], '', '', 3, $_POST['quote-tags'], 2);
+            $quoteForm = db_new_post($con, $quoteHeading, $quoteText, '',
+                $quoteAuthor, '', '', $_SESSION['user-id'], $quoteTags, 2);
         }
     } else {
-        $quoteForm = include_template('add.php');
+        $quoteForm = include_template('add.php', [
+            'getTab' => $getTab,
+        ]);
     }
 
     return $quoteForm;
@@ -443,8 +492,13 @@ function quoteFormValidation($con)
  */
 function urlFormValidation($con)
 {
+    $getTab = $_GET['tab'];
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+        $linkHeading = $_POST['link-heading'];
+        $linkUrl = $_POST['link-url'];
+        $linkTags = $_POST['link-tags'];
         $required = ['link-heading', 'link-url'];
         $dict = ['link-heading' => 'Заголовок.', 'link-url' => 'Ссылка.'];
 
@@ -455,27 +509,34 @@ function urlFormValidation($con)
             }
         }
 
-        if (empty($_POST['link-heading'])) {
+        if (empty($linkHeading)) {
             $errors['link-heading'] = 'Это поле необходимо заполнить';
         }
 
-        if (empty($_POST['link-url'])) {
+        if (empty($linkUrl)) {
             $errors['link-url'] = 'Это поле необходимо заполнить';
-        } elseif (!filter_var($_POST['link-url'], FILTER_VALIDATE_URL)) {
+        } elseif (!filter_var($linkUrl, FILTER_VALIDATE_URL)) {
             $errors['link-url'] = 'Укажите ссылку в правильном формате';
         }
 
         if (count($errors)) {
             $linkForm = include_template('add.php', [
-                'errors' => $errors,
-                'dict'   => $dict,
+                'getTab'      => $getTab,
+                'linkHeading' => $linkHeading,
+                'linkUrl'     => $linkUrl,
+                'linkTags'    => $linkTags,
+                'errors'      => $errors,
+                'dict'        => $dict,
             ]);
         } else {
-            $linkForm = db_new_post($con, $_POST['link-heading'], '', $_POST['link-url'], '', '', '', 3,
-                $_POST['link-tags'], 5);
+            $linkForm = db_new_post($con, $linkHeading, '', $linkUrl, '', '', '',
+                $_SESSION['user-id'],
+                $linkTags, 5);
         }
     } else {
-        $linkForm = include_template('add.php');
+        $linkForm = include_template('add.php', [
+            'getTab' => $getTab,
+        ]);
     }
 
     return $linkForm;
@@ -490,6 +551,8 @@ function urlFormValidation($con)
  */
 function validForm($con, $tab)
 {
+    $getTab = $_GET['tab'];
+
     if ($tab === 'photo') {
         $content = photoFormValidation($con);
     } elseif ($tab === 'video') {
@@ -501,370 +564,10 @@ function validForm($con, $tab)
     } elseif ($tab === 'link') {
         $content = urlFormValidation($con);
     } else {
-        $content = include_template('add.php');
+        $content = include_template('add.php', [
+            'getTab' => $getTab,
+        ]);
     }
 
     return $content;
-}
-
-/** Функции внесения записей в бд */
-/**
- * Возвращает ресурc соединения с указанной базой данных.
- * @param string $db_host имя сервера, по умолчанию localhost
- * @param string $db_user имя для входа в базу данных
- * @param string $db_password пароль для входа в базу
- * @param string $db_name имя базы данных
- *
- * @return mysqli $con ресурс соединения при удачном соединении или строку с ошибкой
- */
-function db_connect($db_host = 'localhost', $db_user, $db_password, $db_name)
-{
-    $con = mysqli_connect($db_host, $db_user, $db_password, $db_name);
-    if (!$con) {
-        $con = 'Ошибка соединения ' . mysqli_connect_error();
-    }
-
-    return $con;
-}
-
-/**
- * Создаёт подготовленное выражение для просмотра записей в бд и получает результат его выполнения.
- * @param mysqli $con ресурс соединения
- * @param string $sql sql запрос
- * @param array $data данные
- *
- * @return array $result массив с данными из бд;
- */
-function db_fetch_data($con, $sql, $data = [])
-{
-    $result = [];
-    $stmt = db_get_prepare_stmt($con, $sql, $data);
-    mysqli_stmt_execute($stmt);
-    $res = mysqli_stmt_get_result($stmt);
-
-    if ($res) {
-        $result = mysqli_fetch_all($res, MYSQLI_ASSOC);
-    }
-
-    return $result;
-}
-
-/**
- * Создаёт подготовленное выражение для добавления записи в бд и получает результат его выполнения.
- * @param mysqli $con ресурс соединения
- * @param string $sql sql запрос
- * @param array $data данные
- *
- * @return int $result массив с данными из бд;
- */
-function db_insert_data($con, $sql, $data = [])
-{
-    $stmt = db_get_prepare_stmt($con, $sql, $data);
-    $result = mysqli_stmt_execute($stmt);
-
-    if ($result) {
-        $result = mysqli_insert_id($con);
-    }
-
-    return $result;
-}
-
-/**
- * Создаёт новый пост и выводит его пользователю.
- * @param mysqli $con ресурс соединения
- * @param string $postTitle текст заголовка
- * @param string $postContent текст поста
- * @param string $userSiteUrl ссылка для поста типа ссылка, по умолчанию пустая строка
- * @param string $quoteAuthor автор цитаты для поста типа цитата, по умолчанию пустая строка
- * @param string $imgUrl ссылка на изображение, по умолчанию пустая строка
- * @param string $videoUrl ссылка на видео, по умолчанию пустая строка
- * @param int $userId id пользователя создавшего пост
- * @param string $hashtags хештеги поста, по умолчанию пустая строка
- * @param int $contentType тип контента
- *
- * @return int $postId id только что созданного поста;
- */
-function db_new_post($con, $postTitle, $postContent, $userSiteUrl = '', $quoteAuthor = '', $imgUrl = '', $videoUrl = '', $userId, $hashtags = '', $contentType)
-{
-    if ($hashtags) {
-        $hashtags = mysqli_real_escape_string($con, $hashtags);
-        $sql = 'INSERT INTO hashtags (name)
-                                VALUES(?)';
-
-        $stmt = mysqli_prepare($con, $sql);
-        mysqli_stmt_bind_param($stmt, 's', $hashtags);
-        mysqli_stmt_execute($stmt);
-        $hashtagsId = mysqli_insert_id($con);
-    }
-
-    $sql = 'INSERT INTO posts (post_date, title, content, quote_author, users_site_url, img_url, video_url, users_id, content_types_id) 
-                       VALUES (NOW(), ?, ?, ?, ?, ?, ?, ?, ?)';
-
-    $stmt = mysqli_prepare($con, $sql);
-    mysqli_stmt_bind_param($stmt, 'ssssssii', $postTitle, $postContent, $quoteAuthor, $userSiteUrl, $imgUrl, $videoUrl,
-        $userId, $contentType);
-    mysqli_stmt_execute($stmt);
-    $postId = mysqli_insert_id($con);
-
-    if ($postId || $hashtagsId) {
-        $sql = 'INSERT INTO posts_has_hashtags (posts_id, hashtags_id) 
-                       VALUES (?, ?)';
-        $stmt = mysqli_prepare($con, $sql);
-        mysqli_stmt_bind_param($stmt, 'ii', $postId, $hashtagsId);
-        mysqli_stmt_execute($stmt);
-        $result = $postId;
-    } else {
-        echo 'Ошибка добавления в таблицу Посты и хештеги' . mysqli_error($con);
-    }
-
-    if ($result) {
-        header('Location: post.php?postId=' . $postId);
-    } else {
-        echo 'Ошибка базы данных' . mysqli_error($con);
-    }
-
-    return $result;
-}
-
-/**
- * Создаёт нового пользователя.
- * @param mysqli $con ресурс соединения
- * @param string $newUserEmail электронная почта новго пользователя
- * @param string $newUserName логин нового пользователя
- * @param string $newUserPwd пароль нового пользователя
- * @param string $newUserAva аватар нового пользователя
- * @param string $newUserInfo информация о новом пользователе
- *
- * @return int $result если true, то добавление прошло успешно.;
- */
-function db_new_user($con, $newUserEmail, $newUserName, $newUserPwd, $newUserAva = '', $newUserInfo = '')
-{
-
-    $sql = 'INSERT INTO users (registration_date, email, name, password, avatar, contact_info) 
-                       VALUES (NOW(), ?, ?, ?, ?, ?)';
-
-    $stmt = mysqli_prepare($con, $sql);
-    mysqli_stmt_bind_param($stmt, 'sssss', $newUserEmail, $newUserName, $newUserPwd, $newUserAva, $newUserInfo);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_insert_id($con);
-
-    if ($result) {
-        session_start();
-        db_usser_session_by_email($con, $newUserEmail);
-        header('Location:/feed.php?tab=feed');
-    } else {
-        echo 'Ошибка базы данных' . mysqli_error($con);
-    }
-
-    return $result;
-}
-
-/**
- * Возвращает массив постов с сортировкой по типу контента.
- * @param mysqli $con ресурс соединения
- * @param string $getTab , принимает значения типа контента:
- *                                               text - будут показаны посты с типом контента текст;
- *                                               url - будут показаны посты с типом контента ссылка;
- *                                               picture  - будут показаны посты с типом контента картинка;
- *                                               video - будут показаны посты с типом контента видео;
- *                                               quote  - будут показаны посты с типом контента цитата;
- *                                               all  - будут показаны все посты.
- *
- * @return array $rows посты, сгруппированные по установленному типу контента
- */
-function db_read_users_posts($con, $getTab)
-{
-    if (isset($getTab)) {
-
-        if ($getTab === 'text') {
-            $number = 1;
-        } elseif ($getTab === 'quote') {
-            $number = 2;
-        } elseif ($getTab === 'photo') {
-            $number = 3;
-        } elseif ($getTab === 'video') {
-            $number = 4;
-        } elseif ($getTab === 'url') {
-            $number = 5;
-        } elseif ($getTab === 'all') {
-            $number = '0 OR p.content_types_id > 0';
-        }
-
-        $sql = 'SELECT p.id, u.name, users_site_url, avatar, title, p.content, c.type, img_url FROM posts p 
-                LEFT JOIN users u
-                ON p.users_id = u.id
-                LEFT JOIN content_types c
-                ON p.content_types_id = c.id 
-                WHERE p.content_types_id = ' . $number;
-
-    } else {
-
-        $sql = 'SELECT p.id, u.name, users_site_url, avatar, title, p.content, c.type, img_url, video_url FROM posts p 
-                LEFT JOIN users u
-                ON p.users_id = u.id
-                LEFT JOIN content_types c
-                ON p.content_types_id = c.id';
-    }
-
-
-    $result = mysqli_query($con, $sql);
-    $sqlError = mysqli_error($con);
-
-    if ($result) {
-        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
-    } else {
-        echo 'Ошибка базы данных ' . $sqlError;
-    }
-
-    return $rows;
-}
-
-/**
- * Возвращает массив данных о посте по id.
- * @param mysqli $con ресурс соединения
- * @param int $postId id поста в базе данных
- *
- * @return array $rows данные о посте по id;
- */
-function db_read_posts_id($con, $postId)
-{
-    $sql = 'SELECT p.id, u.name, avatar, users_site_url, title, quote_author, content, c.type, p.img_url FROM posts p 
-            LEFT JOIN users u
-            ON p.users_id = u.id
-            LEFT JOIN content_types c
-            ON p.content_types_id = c.id
-            WHERE p.id =' . $postId;
-    $result = mysqli_query($con, $sql);
-    $sqlError = mysqli_error($con);
-
-    if ($result) {
-        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
-    } else {
-        echo 'Ошибка базы данных ' . $sqlError;
-    }
-
-    return $rows;
-}
-
-/**
- * Возвращает массив данных о посте по типу поста.
- * @param mysqli $con ресурс соединения
- * @param int $postType тип контента
- *
- * @return array $rows данные отсортированные по типу контента
- */
-function db_read_posts_types($con, $postType)
-{
-    $sql = 'SELECT p.id, u.name, users_site_url, avatar, title, content, c.type, p.img_url FROM posts p 
-            LEFT JOIN users u
-            ON p.users_id = u.id
-            LEFT JOIN content_types c
-            ON p.content_types_id = c.id
-            WHERE p.content_types_id =' . $postType;
-    $result = mysqli_query($con, $sql);
-    $sqlError = mysqli_error($con);
-
-    if ($result) {
-        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
-    } else {
-        echo 'Ошибка базы данных ' . $sqlError;
-    }
-
-    return $rows;
-}
-
-/**
- * Записывает в сессию данные о пользователе по электронной почте.
- * @param mysqli $con ресурс соединения
- * @param string $email электронная почта пользователя
- *
- * @return array $rows данные пользователя
- */
-function db_usser_session_by_email($con, $email)
-{
-    $sql = 'SELECT * FROM users WHERE email = ?';
-    $stmt = mysqli_prepare($con, $sql);
-    mysqli_stmt_bind_param($stmt, 's', $email);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-
-    if ($result) {
-        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
-    } else {
-        echo 'Ошибка базы данных ' . mysqli_error($con);
-    }
-
-
-    foreach ($rows as $row) {
-
-        $_SESSION['user-id'] = $row['id'];
-        $_SESSION['user-reg-date'] = $row['registration_date'];
-        $_SESSION['user-name'] = $row['name'];
-        $_SESSION['user-ava'] = $row['avatar'];
-        $_SESSION['user-contact-info'] = $row['contact_info'];
-    }
-
-    return $rows;
-}
-
-/** Остальные */
-/**
- * Проверяет текст на количество символов, если символов больше, то
- * подставляет ссылку "Читать далее" с открытием по клику.
- * @param string $text текст
- * @param int $maxLength количество символов (по умолчанию 300)
- *
- * @return string текст с/без блоком-ссылкой "Читать далее"
- */
-function cutText($text, $maxLength = 300)
-{
-    if (strlen($text) > $maxLength) {
-        $textArr = explode(' ', $text);
-        $countLetters = 0;
-        $j = 0;
-        foreach ($textArr as $word) {
-            $countLetters += strlen($word);
-            $j++;
-            if ($countLetters > $maxLength) {
-                return implode(' ', array_slice($textArr, 0,
-                        $j)) . '...' . '<br/><a class="post-text__more-link" href="#" style="margin-left: 0">Читать далее</a>';
-            }
-        }
-    }
-
-    return $text;
-}
-
-/**
- * Трансформирует дату в "человеческую" строку "Сколько прошло времени с этой даты".
- * @param int $datePoint Число дата, с которой будет показываться перод
- *
- * @return string Текст, количество времени прописью, например "2 минуты назад или 5 часов назад или 7 дней назад etc..."
- */
-function showTimeGap($datePoint)
-{
-    $nowTime = time();
-    $diffTime = $nowTime - strtotime($datePoint);
-
-    if ($diffTime < 3600) {
-        $num = ceil($diffTime / 60);
-        $word = get_noun_plural_form(ceil($diffTime / 60), 'минута', 'минуты', 'минут');
-    } elseif ($diffTime > 3600 && $diffTime < 86400) {
-        $num = ceil($diffTime / 3600);
-        $word = get_noun_plural_form(ceil($diffTime / 3600), 'час', 'часа', 'часов');
-    } elseif ($diffTime > 86400 && $diffTime < 604800) {
-        $num = ceil($diffTime / 86400);
-        $word = get_noun_plural_form(ceil($diffTime / 86400), 'день', 'дня', 'дней');
-    } elseif ($diffTime > 604800 && $diffTime < 2629743) {
-        $num = ceil($diffTime / 604800);
-        $word = get_noun_plural_form(ceil($diffTime / 604800), 'неделя', 'недели', 'недель');
-    } elseif ($diffTime > 2629743 && $diffTime < 31556926) {
-        $num = ceil($diffTime / 2629743);
-        $word = get_noun_plural_form(ceil($diffTime / 2629743), 'месяц', 'месяца', 'месяцев');
-    } else {
-        $num = ceil($diffTime / 31556926);
-        $word = get_noun_plural_form(ceil($diffTime / 31556926), 'год', 'года', 'лет');
-    }
-
-    return $num . ' ' . $word . ' назад';
 }
