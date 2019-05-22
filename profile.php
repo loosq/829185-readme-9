@@ -7,14 +7,26 @@ if (!isUserLoggedIn()) {
 }
 
 $title = 'readme: профиль';
-$getTab = $_GET['tab'];
-$getUser = $_GET['user'];
-$user = db_get_user_info($con, $getUser);
-$userDataPosts = db_get_user_posts($con, $getUser);
-$userDataSubs = db_get_user_subs($con, $getUser);
-$cards = db_get_user_arr_posts($con, $getUser);
+$userSession = $_SESSION;
+$getTab = $_GET['tab'] ?? '';
+$getUser = $_GET['user'] ?? '';
+$getPostId = $_GET['postId'] ?? '';
+$getRepost = $_GET['repost'] ?? '';
+$user = dbGetUserInfo($con, $getUser);
+$userDataPosts = dbGetUserPosts($con, $getUser);
+$userDataSubs = dbGetUserSubs($con, $getUser);
+$cards = dbGetUserArrPosts($con, $getUser);
+$likers = dbGetUsersByLike($con, $getUser);
+$subsList = dbGetAllSubs($con, $getUser);
+
+if($getUser !== $userSession['user-id'] && $getRepost){
+    dbNewRepost($con, $getPostId, $userSession['user-id']);
+}
 
 $content = include_template('profile.php', [
+    'likers'        => $likers,
+    'subsList'      => $subsList,
+    'userSession'   => $userSession,
     'getTab'        => $getTab,
     'getUser'       => $getUser,
     'con'           => $con,
@@ -25,9 +37,10 @@ $content = include_template('profile.php', [
 ]);
 
 $html = include_template('layout.php', [
-    'getTab'  => $getTab,
-    'content' => $content,
-    'title'   => $title,
+    'userSession' => $userSession,
+    'getTab'      => $getTab,
+    'content'     => $content,
+    'title'       => $title,
 ]);
 
 echo $html;

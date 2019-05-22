@@ -12,12 +12,14 @@
                                     class="form__input-required">*</span></label>
                         <div class="form__input-section<?= isset($errors['email']) ? ' form__input-section--error' : '' ?>">
                             <input class="registration__input form__input" id="registration-email" type="email"
-                                   name="email" placeholder="Укажите эл.почту" value="<?= htmlspecialchars($_POST['email']) ?>">
+                                   name="email" placeholder="Укажите эл.почту"
+                                   value="<?= htmlspecialchars($_POST['email']) ?>">
                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span>
                             </button>
                             <div class="form__error-text">
                                 <h3 class="form__error-title">Ошибка почты</h3>
-                                <p class="form__error-desc">Введите корректный адрес почты в формате example@mail.ru, а так же он должен быть уникальным</p>
+                                <p class="form__error-desc">Введите корректный адрес почты в формате example@mail.ru, а
+                                    так же он должен быть уникальным</p>
                             </div>
                         </div>
                     </div>
@@ -26,7 +28,8 @@
                                     class="form__input-required">*</span></label>
                         <div class="form__input-section<?= isset($errors['name']) ? ' form__input-section--error' : '' ?>">
                             <input class="registration__input form__input" id="registration-login" type="text"
-                                   name="name" placeholder="Укажите логин" value="<?= htmlspecialchars($_POST['name']) ?>">
+                                   name="name" placeholder="Укажите логин"
+                                   value="<?= htmlspecialchars($_POST['name']) ?>">
                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span>
                             </button>
                             <div class="form__error-text">
@@ -40,7 +43,8 @@
                                     class="form__input-required">*</span></label>
                         <div class="form__input-section<?= isset($errors['password']) ? ' form__input-section--error' : '' ?>">
                             <input class="registration__input form__input" id="registration-password" type="password"
-                                   name="password" placeholder="Придумайте пароль" value="<?= htmlspecialchars($_POST['password']) ?>">
+                                   name="password" placeholder="Придумайте пароль"
+                                   value="<?= htmlspecialchars($_POST['password']) ?>">
                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span>
                             </button>
                             <div class="form__error-text">
@@ -54,7 +58,8 @@
                             пароля<span class="form__input-required">*</span></label>
                         <div class="form__input-section<?= isset($errors['password-repeat']) ? ' form__input-section--error' : '' ?>">
                             <input class="registration__input form__input" id="registration-password-repeat"
-                                   type="password" name="password-repeat" placeholder="Повторите пароль" value="<?= htmlspecialchars($_POST['password-repeat']) ?>">
+                                   type="password" name="password-repeat" placeholder="Повторите пароль"
+                                   value="<?= htmlspecialchars($_POST['password-repeat']) ?>">
                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span>
                             </button>
                             <div class="form__error-text">
@@ -72,14 +77,14 @@
                     </div>
                 </div>
                 <?php if (isset($errors)): ?>
-                <div class="form__invalid-block">
-                    <b class="form__invalid-slogan">Пожалуйста, исправьте следующие ошибки:</b>
-                    <ul class="form__invalid-list">
-                        <?php foreach ($errors as $key => $val): ?>
-                        <li class="form__invalid-item"><?= $dict[$key] ?> <?= $val ?></li>
-                        <?php endforeach ?>
-                    </ul>
-                </div>
+                    <div class="form__invalid-block">
+                        <b class="form__invalid-slogan">Пожалуйста, исправьте следующие ошибки:</b>
+                        <ul class="form__invalid-list">
+                            <?php foreach ($errors as $key => $val): ?>
+                                <li class="form__invalid-item"><?= $dict[$key] ?> <?= $val ?></li>
+                            <?php endforeach ?>
+                        </ul>
+                    </div>
                 <?php endif ?>
             </div>
             <div class="registration__input-file-container form__input-container form__input-container--file">

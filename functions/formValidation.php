@@ -26,10 +26,10 @@ function loginFormValidation($con, $email, $password)
                 $errors['email'] = 'Это поле необходимо заполнить';
             } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $errors['email'] = 'Введите почту в правильном формате';
-            } elseif (!db_is_email_valid($con, $email)) {
+            } elseif (!dbIsEmailValid($con, $email)) {
                 $errors['email'] = 'Пользователь с такой электронной почтой не зарегистрирован';
             } else {
-                $hashToEmail = db_get_hash_to_email($con, $email);
+                $hashToEmail = dbGetHashToEmail($con, $email);
             }
 
             if (empty($password)) {
@@ -46,7 +46,7 @@ function loginFormValidation($con, $email, $password)
 
             if (!count($errors)) {
                 session_start();
-                db_user_session_by_email($con, $email);
+                dbUserSessionByEmail($con, $email);
                 header('Location:/feed.php?block=feed&tab=all');
             }
 
@@ -94,7 +94,7 @@ function regFormValidation($con)
             $errors['email'] = 'Введите электронную почту в правильном формате';
         } elseif (strlen($_POST['email']) > 70) {
             $errors['email'] = 'Это поле не может быть длиннее 70 символов';
-        } elseif (db_is_email_valid($con, $_POST['email'])) {
+        } elseif (dbIsEmailValid($con, $_POST['email'])) {
             $errors['email'] = 'Этот адрес уже занят';
         }
 
@@ -147,7 +147,7 @@ function regFormValidation($con)
                 'dict'   => $dict,
             ]);
         } else {
-            db_new_user($con, $_POST['email'], $_POST['name'], $passwordHash, $newUserPicPath,
+            dbNewUser($con, $_POST['email'], $_POST['name'], $passwordHash, $newUserPicPath,
                 $_POST['contact-info']);
         }
 
@@ -165,7 +165,7 @@ function regFormValidation($con)
  *
  * @return bool $result true если новая почта уникальная, false если есть совпадения;
  */
-function db_is_email_valid($con, $newUserEmail)
+function dbIsEmailValid($con, $newUserEmail)
 {
     $result = false;
     $sql = 'SELECT email FROM users WHERE email = ?';
@@ -191,7 +191,7 @@ function db_is_email_valid($con, $newUserEmail)
  *
  * @return bool $row хеш пароля;
  */
-function db_get_hash_to_email($con, $email)
+function dbGetHashToEmail($con, $email)
 {
     $row = false;
     $sql = 'SELECT password FROM users WHERE email = ?';
@@ -217,6 +217,7 @@ function db_get_hash_to_email($con, $email)
 function photoFormValidation($con)
 {
     $getTab = $_GET['tab'];
+    $userSession = $_SESSION;
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $required = ['photo-heading'];
@@ -275,6 +276,7 @@ function photoFormValidation($con)
 
         if (count($errors)) {
             $photoForm = include_template('add.php', [
+                'userSession'   => $userSession,
                 'photoTags'     => $photoTags,
                 'photoHeading'  => $photoHeading,
                 'url'           => $url,
@@ -283,11 +285,12 @@ function photoFormValidation($con)
                 'dict'          => $dict,
             ]);
         } else {
-            $photoForm = db_new_post($con, $photoHeading, $photoContent, '', '', $url, '',
+            $photoForm = dbNewPost($con, $photoHeading, $photoContent, '', '', $url, '',
                 $_SESSION['user-id'], $photoTags, 3);
         }
     } else {
         $photoForm = include_template('add.php', [
+            'userSession'   => $userSession,
             'getTab' => $getTab,
         ]);
     }
@@ -332,6 +335,7 @@ function videoFormValidation($con)
             $errors['video-url'] = 'Укажите ссылку на http://youtube.com';
         }
 
+        $videoUrl = embed_youtube_video($videoUrl);
 
         if (count($errors)) {
             $videoForm = include_template('add.php', [
@@ -343,7 +347,7 @@ function videoFormValidation($con)
                 'dict'          => $dict,
             ]);
         } else {
-            $videoForm = db_new_post($con, $videoHeading, '', '', '', '', $videoUrl,
+            $videoForm = dbNewPost($con, $videoHeading, '', '', '', '', $videoUrl,
                 $_SESSION['user-id'],
                 $videoTags, 4);
         }
@@ -401,7 +405,7 @@ function textFormValidation($con)
                 'dict'        => $dict,
             ]);
         } else {
-            $textForm = db_new_post($con, $textHeading, $textContent, '', '', '', '',
+            $textForm = dbNewPost($con, $textHeading, $textContent, '', '', '', '',
                 $_SESSION['user-id'],
                 $textTags, 1);
         }
@@ -471,7 +475,7 @@ function quoteFormValidation($con)
                 'dict'         => $dict,
             ]);
         } else {
-            $quoteForm = db_new_post($con, $quoteHeading, $quoteText, '',
+            $quoteForm = dbNewPost($con, $quoteHeading, $quoteText, '',
                 $quoteAuthor, '', '', $_SESSION['user-id'], $quoteTags, 2);
         }
     } else {
@@ -529,7 +533,7 @@ function urlFormValidation($con)
                 'dict'        => $dict,
             ]);
         } else {
-            $linkForm = db_new_post($con, $linkHeading, '', $linkUrl, '', '', '',
+            $linkForm = dbNewPost($con, $linkHeading, '', $linkUrl, '', '', '',
                 $_SESSION['user-id'],
                 $linkTags, 5);
         }
@@ -552,7 +556,7 @@ function urlFormValidation($con)
 function validForm($con, $tab)
 {
     $getTab = $_GET['tab'];
-
+    $userSession = $_SESSION;
     if ($tab === 'photo') {
         $content = photoFormValidation($con);
     } elseif ($tab === 'video') {
@@ -565,9 +569,34 @@ function validForm($con, $tab)
         $content = urlFormValidation($con);
     } else {
         $content = include_template('add.php', [
+            'userSession' => $userSession,
             'getTab' => $getTab,
         ]);
     }
 
     return $content;
+}
+
+
+/**
+ * Проверяет форму отправки сообщения.
+ * @param mysqli $con ресурс соединения
+ * @param string $text  сообщение
+ * @param int $userSend отправитель
+ * @param int $userGet получатель
+ *
+ * @return bool $res true при успешной отправке
+ */
+function msgFormValidation($con, $userSend, $userGet, $text)
+{
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($text !== '') && $userGet) {
+        $msgLong = htmlspecialchars($text);
+        $msg = substr($msgLong, 0, 220);
+        $res = dbNewMsg($con, $userSend, $userGet, $msg);
+        redirectBack();
+    } else {
+        $res = false;
+    }
+
+    return $res;
 }

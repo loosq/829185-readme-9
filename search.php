@@ -7,6 +7,8 @@ if (!isUserLoggedIn()) {
 }
 
 $title = 'readme: страница результатов поиска';
+$userSession = $_SESSION;
+
 
 $search = $_GET['q'] ?? '';
 
@@ -39,8 +41,8 @@ if ($search) {
     ]);
 }
 
-
 $html = include_template('layout.php', [
+    'userSession' => $userSession,
     'content' => $content,
     'title'   => $title,
     'search'  => $search,

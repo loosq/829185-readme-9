@@ -1,21 +1,32 @@
 <?php
 /**
  * @var array $errors массив с ошибками валидации поля комментария
- * @var array $cards массив постов
- * @var array $comments массив комментариев
+ * @var array $cards массив данных о постах пользователся
+ * @var int $card ['posts_id'] id поста
+ * @var string $card ['title'] Заголовок поста
+ * @var string $card ['content'] содержимое поста
+ * @var string $card ['content-types-id'] id типа контента
+ * @var string $card ['quote_author'] автор цитаты
+ * @var string $card ['user_site_url'] ссылка от пользователя
+ * @var string $card ['video_url'] ссылка на видео
+ * @var string $card ['post_date'] дата поста
+ * @var string $hashtag ['name'] слово - хештег
+ *
+ * @var array $userSession данные о пользователе у которого открыта сессия
+ * @var string $userSession ['user-name'] имя пользователя
+ * @var string $userSession ['user-ava'] ссылка на аватар пользователя
+ * @var string $userSession ['user-id '] id пользователя
+ *
  * @var array $user массив информации о пользователе
  * @var int $userDataPosts количество постов пользователя
  * @var int $userDataSubs количество подписчиков пользователя
  * @var int $postId id поста
+ * @var array $comments массив комментариев
  * @var string $commentText текст комментария
  */
-
 ?>
 <?php foreach ($cards as $key => $card) ?>
-<?php foreach ($user
-
-as $key => $userData) ?>
-
+<?php foreach ($user as $key => $userData) ?>
 <main class="page__main page__main--publication">
     <div class="container">
         <h1 class="page__title page__title--publication"><?= $card['title'] ?></h1>
@@ -32,6 +43,12 @@ as $key => $userData) ?>
                                     </p>
                                     <cite> <?= $card['quote_author'] ?></cite>
                                 </blockquote>
+                            </div>
+                        </div>
+                    <?php elseif ($card['type'] === 'video'): ?>
+                        <div class="post-photo__image-wrapper">
+                            <div class="post__main post__iframe">
+                            <?= $card['video_url'] ?>
                             </div>
                         </div>
                     <?php elseif ($card['type'] === 'text'): ?>
@@ -69,11 +86,11 @@ as $key => $userData) ?>
                             <a class="post__indicator post__indicator--likes button" title="Лайк"
                                data-post-id='<?= $postId ?>'>
                                 <svg class="post__indicator-icon" width="20" height="17">
-                                    <use xlink:href="#icon-heart<?= db_get_like($con, $postId,
-                                        $_SESSION['user-id']) ? '-active' : '' ?>"></use>
+                                    <use xlink:href="#icon-heart<?= dbGetLike($con, $postId,
+                                        $userSession['user-id']) ? '-active' : '' ?>"></use>
                                 </svg>
-                                <span class="<?= db_get_like($con, $postId,
-                                    $_SESSION['user-id']) ? '' : 'like-counter' ?>"><?= db_count_likes_to_post($con,
+                                <span class="<?= dbGetLike($con, $postId,
+                                    $userSession['user-id']) ? '' : 'like-counter' ?>"><?= dbCountLikesToPost($con,
                                         $postId) ?></span>
                                 <span class="visually-hidden">количество лайков</span>
                             </a>
@@ -81,9 +98,10 @@ as $key => $userData) ?>
                                 <svg class="post__indicator-icon" width="19" height="17">
                                     <use xlink:href="#icon-comment"></use>
                                 </svg>
-                                <span><?= db_count_comments_to_post($con, $postId) ?></span>
+                                <span><?= dbCountCommentsToPost($con, $postId) ?></span>
                                 <span class="visually-hidden">количество комментариев</span>
                             </a>
+                            <?php if($card['isrepost']) : ?>
                             <a class="post__indicator post__indicator--repost button" href="#" title="Репост">
                                 <svg class="post__indicator-icon" width="19" height="17">
                                     <use xlink:href="#icon-repost"></use>
@@ -91,14 +109,21 @@ as $key => $userData) ?>
                                 <span>5</span>
                                 <span class="visually-hidden">количество репостов</span>
                             </a>
+                            <?php endif ?>
                         </div>
                         <span class="post__view">500 просмотров</span>
                     </div>
+                    <?php $hashtags = dbGetAllHashtagsToPost($con, $postId) ?>
+                    <ul class="post__tags">
+                        <?php foreach ($hashtags as $hashtag): ?>
+                            <li><a href="#">#<?= $hashtag['name'] ?></a></li>
+                        <?php endforeach ?>
+                    </ul>
                     <div class="comments" id="comments">
                         <form class="comments__form form" action="?postId=<?= $postId ?>" method="post">
                             <div class="comments__my-avatar">
-                                <img class="comments__picture" src="<?= $_SESSION['user-ava'] ?>"
-                                     alt="Аватар пользователя">
+                                <img class="comments__picture" src="<?= $userSession['user-ava'] ?>"
+                                     alt="">
                             </div>
                             <textarea
                                     class="comments__textarea form__textarea<?= isset($errors['comment-error']) ? ' form__textarea--error' : '' ?>"
@@ -110,31 +135,12 @@ as $key => $userData) ?>
                         </form>
                         <div class="comments__list-wrapper">
                             <ul class="comments__list">
-                                <!--                                <li class="comments__item user">-->
-                                <!--                                    <div class="comments__avatar">-->
-                                <!--                                        <a class="user__avatar-link" href="#">-->
-                                <!--                                            <img class="comments__picture" src="img/userpic-larisa.jpg"-->
-                                <!--                                                 alt="Аватар пользователя">-->
-                                <!--                                        </a>-->
-                                <!--                                    </div>-->
-                                <!--                                    <div class="comments__info">-->
-                                <!--                                        <div class="comments__name-wrapper">-->
-                                <!--                                            <a class="comments__user-name" href="#">-->
-                                <!--                                                <span>Лариса Роговая</span>-->
-                                <!--                                            </a>-->
-                                <!--                                            <time class="comments__time" datetime="2019-03-20">1 ч назад</time>-->
-                                <!--                                        </div>-->
-                                <!--                                        <p class="comments__text">-->
-                                <!--                                            Красота!!!1!-->
-                                <!--                                        </p>-->
-                                <!--                                    </div>-->
-                                <!--                                </li>-->
                                 <?php foreach ($comments as $key => $comment): ?>
                                     <li class="comments__item user">
                                         <div class="comments__avatar">
                                             <a class="user__avatar-link" href="#">
                                                 <img class="comments__picture" src="<?= $comment['avatar'] ?>"
-                                                     alt="Аватар пользователя">
+                                                     alt="">
                                             </a>
                                         </div>
                                         <div class="comments__info">
@@ -168,7 +174,7 @@ as $key => $userData) ?>
                             <a class="post-details__avatar-link user__avatar-link"
                                href="profile.php?user=<?= $card['users_id'] ?>">
                                 <img class="post-details__picture user__picture" src="<?= $card['avatar'] ?>"
-                                     alt="Аватар пользователя">
+                                     alt="">
                             </a>
                         </div>
                         <div class="post-details__name-wrapper user__name-wrapper">
@@ -192,9 +198,13 @@ as $key => $userData) ?>
                     </div>
                     <div class="post-details__user-buttons user__buttons">
                         <a class="profile__user-button user__button user__button--subscription button button--main"
-                           href="/subscribe.php?user=<?= $userData['users_id'] ?>"><?= db_check_subscription($con,
-                                $_SESSION['user-id'], $userData['users_id']) ? 'Отписаться' : 'Подписаться' ?></a>
-                        <a class="user__button user__button--writing button button--green" href="#">Сообщение</a>
+                           data-user-id="<?= $userData['users_id'] ?>"
+                           data-issub="<?= dbCheckSubscription($con, $userSession['user-id'],
+                               $userData['users_id']) ? '1' : '0' ?>"><span><?= dbCheckSubscription($con,
+                                    $userSession['user-id'],
+                                    $userData['users_id']) ? 'Отписаться' : 'Подписаться' ?></span></a>
+                        <a class="profile__user-button user__button user__button--writing button button--green"
+                           href="messages.php?block=messages&user=<?= $userData['users_id'] ?>">Сообщение</a>
                     </div>
                 </div>
             </div>

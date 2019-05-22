@@ -9,9 +9,11 @@ if (!isUserLoggedIn()) {
 $getTab = $_GET['tab'];
 $content = validForm($con, $getTab);
 $title = 'readme: публикация';
+$userSession = $_SESSION;
 $html = include_template('layout.php', [
-    'content' => $content,
-    'title'   => $title,
+    'userSession' => $userSession,
+    'content'     => $content,
+    'title'       => $title,
 ]);
 
 echo $html;

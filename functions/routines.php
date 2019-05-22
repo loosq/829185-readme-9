@@ -66,35 +66,78 @@ function showTimeGap($datePoint)
  * @param string $path путь переадресации
  *
  */
-function redirect($path){
+function redirect($path)
+{
     header('Location: ' . $path);
     die;
 }
 
 /**
  * Перенаправляет пользователя на главную.
- *
  */
-function redirectHome(){
+function redirectHome()
+{
     redirect('/');
 }
 
 /**
  * Перенаправляет пользователя на страницу назад.
- *
  */
-function redirectBack(){
+function redirectBack()
+{
     redirect($_SERVER['HTTP_REFERER']);
 }
 
 /**
  * Проверяет залогинин ли пользователь.
- *
  */
-function isUserLoggedIn(){
-    if ($_SESSION['user-name']){
+function isUserLoggedIn()
+{
+    if ($_SESSION['user-name']) {
         return true;
     }
 
     return false;
+}
+
+/**
+ * Показывает ЧП дату сообщений.
+ * @param string $datePoint дата
+ *
+ * @return string $res Текст, ЧП дата
+ */
+function showTimeOfMsg($datePoint)
+{
+    $date = strtotime($datePoint);
+    $nowTime = time();
+    $diffTime = $nowTime - $date;
+
+    if ($diffTime > 0 && $diffTime < 86400) {
+        $res = strftime('%H:%M', $date);
+
+    } elseif ($diffTime >= 86400 && $diffTime < 604800) {
+        $res = strftime('%e %h', $date);
+    } elseif ($diffTime >= 604800 && $diffTime < 31556926) {
+        $res = strftime('%d %m %Y', $date);
+    }
+
+    return $res;
+}
+
+/**
+ * Обрезает сообщение и добавляет "..." в конце.
+ * @param string $text текст сообщения
+ * @param int $len количество символов
+ *
+ * @return string $res обрезанный текст
+ */
+function msgTextCut($text, $len = null)
+{
+    if (strlen($text) > $len) {
+        $res = substr($text, 0, $len) . '...';
+    } else {
+        $res = $text;
+    }
+
+    return $res;
 }

@@ -110,11 +110,11 @@
                                 <a class="post__indicator post__indicator--likes button" title="Лайк"
                                    data-post-id='<?= $cardPostId ?>'>
                                     <svg class="post__indicator-icon" width="20" height="17">
-                                        <use xlink:href="#icon-heart<?= db_get_like($con, $cardPostId,
-                                            $_SESSION['user-id']) ? '-active' : '' ?>"></use>
+                                        <use xlink:href="#icon-heart<?= dbGetLike($con, $cardPostId,
+                                            $userSession['user-id']) ? '-active' : '' ?>"></use>
                                     </svg>
-                                    <span class="<?= db_get_like($con, $cardPostId,
-                                        $_SESSION['user-id']) ? '' : 'like-counter' ?>"><?= db_count_likes_to_post($con,
+                                    <span class="<?= dbGetLike($con, $cardPostId,
+                                        $userSession['user-id']) ? '' : 'like-counter' ?>"><?= dbCountLikesToPost($con,
                                             $cardPostId) ?></span>
                                     <span class="visually-hidden">количество лайков</span>
                                 </a>
@@ -123,9 +123,15 @@
                                     <svg class="post__indicator-icon" width="19" height="17">
                                         <use xlink:href="#icon-comment"></use>
                                     </svg>
-                                    <span><?= db_count_comments_to_post($con, $cardPostId) ?></span>
+                                    <span><?= dbCountCommentsToPost($con, $cardPostId) ?></span>
                                     <span class="visually-hidden">количество комментариев</span>
                                 </a>
+                                <?php $hashtags = dbGetAllHashtagsToPost($con, $cardPostId) ?>
+                                <ul class="post__tags">
+                                    <?php foreach ($hashtags as $val => $hashtag): ?>
+                                        <li><a href="../search.php?htgs=<?= $hashtag['name'] ?>" >#<?= $hashtag['name'] ?></a></li>
+                                    <?php endforeach ?>
+                                </ul>
                             </div>
                         </footer>
                     </article>

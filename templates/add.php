@@ -32,7 +32,6 @@
  *
  */
 ?>
-
 <main class="page__main page__main--adding-post">
     <div class="page__main-section">
         <div class="container">
@@ -116,7 +115,7 @@
                                     <div class="adding-post__input-wrapper form__input-wrapper">
                                         <label class="adding-post__label form__label" for="photo-tags">Теги</label>
                                         <div class="form__input-section">
-                                            <input class="adding-post__input form__input" id="photo-tags" type="text" name="photo-tags" placeholder="Введите теги" value="<?= htmlspecialchars($photoTags) ?>">
+                                            <input class="adding-post__input form__input" id="photo-tags" type="text" name="photo-tags" placeholder="Введите теги" value="#<?= htmlspecialchars($photoTags) ?>">
                                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                             <div class="form__error-text">
                                                 <h3 class="form__error-title">Заголовок сообщения</h3>
@@ -191,7 +190,7 @@
                                     <div class="adding-post__input-wrapper form__input-wrapper">
                                         <label class="adding-post__label form__label" for="video-tags">Теги</label>
                                         <div class="form__input-section">
-                                            <input class="adding-post__input form__input" id="video-tags" type="text" name="video-tags" placeholder="Введите ссылку" value="<?=  htmlspecialchars($videoTags) ?>">
+                                            <input class="adding-post__input form__input" id="video-tags" type="text" name="video-tags" placeholder="Введите ссылку" value="#<?=  htmlspecialchars($videoTags) ?>">
                                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                             <div class="form__error-text">
                                                 <h3 class="form__error-title">Заголовок сообщения</h3>
@@ -249,7 +248,7 @@
                                     <div class="adding-post__input-wrapper form__input-wrapper">
                                         <label class="adding-post__label form__label" for="post-tags">Теги</label>
                                         <div class="form__input-section">
-                                            <input class="adding-post__input form__input" id="post-tags" type="text" name="text-tags" placeholder="Введите теги" value="<?= htmlspecialchars($textTags) ?>">
+                                            <input class="adding-post__input form__input" id="post-tags" type="text" name="text-tags" placeholder="Введите теги" value="#<?= htmlspecialchars($textTags) ?>">
                                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                             <div class="form__error-text">
                                                 <h3 class="form__error-title">Заголовок сообщения</h3>
@@ -317,7 +316,7 @@
                                     <div class="adding-post__input-wrapper form__input-wrapper">
                                         <label class="adding-post__label form__label" for="cite-tags">Теги</label>
                                         <div class="form__input-section">
-                                            <input class="adding-post__input form__input" id="cite-tags" type="text" name="quote-tags" placeholder="Введите теги" value="<?= htmlspecialchars($quoteTags) ?>">
+                                            <input class="adding-post__input form__input" id="cite-tags" type="text" name="quote-tags" placeholder="Введите теги" value="#<?= htmlspecialchars($quoteTags) ?>">
                                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                             <div class="form__error-text">
                                                 <h3 class="form__error-title">Заголовок сообщения</h3>
@@ -374,7 +373,7 @@
                                     <div class="adding-post__input-wrapper form__input-wrapper">
                                         <label class="adding-post__label form__label" for="link-tags">Теги</label>
                                         <div class="form__input-section">
-                                            <input class="adding-post__input form__input" id="link-tags" type="text" name="link-tags" placeholder="Введите ссылку" value="<?= htmlspecialchars($linkTags) ?>">
+                                            <input class="adding-post__input form__input" id="link-tags" type="text" name="link-tags" placeholder="Введите ссылку" value="#<?= htmlspecialchars($linkTags) ?>">
                                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                             <div class="form__error-text">
                                                 <h3 class="form__error-title">Заголовок сообя</h3>

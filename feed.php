@@ -6,11 +6,11 @@ if (!isUserLoggedIn()) {
     redirectHome();
 }
 $title = 'readme: моя лента';
+$userSession = $_SESSION;
 $getTab = $_GET['tab'];
 $getBlock = $_GET['block'];
 $myUserId = $_SESSION['user-id'];
-$cards = db_read_users_sub_posts($con, $getTab, $myUserId);
-
+$cards = dbReadUsersSubPosts($con, $getTab, $myUserId);
 $content = include_template('feed.php', [
     'getTab' => $getTab,
     'cards'  => $cards,
@@ -18,9 +18,10 @@ $content = include_template('feed.php', [
 ]);
 
 $html = include_template('layout.php', [
-    'getBlock'   => $getBlock,
-    'content'    => $content,
-    'title'      => $title,
+    'userSession' => $userSession,
+    'getBlock' => $getBlock,
+    'content'  => $content,
+    'title'    => $title,
 ]);
 
 echo $html;
