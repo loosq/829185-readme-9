@@ -129,7 +129,7 @@
                                 <?php $hashtags = dbGetAllHashtagsToPost($con, $cardPostId) ?>
                                 <ul class="post__tags">
                                     <?php foreach ($hashtags as $val => $hashtag): ?>
-                                        <li><a href="../search.php?htgs=<?= $hashtag['name'] ?>" >#<?= $hashtag['name'] ?></a></li>
+                                        <li><a href="../search.php?q=#<?= $hashtag['name'] ?>" >#<?= $hashtag['name'] ?></a></li>
                                     <?php endforeach ?>
                                 </ul>
                             </div>

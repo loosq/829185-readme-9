@@ -107,11 +107,11 @@
                                 <div class="post__author">
                                     <a class="post__author-link" href="profile.php?user=<?= $card['user_author_id'] ?>&tab=posts" title="Автор">
                                         <div class="post__avatar-wrapper post__avatar-wrapper--repost">
-                                            <img class="post__author-avatar" src="<?= $card['avatar'] ?>" alt="">
+                                            <img class="post__author-avatar" src="<?= dbGetUserAva($con, $card['user_author_id']) ?>" alt="">
                                         </div>
                                         <div class="post__info">
-                                            <b class="post__author-name">Репост: <?= $card[''] ?></b>
-                                            <time class="post__time" datetime="<?= date('Y-m-D H:i', strtotime($card['post_origin_date'])) ?>"><?= showTimeGap($card['post_origin_date'])?> назад</time>
+                                            <b class="post__author-name">Репост: <?= dbGetUserName($con, $card['user_author_id']) ?></b>
+                                            <time class="post__time" datetime="<?= date('Y-m-D H:i', strtotime(dbGetPostDate($con, $card['post_origin_id']))) ?>"><?= showTimeGap(dbGetPostDate($con, $card['post_origin_id'])) ?> назад</time>
                                         </div>
                                     </a>
                                 </div>
@@ -149,7 +149,7 @@
                                 <?php elseif ($card['content_types_id'] === 4): ?>
                                     <div class="post-photo__image-wrapper">
                                         <div class="post__main">
-                                            <?= $card['video_url'] ?>
+                                            <?= embed_youtube_video($card['video_url']) ?>
                                         </div>
                                     </div>
                                 <?php elseif ($card['content_types_id'] === 1): ?>
@@ -172,11 +172,11 @@
                                                     $card['posts_id']) ?></span>
                                             <span class="visually-hidden">количество лайков</span>
                                         </a>
-                                            <a class="post__indicator post__indicator--repost button" href="<?= $card['isrepost'] ? 'profile.php?user=' . $card['users_id'] . '&tab=posts' : 'profile.php?postId=' . $card['posts_id'] . '&repost=1&tab=posts' ?>" title="Репост">
+                                            <a class="post__indicator post__indicator--repost button" href="profile.php?postId=<?= $card['posts_id'] ?>&repost=1&tab=posts" title="Репост">
                                                 <svg class="post__indicator-icon" width="19" height="17">
                                                     <use xlink:href="#icon-repost"></use>
                                                 </svg>
-                                                <span>5</span>
+                                                <span><?= dbGetPostReposts($con, $card['posts_id']) ?></span>
                                                 <span class="visually-hidden">количество репостов</span>
                                             </a>
                                     </div>
@@ -188,7 +188,7 @@
                                 <ul class="post__tags">
                                     <?php foreach ($hashtags as $key => $hashtag): ?>
                                         <li>
-                                            <a href="../search.php?#=<?= $hashtag['name'] ?>">#<?= $hashtag['name'] ?></a>
+                                            <a class="post__tags-btn" title="Поиск по тэгу <?= $hashtag['name'] ?>">#<?= $hashtag['name'] ?></a>
                                         </li>
                                     <?php endforeach ?>
                                 </ul>

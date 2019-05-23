@@ -162,7 +162,7 @@
                         <?php elseif ($cardType === 'video'): ?>
                             <div class="post-photo__image-wrapper">
                                 <div class="pop__video">
-                                <?= $cardVideoUrl ?>
+                                <?= embed_youtube_video($cardVideoUrl) ?>
                                 </div>
                             </div>
                         <?php elseif ($cardType === 'text'): ?>
@@ -175,7 +175,7 @@
                             <a class="post__author-link" href="profile.php?user=<?= $cardUserId ?>&tab=posts"
                                title="<?= $cardName ?>">
                                 <div class="post__avatar-wrapper">
-                                    <img class="post__author-avatar" src="img/<?= htmlspecialchars($cardAva) ?>">
+                                    <img class="post__author-avatar" src="<?= htmlspecialchars($cardAva) ?>">
                                 </div>
                                 <div class="post__info">
                                     <b class="post__author-name">

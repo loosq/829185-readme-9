@@ -71,9 +71,9 @@
                                 <p style="margin-left: 7%" ><?= cutText($cardContent) ?></p>
                             <?php endif ?>
                             <?php if ($cardType === 'video'): ?>
-                                    <iframe width="100%" height="240" src="<?= $cardVideoUrl ?>" frameborder="0"
-                                            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                                            allowfullscreen></iframe>
+                                <div class="post-photo__image-wrapper">
+                                    <div style="width: 100%" class="post__iframe"><?= embed_youtube_video($cardVideoUrl) ?></div>
+                                </div>
                             <?php endif ?>
                             <?php if ($cardType === 'quote'): ?>
                                 <blockquote>
@@ -103,6 +103,7 @@
                             <?php endif ?>
                         </div>
                         <footer class="post__footer post__indicators">
+
                             <div class="post__buttons">
                                 <a class="post__indicator post__indicator--likes button" title="Лайк"
                                    data-post-id='<?= $cardPostId ?>'>

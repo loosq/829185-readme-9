@@ -335,8 +335,6 @@ function videoFormValidation($con)
             $errors['video-url'] = 'Укажите ссылку на http://youtube.com';
         }
 
-        $videoUrl = embed_youtube_video($videoUrl);
-
         if (count($errors)) {
             $videoForm = include_template('add.php', [
                 'videoHeading'  => $videoHeading,

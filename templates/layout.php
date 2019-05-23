@@ -144,7 +144,7 @@
                     </ul>
                     <ul class="header__user-nav">
                         <li class="header__profile">
-                            <a class="header__profile-link" href="profile.php?user=<?= $userSession['user-id']?>">
+                            <a class="header__profile-link" href="profile.php?user=<?= $userSession['user-id']?>&tab=posts">
                                 <div class="header__avatar-wrapper">
                                     <img class="header__profile-avatar" src="<?= $userSession['user-ava'] ?>"
                                          alt="">

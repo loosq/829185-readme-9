@@ -61,11 +61,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$layoutContent = include_template('layout.php', [
+$html = include_template('layout.php', [
     'userSession' => $userSession,
     'getTab'      => $getTab,
     'content'     => $content,
     'title'       => $title,
 ]);
 
-echo $layoutContent;
+echo $html;

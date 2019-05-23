@@ -98,10 +98,10 @@ function dbNewPost(
     $postId = mysqli_insert_id($con);
 
     if ($hashtags) {
-        $trimHashtags = preg_replace('/\s+/', '', $hashtags);
-        $hashtagsArr = explode('#', $trimHashtags);
+        $hashtagsArr = explode(' ', $hashtags);
         $hashtagsIdArr = [];
         foreach ($hashtagsArr as $hashtag) {
+            $hashtag = trim($hashtag);
             $hashtagStr = mysqli_real_escape_string($con, $hashtag);
             if (!empty($hashtag)) {
                 $sql = 'INSERT INTO hashtags (name)
@@ -223,7 +223,7 @@ function dbReadUsersPosts($con, $tab = 'all', $sort = null, $limit = 0, $offset 
                 ON p.content_types_id = c.content_types_id
                 LEFT JOIN likes l
                 ON p.posts_id = l.post_id WHERE p.isrepost = 0' .
-                $contentId . $srt . ' LIMIT ' . $limit .' OFFSET ' . $offset;
+        $contentId . $srt . ' LIMIT ' . $limit . ' OFFSET ' . $offset;
 
 
     $result = mysqli_query($con, $sql);
@@ -349,7 +349,7 @@ function dbReadUsersPostsByTab($con, $contentType = 'all')
                 ON p.users_id = u.users_id
                 LEFT JOIN content_types c
                 ON p.content_types_id = c.content_types_id
-                WHERE p.content_types_id = ?';
+                WHERE p.content_types_id = (?) AND isrepost = 0';
 
         $stmt = mysqli_prepare($con, $sql);
         mysqli_stmt_bind_param($stmt, 'i', $number);
@@ -368,7 +368,7 @@ function dbReadUsersPostsByTab($con, $contentType = 'all')
                 LEFT JOIN users u
                 ON p.users_id = u.users_id
                 LEFT JOIN content_types c
-                ON p.content_types_id = c.content_types_id';
+                ON p.content_types_id = c.content_types_id WHERE isrepost = 0';
 
         $result = mysqli_query($con, $sql);
 
@@ -635,17 +635,12 @@ function dbCountCommentsToPost($con, $postId)
  */
 function dbGetUserArrPosts($con, $userId)
 {
-    $sql = 'SELECT p.posts_id, p.post_date, p.title, p.content, p.quote_author, p.img_url,
-            p.video_url, p.users_site_url, p.number_of_views, p.users_id, p.content_types_id,
-            p.isrepost, p.user_author_id, u.users_id, u.registration_date, u.name,
-            u.avatar, p.post_origin_id, p.post_origin_date
-            FROM posts p LEFT JOIN users u ON p.users_id = u.users_id
-            WHERE p.users_id = (?) OR p.user_author_id = (?) ORDER BY p.post_date DESC';
+    $sql = 'SELECT * FROM posts p LEFT JOIN users u ON p.users_id = u.users_id
+            WHERE p.users_id = (?) ORDER BY p.post_date DESC';
     $stmt = mysqli_prepare($con, $sql);
-    mysqli_stmt_bind_param($stmt, 'ii', $userId, $userId);
+    mysqli_stmt_bind_param($stmt, 'i', $userId);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
-
 
     if ($result) {
         $res = mysqli_fetch_all($result, MYSQLI_ASSOC);
@@ -859,7 +854,8 @@ function dbGetAllHashtagsToPost($con, $postId)
 }
 
 /**
- * Добавляет новое сообщение.
+ * Создаёт чат между 2мя пользователями, в поле chat_hash хрониться ключ лога между двумя пользователями,
+ * если чата между ними не было - создаётся новый, если уже был, то используется предыдущий.
  * @param mysqli $con ресурс соединения
  * @param int $userId id пользователя отправителя
  * @param int $userIdGet id пользователя получателя
@@ -869,17 +865,32 @@ function dbGetAllHashtagsToPost($con, $postId)
  */
 function dbNewMsg($con, $userId, $userIdGet, $content)
 {
-
     $content = htmlspecialchars(trim($content));
-    $sql = 'INSERT INTO messages (date_of_origin, users_id_send, users_id_get, text)
-                              VALUES (NOW(), ?, ?, ?)';
 
+    $sql = 'SELECT chat_hash FROM messages WHERE 
+            users_id_get = (?) AND users_id_send = (?)';
     $stmt = mysqli_prepare($con, $sql);
-    mysqli_stmt_bind_param($stmt, 'iis', $userId, $userIdGet, $content);
-    $res = mysqli_stmt_execute($stmt);
-    if (!$res) {
-        echo 'Ошибка бд' . mysqli_error($con);
+    mysqli_stmt_bind_param($stmt, 'ii', $userId, $userIdGet);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $rows = mysqli_fetch_all($res, MYSQLI_ASSOC);
+
+    if (!$rows){
+        $sql = 'SELECT chat_hash FROM messages WHERE 
+                users_id_send = (?) AND users_id_get = (?)';
+        $stmt = mysqli_prepare($con, $sql);
+        mysqli_stmt_bind_param($stmt, 'ii', $userId, $userIdGet);
+        mysqli_stmt_execute($stmt);
+        $res = mysqli_stmt_get_result($stmt);
+        $rows = mysqli_fetch_all($res, MYSQLI_ASSOC);
     }
+
+    $sql = 'INSERT INTO messages (date_of_origin, users_id_send, users_id_get, text, chat_hash)
+                              VALUES (NOW(), ?, ?, ?, ?)';
+    $chatHash = $rows[0]['chat_hash'] ?? uniqid();
+    $stmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($stmt, 'iiss', $userId, $userIdGet, $content, $chatHash);
+    $res = mysqli_stmt_execute($stmt);
 
     return $res;
 }
@@ -895,8 +906,10 @@ function dbNewMsg($con, $userId, $userIdGet, $content)
 function dbGetChat($con, $userId, $userIdGet)
 {
 
-    $sql = 'SELECT  m.date_of_origin, m.text, u.name, m.users_id_get, m.users_id_send, u.avatar FROM messages m LEFT JOIN users u ON
-            m.users_id_get = u.users_id WHERE 
+    $sql = 'SELECT  m.date_of_origin, m.text, u.name, m.users_id_get, m.users_id_send, u.avatar 
+            FROM messages m LEFT JOIN users u 
+            ON m.users_id_get = u.users_id 
+            WHERE 
             (m.users_id_send = (?) AND m.users_id_get = (?)
             AND
             m.users_id_get = (?) AND m.users_id_send = (?)) 
@@ -916,7 +929,7 @@ function dbGetChat($con, $userId, $userIdGet)
 }
 
 /**
- * Возвращает данные обо всех чатах.
+ * Возвращает хеши всех чатов.
  * @param mysqli $con ресурс соединения
  * @param int $userId id пользователя отправителя
  *
@@ -924,31 +937,19 @@ function dbGetChat($con, $userId, $userIdGet)
  */
 function dbGetAllChats($con, $userId)
 {
+    $sql = 'SELECT MAX(messages_id) as messages_id, MIN(text) as text, MAX(date_of_origin) as date,
+            MAX(users_id_send) as users_id_send, MAX(users_id_get) as users_id_get 
+            FROM messages m 
+            WHERE m.chat_hash IN (SELECT DISTINCT m.chat_hash FROM messages m 
+            WHERE m.users_id_send = (?) OR m.users_id_get = (?)) GROUP BY m.chat_hash';
+    $stmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($stmt, 'ii', $userId, $userId);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
-    $sql = 'SELECT DISTINCT users_id_get FROM messages WHERE users_id_send =' . $userId;
-    $rows = mysqli_query($con, $sql);
-    $uniqIds = mysqli_fetch_all($rows, MYSQLI_ASSOC);
-    $rows = [];
-
-    foreach ($uniqIds as $val => $uniqId) {
-        $sql = 'SELECT m.date_of_origin AS date, m.text, m.users_id_get AS userGet, u.name, u.avatar  
-        FROM messages m LEFT JOIN users u 
-        ON m.users_id_get = u.users_id 
-        WHERE m.date_of_origin = (SELECT MAX(m.date_of_origin)
-        FROM messages m 
-        WHERE m.users_id_get = (?)) 
-        AND m.users_id_get = (?) 
-        AND m.users_id_send = (?)';
-        $getId = $uniqId['users_id_get'];
-        $stmt = mysqli_prepare($con, $sql);
-        mysqli_stmt_bind_param($stmt, 'iii', $getId, $getId, $userId);
-        mysqli_stmt_execute($stmt);
-        $res = mysqli_stmt_get_result($stmt);
-        $row = mysqli_fetch_all($res, MYSQLI_ASSOC);
-        $rows[] = $row[0];
-    }
-
-    if (!$res) {
+    if ($result) {
+        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    } else {
         $rows = false;
     }
 
@@ -989,59 +990,67 @@ function dbGetUsersByLike($con, $userId)
 }
 
 /**
- * Создаёт новый репост.
+ * Создаёт новый репост и переадресовывает пользователя на страницу своего профиля.
  * @param mysqli $con ресурс соединения
  * @param int $postId id поста который репостим
  * @param int $userId id пользователя кто делает репост
- *
- * @return bool $res true при удачном репосте, false при ошибке
  */
-function dbNewRepost ($con, $postId, $userId){
+function dbNewRepost($con, $postId, $userId)
+{
+    $postId = (int)$postId;
     if ($postId && $userId) {
-        $sql = 'SELECT * FROM posts p LEFT JOIN users u ON p.users_id = u.users_id WHERE p.posts_id = (?) AND p.users_id != (?)';
+        $sql = 'SELECT * FROM posts p LEFT JOIN users u 
+                ON p.users_id = u.users_id WHERE
+                 p.posts_id = (?)';
         $stmt = mysqli_prepare($con, $sql);
-        mysqli_stmt_bind_param($stmt, 'ii', $postId, $userId);
+        mysqli_stmt_bind_param($stmt, 'i', $postId);
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
         $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
-        var_dump($rows);
-        $queryName = mysqli_query($con, 'SELECT u.name FROM users u WHERE u.users_id =' . $rows[0]['users_id']);
-        $getName = mysqli_fetch_row($queryName);
-        $rows[0]['authorName'] = $getName;
-        $res = true;
+
     } else {
-        echo 'ошибка' . mysqli_error($con);
-        $res = false;
+        redirectBack();
     }
 
-    if ($res){
-        $sql = 'INSERT INTO posts (post_date, title, content, quote_author, img_url, video_url,
-                users_site_url, number_of_views, users_id, content_types_id, isrepost, user_author_id,
-                 user_author_name, post_origin_id, post_origin_date)
-                VALUES (NOW(), ?, ?, ?, ?, ?, ?, 0, ?, ?, 1, ?, ?, ?, ?)';
-        $stmt = mysqli_prepare($con, $sql);
-        mysqli_stmt_bind_param($stmt, 'ssssssiisiis',
-            $rows[0]['title'],
-            $rows[0]['content'],
-            $rows[0]['quote_author'],
-            $rows[0]['img_url'],
-            $rows[0]['video_url'],
-            $rows[0]['users_site_url'],
-            $userId,
-            $rows[0]['content_types_id'],
-            $rows[0]['users_id'],
-            $rows[0]['authorName'],
-            $rows[0]['posts_id'],
-            $rows[0]['post_date'] );
-        mysqli_stmt_execute($stmt);
-        $res = mysqli_stmt_get_result($stmt);
+    if ($rows[0]['isrepost'] === 0) {
+        $userAuthId = $rows[0]['users_id'];
+        $postOrigId = $rows[0]['posts_id'];
     } else {
-        echo 'ошибка' . mysqli_error($con);
-        $res = false;
+        $userAuthId = $rows[0]['user_author_id'];
+        $postOrigId = $rows[0]['post_origin_id'];
+        $query = mysqli_query($con, 'SELECT * FROM posts WHERE post_origin_id = ' . $postOrigId);
+        $res = mysqli_fetch_all($query, MYSQLI_ASSOC);
+        if ($res) {
+            redirect('profile.php?user=' . $userId . '&tab=posts');
+        }
     }
 
-    //redirectBack();
-    return $res;
+    $query = mysqli_query($con, 'SELECT * FROM posts WHERE post_origin_id = ' . $postOrigId);
+    $res = mysqli_fetch_all($query, MYSQLI_ASSOC);
+    if ($res) {
+
+        redirect('profile.php?user=' . $userId . '&tab=posts');
+    }
+
+
+    $sqlRepost = 'INSERT INTO posts (post_date, title, content, quote_author, img_url, video_url,
+                users_site_url, number_of_views, users_id, content_types_id, isrepost, user_author_id, post_origin_id)
+                VALUES (NOW(), ?, ?, ?, ?, ?, ?, 0, ?, ?, 1, ?, ?)';
+    $stmtRepost = mysqli_prepare($con, $sqlRepost);
+    mysqli_stmt_bind_param($stmtRepost, 'ssssssiiii',
+        $rows[0]['title'],
+        $rows[0]['content'],
+        $rows[0]['quote_author'],
+        $rows[0]['img_url'],
+        $rows[0]['video_url'],
+        $rows[0]['users_site_url'],
+        $userId,
+        $rows[0]['content_types_id'],
+        $userAuthId,
+        $postOrigId);
+    mysqli_stmt_execute($stmtRepost);
+
+    redirect('profile.php?user=' . $userId . '&tab=posts');
 }
 
 /**
@@ -1070,4 +1079,192 @@ function dbGetUsersRepostInfo($con, $userId)
     }
 
     return $res;
+}
+
+/**
+ * Возвращает имя пользователя по id.
+ * @param mysqli $con ресурс соединения
+ * @param int $userId id пользователя
+ *
+ * @return string $name имя пользователя
+ */
+function dbGetUserName($con, $userId)
+{
+    $sql = 'SELECT name FROM users 
+            WHERE users_id = ?';
+    $stmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($stmt, 'i', $userId);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if ($result) {
+        $name = mysqli_fetch_row($result);
+    } else {
+        echo 'Ошибка базы данных ' . mysqli_error($con);
+        $name = false;
+    }
+
+    return $name[0];
+}
+
+/**
+ * Возвращает ссылку на аватар пользователя по id.
+ * @param mysqli $con ресурс соединения
+ * @param int $userId id пользователя
+ *
+ * @return string $ava ссылка на аватар
+ */
+function dbGetUserAva($con, $userId)
+{
+    $sql = 'SELECT avatar FROM users 
+            WHERE users_id = ?';
+    $stmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($stmt, 'i', $userId);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if ($result) {
+        $ava = mysqli_fetch_row($result);
+    } else {
+        echo 'Ошибка базы данных ' . mysqli_error($con);
+        $ava = false;
+    }
+
+    return $ava[0];
+}
+
+/**
+ * Возвращает дату поста по id.
+ * @param mysqli $con ресурс соединения
+ * @param int $postId id поста
+ *
+ * @return string $date ссылка на аватар
+ */
+function dbGetPostDate($con, $postId)
+{
+    $sql = 'SELECT post_date FROM posts 
+            WHERE posts_id = ?';
+    $stmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($stmt, 'i', $postId);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if ($result) {
+        $date = mysqli_fetch_row($result);
+    } else {
+        echo 'Ошибка базы данных ' . mysqli_error($con);
+        $date = false;
+    }
+
+    return $date[0];
+}
+
+/**
+ * Возвращает количество репостов поста по id.
+ * @param mysqli $con ресурс соединения
+ * @param int $postId id поста
+ *
+ * @return string $countReposts ссылка на аватар
+ */
+function dbGetPostReposts($con, $postId)
+{
+    $sql = 'SELECT COUNT(post_origin_id) FROM posts 
+            WHERE post_origin_id = ?';
+    $stmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($stmt, 'i', $postId);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if ($result) {
+        $countReposts = mysqli_fetch_row($result);
+    } else {
+        echo 'Ошибка базы данных ' . mysqli_error($con);
+        $countReposts = false;
+    }
+
+    return $countReposts[0];
+}
+
+/**
+ * Возвращает контент в зависимости от поискового запроса.
+ * @param mysqli $con ресурс соединения
+ * @param string $search поисковый запрос
+ *
+ * @return string $coтеуте данные для шаблона
+ */
+function multySearch($con, $search)
+{
+    if ($search) {
+        $search = trim($search);
+        $firstChar = $search{0};
+        if ($firstChar !== '#') {
+            if (strlen($search) >= 3) {
+                $sql = 'SELECT * FROM posts p
+                LEFT JOIN users u ON p.users_id = u.users_id
+                LEFT JOIN content_types c ON p.content_types_id = c.content_types_id
+                WHERE MATCH(p.content, p.title) AGAINST(?)';
+                $stmt = db_get_prepare_stmt($con, $sql, [$search]);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+                $cards = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+            } else {
+                $sql = 'SELECT * FROM posts p
+                LEFT JOIN users u ON p.users_id = u.users_id
+                LEFT JOIN content_types c ON p.content_types_id = c.content_types_id
+                WHERE p.content LIKE (?) OR p.title LIKE (?)';
+                $stmt = mysqli_prepare($con, $sql);
+                mysqli_stmt_bind_param($stmt, 'dd', $search, $search);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+                $cards = mysqli_fetch_all($result, MYSQLI_ASSOC);
+            }
+        } else {
+            $search = substr($search, 1);
+            $search = (string)$search;
+            if (strlen($search) >= 3) {
+                $sql = 'SELECT * FROM posts p 
+                LEFT JOIN posts_has_hashtags phh ON phh.posts_to_hashtags_id = p.posts_id
+                LEFT JOIN hashtags h ON phh.hashtags_to_posts_id = h.hashtags_id
+                LEFT JOIN content_types t ON p.content_types_id = t.content_types_id
+                LEFT JOIN users u ON p.users_id = u.users_id
+                WHERE MATCH(h.name) AGAINST(?)';
+                $saveSearch = '#' . $search;
+            } else {
+                $sql = 'SELECT * FROM posts p 
+                LEFT JOIN posts_has_hashtags phh ON phh.posts_to_hashtags_id = p.posts_id
+                LEFT JOIN hashtags h ON phh.hashtags_to_posts_id = h.hashtags_id
+                LEFT JOIN content_types t ON p.content_types_id = t.content_types_id
+                LEFT JOIN users u ON p.users_id = u.users_id
+                WHERE h.name LIKE (?)';
+                $saveSearch = '#' . $search;
+                $search = '%' . $search . '%';
+            }
+
+            $stmt = db_get_prepare_stmt($con, $sql, [$search]);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
+            $cards = mysqli_fetch_all($result, MYSQLI_ASSOC);
+            $search = $saveSearch;
+        }
+
+        if (!$cards) {
+            $content = include_template('search-no-results.php', [
+                'search' => $search,
+            ]);
+        } else {
+            $content = include_template('search.php', [
+                'cards'  => $cards,
+                'search' => $search,
+                'con'    => $con,
+            ]);
+        }
+
+    } else {
+        $content = include_template('search-no-results.php', [
+            'search' => $search,
+        ]);
+    }
+
+    return $content;
 }

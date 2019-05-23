@@ -48,7 +48,7 @@
                     <?php elseif ($card['type'] === 'video'): ?>
                         <div class="post-photo__image-wrapper">
                             <div class="post__main post__iframe">
-                            <?= $card['video_url'] ?>
+                            <?= embed_youtube_video($card['video_url']) ?>
                             </div>
                         </div>
                     <?php elseif ($card['type'] === 'text'): ?>
@@ -116,7 +116,7 @@
                     <?php $hashtags = dbGetAllHashtagsToPost($con, $postId) ?>
                     <ul class="post__tags">
                         <?php foreach ($hashtags as $hashtag): ?>
-                            <li><a href="#">#<?= $hashtag['name'] ?></a></li>
+                            <li><a class="post__tags-btn" title="Поиск по тэгу <?= $hashtag['name'] ?>">#<?= $hashtag['name'] ?></a></li>
                         <?php endforeach ?>
                     </ul>
                     <div class="comments" id="comments">

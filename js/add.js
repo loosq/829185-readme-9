@@ -1,5 +1,5 @@
 //Прелоадер
-$(window).on('load', function() {
+$(window).on('load', function () {
     $('#preloader').find('div').fadeOut().end().delay(200).fadeOut();
 });
 
@@ -64,7 +64,7 @@ $(document).ready(function () {
         var isSubData = $(this).attr('data-issub');
         var userId = $(this).attr('data-user-id');
         var span = $(this).children('span');
-        span. css('color', 'transparent');
+        span.css('color', 'transparent');
         var preloader = $('<div>', {id: 'sub__preloader'});
         if (+isSubData === 1) {
             subBtn.append(preloader);
@@ -74,12 +74,12 @@ $(document).ready(function () {
                 data: 'user=' + userId,
                 success: function () {
                     preloader.detach();
-                    span. css('color', '#fff');
+                    span.css('color', '#fff');
                     span.text('Подписаться');
                     $(subBtn).attr('data-issub', '0');
                 }
             });
-        } else if (+isSubData === 0){
+        } else if (+isSubData === 0) {
             subBtn.append(preloader);
             $.ajax({
                 url: 'subscribe.php',
@@ -87,7 +87,7 @@ $(document).ready(function () {
                 data: 'user=' + userId,
                 success: function () {
                     preloader.detach();
-                    span. css('color', '#fff');
+                    span.css('color', '#fff');
                     span.text('Отписаться');
                     $(subBtn).attr('data-issub', '1');
                 }
@@ -96,15 +96,15 @@ $(document).ready(function () {
     });
 });
 
-//переадресует на страницу поиска и передаёт поле поисковой формы
+//Осуществляет поиск по тегу при клике на него
 $(document).ready(function () {
-    var localUrl = window.location.pathname;
-
-    if (!(localUrl === '/search.php')) {
-        var searchSubmtBtn = $('.header__search-button');
-        var getQ = $('.header__search-input').text();
-        $(searchSubmtBtn).on('click', function () {
-            window.location.replace('search.php?q=' + getQ);
-        });
-    }
+    var tagsBtn = $('.post__tags-btn');
+    var searchInput = $('.header__search-input');
+    var searchSubmit = $('.header__search-button');
+    $(tagsBtn).on('click', function (e) {
+        e.preventDefault();
+        var tagsBtnVal = $(this).text();
+        searchInput.val(tagsBtnVal);
+        searchSubmit.click();
+    });
 });
