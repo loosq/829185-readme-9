@@ -159,55 +159,6 @@ function regFormValidation($con)
 }
 
 /**
- * Проверяет на уникальность электронную почту при регистрации.
- * @param mysqli $con ресурс соединения
- * @param string $newUserEmail почта новго пользователя
- *
- * @return bool $result true если новая почта уникальная, false если есть совпадения;
- */
-function dbIsEmailValid($con, $newUserEmail)
-{
-    $result = false;
-    $sql = 'SELECT email FROM users WHERE email = ?';
-    $stmt = mysqli_prepare($con, $sql);
-    mysqli_stmt_bind_param($stmt, 's', $newUserEmail);
-    mysqli_stmt_execute($stmt);
-    $res = mysqli_stmt_get_result($stmt);
-
-    if ($res) {
-        $rows = mysqli_fetch_all($res, MYSQLI_ASSOC);
-        if ($rows) {
-            $result = true;
-        }
-    }
-
-    return $result;
-}
-
-/**
- * Возвращает хеш пароля по введённому адресу почты.
- * @param mysqli $con ресурс соединения
- * @param string $email эмейл пользователя
- *
- * @return bool $row хеш пароля;
- */
-function dbGetHashToEmail($con, $email)
-{
-    $row = false;
-    $sql = 'SELECT password FROM users WHERE email = ?';
-    $stmt = mysqli_prepare($con, $sql);
-    mysqli_stmt_bind_param($stmt, 's', $email);
-    mysqli_stmt_execute($stmt);
-    $res = mysqli_stmt_get_result($stmt);
-
-    if ($res) {
-        $row = mysqli_fetch_row($res);
-    }
-
-    return $row[0];
-}
-
-/**
  * Проверяет форму для отправки поста типа фото и перенаправляет на только что созданный пост.
  * @param mysqli $con ресурс соединения
  *
@@ -235,6 +186,10 @@ function photoFormValidation($con)
                 $errors[$key] = 'Это поле необходимо заполнить';
             }
         }
+
+    if (strlen($photoHeading) > 70) {
+        $errors['photo-heading'] = 'Максимальная величина текста с пробелами 70 символов';
+    }
 
         if (!$url && !$picture) {
             $errors['file-or-url'] = 'Укажите ссылку или загрузите изображение';
@@ -325,6 +280,8 @@ function videoFormValidation($con)
 
         if (!$videoHeading) {
             $errors['video-heading'] = 'Это поле необходимо заполнить';
+        } elseif (strlen($videoHeading) > 70) {
+            $errors['video-heading'] = 'Максимальная величина текста с пробелами 70 символов';
         }
 
         if (!$videoUrl) {
@@ -385,6 +342,8 @@ function textFormValidation($con)
 
         if (empty($textHeading)) {
             $errors['text-heading'] = 'Это поле необходимо заполнить';
+        } elseif (strlen($textHeading) > 70) {
+            $errors['text-heading'] = 'Максимальная величина текста с пробелами 70 символов';
         }
 
         if (empty($textContent)) {
@@ -448,6 +407,8 @@ function quoteFormValidation($con)
 
         if (empty($quoteHeading)) {
             $errors['quote-heading'] = 'Это поле необходимо заполнить';
+        } elseif (strlen($quoteHeading) > 70) {
+            $errors['quote-heading'] = 'Максимальная величина текста с пробелами 70 символов';
         }
 
         if (empty($quoteText)) {
@@ -513,6 +474,8 @@ function urlFormValidation($con)
 
         if (empty($linkHeading)) {
             $errors['link-heading'] = 'Это поле необходимо заполнить';
+        } elseif (strlen($linkHeading) > 70) {
+            $errors['link-heading'] = 'Максимальная величина текста с пробелами 70 символов';
         }
 
         if (empty($linkUrl)) {

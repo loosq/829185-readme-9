@@ -63,13 +63,13 @@
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
                         <a class="filters__button filters__button--ellipse filters__button--all <?= $getTab === 'all' ? 'filters__button--active' : '' ?>"
-                           href="?block=pop&tab=all&sort=<?= $getSort ?>&page=1">
+                           href="?block=pop&tab=all&sort=pop&page=1">
                             <span>Все</span>
                         </a>
                     </li>
                     <li class="popular__filters-item filters__item">
                         <a class="filters__button filters__button--photo button<?= $getTab === 'photo' ? ' filters__button--active' : '' ?>"
-                           href="?block=pop&tab=photo&sort=<?= $getSort ?>&page=1">
+                           href="?block=pop&tab=photo&sort=pop&page=1">
                             <span class="visually-hidden">Фото</span>
                             <svg class="filters__icon" width="22" height="18">
                                 <use xlink:href="#icon-filter-photo"></use>
@@ -78,7 +78,7 @@
                     </li>
                     <li class="popular__filters-item filters__item">
                         <a class="filters__button filters__button--video button<?= $getTab === 'video' ? ' filters__button--active' : '' ?>"
-                           href="?block=pop&tab=video&sort=<?= $getSort ?>&page=1">
+                           href="?block=pop&tab=video&sort=pop&page=1">
                             <span class="visually-hidden">Видео</span>
                             <svg class="filters__icon" width="24" height="16">
                                 <use xlink:href="#icon-filter-video"></use>
@@ -87,7 +87,7 @@
                     </li>
                     <li class="popular__filters-item filters__item">
                         <a class="filters__button filters__button--text button<?= $getTab === 'text' ? ' filters__button--active' : '' ?>"
-                           href="?block=pop&tab=text&sort=<?= $getSort ?>&page=1">
+                           href="?block=pop&tab=text&sort=pop&page=1">
                             <span class="visually-hidden">Текст</span>
                             <svg class="filters__icon" width="20" height="21">
                                 <use xlink:href="#icon-filter-text"></use>
@@ -96,7 +96,7 @@
                     </li>
                     <li class="popular__filters-item filters__item">
                         <a class="filters__button filters__button--quote button<?= $getTab === 'quote' ? ' filters__button--active' : '' ?>"
-                           href="?block=pop&tab=quote&sort=<?= $getSort ?>&page=1">
+                           href="?block=pop&tab=quote&sort=pop&page=1">
                             <span class="visually-hidden">Цитата</span>
                             <svg class="filters__icon" width="21" height="20">
                                 <use xlink:href="#icon-filter-quote"></use>
@@ -105,7 +105,7 @@
                     </li>
                     <li class="popular__filters-item filters__item">
                         <a class="filters__button filters__button--link button<?= $getTab === 'url' ? ' filters__button--active' : '' ?>"
-                           href="?block=pop&tab=url&sort=<?= $getSort ?>&page=1">
+                           href="?block=pop&tab=url&sort=pop&page=1">
                             <span class="visually-hidden">Ссылка</span>
                             <svg class="filters__icon" width="21" height="18">
                                 <use xlink:href="#icon-filter-link"></use>
@@ -166,8 +166,8 @@
                                 </div>
                             </div>
                         <?php elseif ($cardType === 'text'): ?>
-                            <p style="margin-left: 7%">
-                                <?= htmlspecialchars(cutText($cardContent)) ?></p>
+                            <p style="margin-left: 7%; margin-right: 10%">
+                                <?= cutText( $cardContent, 60, $cardPostId) ?></p>
                         <?php endif ?>
                     </div>
                     <footer class="post__footer">

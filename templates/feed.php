@@ -68,7 +68,7 @@
                             <?php endif ?>
                             <?php if ($cardType === 'text'): ?>
                                 <h2><a href="post.php?postId=<?= $cardPostId ?>" ><?= $cardTitle ?></a></h2>
-                                <p style="margin-left: 7%" ><?= cutText($cardContent) ?></p>
+                                <p style="margin-left: 7%" ><?= cutText($cardContent, 200, $cardPostId) ?></p>
                             <?php endif ?>
                             <?php if ($cardType === 'video'): ?>
                                 <div class="post-photo__image-wrapper">
@@ -124,17 +124,21 @@
                                     <span><?= dbCountCommentsToPost($con, $cardPostId) ?></span>
                                     <span class="visually-hidden">количество комментариев</span>
                                 </a>
-                                <?php if($cardRepost) : ?>
-                                    <a class="post__indicator post__indicator--repost button" href="#" title="Репост">
+                                    <a class="post__indicator post__indicator--repost button" href="profile.php?postId=<?= $card['posts_id'] ?>&repost=1&tab=posts" title="Репост">
                                         <svg class="post__indicator-icon" width="19" height="17">
                                             <use xlink:href="#icon-repost"></use>
                                         </svg>
-                                        <span>5</span>
+                                        <span><?= dbGetPostReposts($con, $card['posts_id']) ?></span>
                                         <span class="visually-hidden">количество репостов</span>
                                     </a>
-                                <?php endif ?>
                             </div>
                         </footer>
+                        <?php $hashtags = dbGetAllHashtagsToPost($con, $cardPostId) ?>
+                        <ul class="post__tags">
+                            <?php foreach ($hashtags as $hashtag): ?>
+                                <li><a class="post__tags-btn" title="Поиск по тэгу <?= $hashtag['name'] ?>">#<?= $hashtag['name'] ?></a></li>
+                            <?php endforeach ?>
+                        </ul>
                     </article>
                         <?php endforeach ?>
                 </div>

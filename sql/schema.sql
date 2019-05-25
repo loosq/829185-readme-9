@@ -206,6 +206,29 @@ CREATE TABLE IF NOT EXISTS `readme`.`posts_has_hashtags` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
+-- -----------------------------------------------------
+-- Table `readme`.`views`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `readme`.`views` (
+  `views_id` INT NOT NULL AUTO_INCREMENT,
+  `user_id` INT NOT NULL,
+  `post_id` INT NOT NULL,
+  PRIMARY KEY (`views_id`),
+  INDEX `fk_users_id_idx` (`user_id` ASC),
+  INDEX `fk_posts_id_idx` (`post_id` ASC),
+  UNIQUE INDEX `views_id_UNIQUE` (`views_id` ASC),
+  CONSTRAINT `fk_posts_id_idx`
+  FOREIGN KEY (`post_id`)
+  REFERENCES `readme`.`posts` (`posts_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_users_id_idx`
+  FOREIGN KEY (`user_id`)
+  REFERENCES `readme`.`users` (`users_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+  ENGINE = InnoDB;
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
@@ -219,6 +242,8 @@ USE `readme`;
 INSERT INTO `readme`.`users` (`users_id`, `registration_date`, `email`, `name`, `password`, `avatar`, `contact_info`) VALUES (1, '2019-01-04 14:32:01', 'larisa@mail.ru', 'Лариса', 'qwerty', 'img/userpic-larisa-small.jpg', '');
 INSERT INTO `readme`.`users` (`users_id`, `registration_date`, `email`, `name`, `password`, `avatar`, `contact_info`) VALUES (2, '2012-01-01 13:31:49', 'vlados666@bk.ru', 'Владик', 'lth;bvtyzrhtgxt1488', 'img/userpic.jpg', NULL);
 INSERT INTO `readme`.`users` (`users_id`, `registration_date`, `email`, `name`, `password`, `avatar`, `contact_info`) VALUES (3, '2019-04-01 18:32:01', 'victorian@gmail.com', 'Виктор', 'jj~lLasldla341kdlaj', 'img/userpic-mark.jpg', NULL);
+INSERT INTO `readme`.`users` (`users_id`, `registration_date`, `email`, `name`, `password`, `avatar`, `contact_info`) VALUES (4, '2019-05-23 21:23:07', 'xxx@gmail.com', 'Serg', '$2y$10$hgMEatXU/.Q/zm.dn34V4ehzQV5hEBirDLyWH8kQIVjTUw4bBTDN6', '../uploads/5ce8773fd6936.gif', NULL);
+INSERT INTO `readme`.`users` (`users_id`, `registration_date`, `email`, `name`, `password`, `avatar`, `contact_info`) VALUES (5, '2019-05-25 01:59:48', 'ssss@mail.ru', 'UnSerg', '$2y$10$sEg8z63mrtpXVGChUQM.j.eyCLQqdR/WuZtlzDJf7nXz4BSUW3kK6', '../uploads/5ce8776408173.jpg', NULL);
 
 COMMIT;
 
@@ -248,6 +273,14 @@ INSERT INTO `readme`.`posts` (`posts_id`, `post_date`, `title`, `content`, `quot
 INSERT INTO `readme`.`posts` (`posts_id`, `post_date`, `title`, `content`, `quote_author`, `img_url`, `video_url`, `users_site_url`, `number_of_views`, `users_id`, `content_types_id`, `isrepost`, `user_author_id`, `post_origin_id` ) VALUES (4, '2019-04-23 19:42:21', 'Моя мечта', 'img/coast-medium.jpg', NULL, 'img/coast-medium.jpg', NULL, NULL, 3123, 1, 3, 0, 0, 0);
 INSERT INTO `readme`.`posts` (`posts_id`, `post_date`, `title`, `content`, `quote_author`, `img_url`, `video_url`, `users_site_url`, `number_of_views`, `users_id`, `content_types_id`, `isrepost`, `user_author_id`, `post_origin_id` ) VALUES (5, '2019-04-24 01:21:19', 'Лучшие курсы', 'www.htmlacademy.ru', NULL, NULL, NULL, NULL, 100, 2, 5, 0, 0, 0);
 INSERT INTO `readme`.`posts` (`posts_id`, `post_date`, `title`, `content`, `quote_author`, `img_url`, `video_url`, `users_site_url`, `number_of_views`, `users_id`, `content_types_id`, `isrepost`, `user_author_id`, `post_origin_id` ) VALUES (6, '2019-04-24 01:21:19', 'аааааааааа', 'https://www.youtube.com/watch?v=aG1nWuYFkTM', NULL, NULL, 'https://www.youtube.com/watch?v=aG1nWuYFkTM', NULL, 0, 2, 4, 0, 0, 0);
+INSERT INTO `readme`.`posts` (`posts_id`, `post_date`, `title`, `content`, `quote_author`, `img_url`, `video_url`, `users_site_url`, `number_of_views`, `users_id`, `content_types_id`, `isrepost`, `user_author_id`, `post_origin_id` ) VALUES (7, '2019-01-24 12:00:53', 'Воскресший Сергей Скрипаль: ', 'Отравленный в Солсбери экс-полковник ГРУ сообщил, что его перевозят с места на место и у него в горле стоит стома', NULL, NULL, NULL, NULL, 1, 2, 1, 0, 0, 0);
+INSERT INTO `readme`.`posts` (`posts_id`, `post_date`, `title`, `content`, `quote_author`, `img_url`, `video_url`, `users_site_url`, `number_of_views`, `users_id`, `content_types_id`, `isrepost`, `user_author_id`, `post_origin_id` ) VALUES (8, '2019-04-18 10:00:23', 'Взгляд из Финляндии', '– Выход в четвертьфинал стал крупной неожиданностью. Вы согласны с коллегой Ханну Аравиртой, что финская команда способная сотворить вторую сенсацию за три дня. И если да – что для этого нужно?
+
+– Это вполне возможно. Естественно, на бумаге финны значительно слабее, поэтому ничего на них не давит. Против Швеции мы просто лучше действовали, кропотливее работали, катались больше, оборонялись и атаковали всей пятеркой. Именно также нужно сыграть завтра. Сейчас в команде 18 дебютантов чемпионатов мира, мотивация у них зашкаливает, эти парни по-настоящему голодны до игр и побед!', NULL, NULL, NULL, NULL, 1, 2, 1, 0, 0, 0);
+INSERT INTO `readme`.`posts` (`posts_id`, `post_date`, `title`, `content`, `quote_author`, `img_url`, `video_url`, `users_site_url`, `number_of_views`, `users_id`, `content_types_id`, `isrepost`, `user_author_id`, `post_origin_id` ) VALUES (9, '2019-01-22 01:21:43', 'CATS!', 'img/cat.jpg', NULL, 'img/cat.jpg', NULL, '', 2123123212, 3, 3, 0, 0, 0);
+INSERT INTO `readme`.`posts` (`posts_id`, `post_date`, `title`, `content`, `quote_author`, `img_url`, `video_url`, `users_site_url`, `number_of_views`, `users_id`, `content_types_id`, `isrepost`, `user_author_id`, `post_origin_id` ) VALUES (10, '2019-02-24 16:00:53', 'Цитата', 'дословно приведенное в произведении одного автора высказывание другого автора – как подтверждение своей мысли авторитетным, бесспорным утверждением, а то и наоборот – как формулировка, требующая опровержения, критики.', NULL, NULL, NULL, NULL, 1213, 1, 2, 0, 0, 0);
+INSERT INTO `readme`.`posts` (`posts_id`, `post_date`, `title`, `content`, `quote_author`, `img_url`, `video_url`, `users_site_url`, `number_of_views`, `users_id`, `content_types_id`, `isrepost`, `user_author_id`, `post_origin_id` ) VALUES (11, '2019-05-23 09:00:23', 'Прояснилось...', 'Быть любимым — это больше, чем быть богатым, потому что быть любимым означает быть счастливым', NULL, NULL, NULL, NULL, 1, 2, 1, 0, 0, 0);
+INSERT INTO `readme`.`posts` (`posts_id`, `post_date`, `title`, `content`, `quote_author`, `img_url`, `video_url`, `users_site_url`, `number_of_views`, `users_id`, `content_types_id`, `isrepost`, `user_author_id`, `post_origin_id` ) VALUES (12, '2019-01-22 19:20:43', 'Моя киса', 'img/cat.jpg', NULL, 'img/cat.jpg', NULL, '', 2123122, 3, 3, 0, 0, 0);
 
 COMMIT;
 
@@ -283,4 +316,3 @@ INSERT INTO `readme`.`likes` (`likes_id`, `likes_date`, `post_id`, `user_id`) VA
 INSERT INTO `readme`.`likes` (`likes_id`, `likes_date`, `post_id`, `user_id`) VALUES (2, NOW(), 2, 2);
 
 COMMIT;
-

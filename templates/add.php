@@ -126,7 +126,7 @@
                                 </div>
                                 <?php if (isset($errors)): ?>
                                 <div class="form__invalid-block">
-                                    <b class="form__invalid-slogan">Пожалуйста, исправьте следующие ошибки:</b>
+                                    <b class="form__invalid-slogan">Пожалуйста, исправьте ошибки в форме:</b>
                                     <ul class="form__invalid-list">
                                         <?php foreach ($errors as $key => $val): ?>
                                         <li class="form__invalid-item"><?= $dict[$key] ?> <?= $val ?></li>
@@ -201,7 +201,7 @@
                                 </div>
                                 <?php if (isset($errors)): ?>
                                 <div class="form__invalid-block">
-                                    <b class="form__invalid-slogan">Пожалуйста, исправьте следующие ошибки:</b>
+                                    <b class="form__invalid-slogan">Пожалуйста, исправьте ошибки в форме:</b>
                                     <ul class="form__invalid-list">
                                         <?php foreach ($errors as $key => $val): ?>
                                             <li class="form__invalid-item"><?= $dict[$key] ?> <?= $val ?></li>
@@ -259,7 +259,7 @@
                                 </div>
                                 <?php if (isset($errors)): ?>
                                     <div class="form__invalid-block">
-                                        <b class="form__invalid-slogan">Пожалуйста, исправьте следующие ошибки:</b>
+                                        <b class="form__invalid-slogan">Пожалуйста, исправьте ошибки в форме:</b>
                                         <ul class="form__invalid-list">
                                             <?php foreach ($errors as $key => $val): ?>
                                                 <li class="form__invalid-item"><?= $dict[$key] ?> <?= $val ?></li>
@@ -327,7 +327,7 @@
                                 </div>
                                 <?php if (isset($errors)): ?>
                                     <div class="form__invalid-block">
-                                        <b class="form__invalid-slogan">Пожалуйста, исправьте следующие ошибки:</b>
+                                        <b class="form__invalid-slogan">Пожалуйста, исправьте ошибки в форме:</b>
                                         <ul class="form__invalid-list">
                                             <?php foreach ($errors as $key => $val): ?>
                                                 <li class="form__invalid-item"><?= $dict[$key] ?> <?= $val ?></li>
@@ -384,7 +384,7 @@
                                 </div>
                                 <?php if (isset($errors)): ?>
                                     <div class="form__invalid-block">
-                                        <b class="form__invalid-slogan">Пожалуйста, исправьте следующие ошибки:</b>
+                                        <b class="form__invalid-slogan">Пожалуйста, исправьте ошибки в форме:</b>
                                         <ul class="form__invalid-list">
                                             <?php foreach ($errors as $key => $val): ?>
                                                 <li class="form__invalid-item"><?= $dict[$key] ?> <?= $val ?></li>

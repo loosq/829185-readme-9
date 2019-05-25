@@ -13,24 +13,21 @@ $userMe = $_SESSION['user-id'];
 $userOther = $_GET['user'] ?? '';
 $msgText = trim($_POST['msg']);
 $getBlock = $_GET['block'] ?? '';
-$allChats = dbGetAllChats($con, $userMe);
+$allChats = dbGetAllChatsData($con, $userMe);
+if ($userOther) {
+    $currentChat = array_reverse(dbGetCurChat($con, $userMe, $userOther));
+}
 
 msgFormValidation($con, $userMe, $userOther, $msgText);
 
-if ($userOther) {
-    $arr = dbGetChat($con, $userMe, $userOther);
-    $currentChat = array_reverse($arr);
-} else {
-    $currentChat = '';
-}
-
 $content = include_template('messages.php', [
     'userMe'      => $userMe,
+    'userSession' => $userSession,
     'userOther'   => $userOther,
     'currentChat' => $currentChat,
     'allChats'    => $allChats,
+    'con'         => $con,
 ]);
-
 
 $html = include_template('layout.php', [
     'userSession' => $userSession,

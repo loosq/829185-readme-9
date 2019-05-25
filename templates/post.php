@@ -111,7 +111,7 @@
                             </a>
                             <?php endif ?>
                         </div>
-                        <span class="post__view">500 просмотров</span>
+                        <span class="post__view"><?= dbGetViewPost($con, $postId) . ' ' . get_noun_plural_form( dbGetPostViews($con, $postId), 'просмотр', 'просмотры', 'просмотров') ?></span>
                     </div>
                     <?php $hashtags = dbGetAllHashtagsToPost($con, $postId) ?>
                     <ul class="post__tags">
@@ -161,10 +161,13 @@
                                     </li>
                                 <?php endforeach ?>
                             </ul>
-                            <a class="comments__more-link" href="#">
+                            <?php if (dbCountCommentsToPost($con, $postId) > 3 && (int)$allComments  === 0): ?>
+                            <a class="comments__more-link" href="post.php?postId=<?= $postId ?>&all=1&#end-of-comments">
                                 <span>Показать все комментарии</span>
-                                <sup class="comments__amount">45</sup>
+                                <sup class="comments__amount"><?= dbCountCommentsToPost($con, $postId) ?></sup>
                             </a>
+                            <?php endif ?>
+                            <div id="end-of-comments"></div>
                         </div>
                     </div>
                 </div>
@@ -203,8 +206,10 @@
                                $userData['users_id']) ? '1' : '0' ?>"><span><?= dbCheckSubscription($con,
                                     $userSession['user-id'],
                                     $userData['users_id']) ? 'Отписаться' : 'Подписаться' ?></span></a>
+                        <?php if (dbCheckSubscription($con, $userSession['user-id'], $userData['users_id'])): ?>
                         <a class="profile__user-button user__button user__button--writing button button--green"
                            href="messages.php?block=messages&user=<?= $userData['users_id'] ?>">Сообщение</a>
+                        <?php endif ?>
                     </div>
                 </div>
             </div>

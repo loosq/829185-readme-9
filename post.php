@@ -13,7 +13,9 @@ $title = 'readme: публикация';
 $userSession = $_SESSION;
 $getUser = $_GET['user'];
 $cards = dbReadPostsId($con, $postId);
-$comments = dbGetCommentsToPost($con, $postId);
+$allComments = $_GET['all'] ?? '';
+$addView = dbAddViewToPost($con, $userSession['user-id'], $postId);
+$comments = dbGetCommentsToPost($con, $postId, $allComments);
 $commentText = $_POST['comment-text'];
 
 foreach ($cards as $card) {
@@ -32,6 +34,7 @@ $content = include_template('post.php', [
     'postId'        => $postId,
     'con'           => $con,
     'getUser'       => $getUser,
+    'allComments'   => $allComments,
 ]);
 
 

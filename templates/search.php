@@ -69,7 +69,7 @@
 
                             <?php if ($cardType === 'text'): ?>
                                 <h2><a href="post.php?postId=<?= $cardPostId ?>" ><?= $cardTitle ?></a></h2>
-                                <p style="margin-left: 7%" ><?= cutText($cardContent) ?></p>
+                                <p style="margin-left: 7%" ><?= cutText($cardContent, 100, $cardPostId) ?></p>
                             <?php endif ?>
 
                             <?php if ($cardType === 'video'): ?>
@@ -129,7 +129,7 @@
                                 <?php $hashtags = dbGetAllHashtagsToPost($con, $cardPostId) ?>
                                 <ul class="post__tags">
                                     <?php foreach ($hashtags as $val => $hashtag): ?>
-                                        <li><a href="../search.php?q=#<?= $hashtag['name'] ?>" >#<?= $hashtag['name'] ?></a></li>
+                                        <li><a class="post__tags-btn" href="../search.php?q=#<?= $hashtag['name'] ?>" >#<?= $hashtag['name'] ?></a></li>
                                     <?php endforeach ?>
                                 </ul>
                             </div>

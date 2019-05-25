@@ -2,13 +2,14 @@
 
 /**
  * Проверяет текст на количество символов, если символов больше, то
- * подставляет ссылку "Читать далее" с открытием по клику.
+ * подставляет ссылку "Читать далее" с открытием по клику переадресовывает на пост.
  * @param string $text текст
  * @param int $maxLength количество символов (по умолчанию 300)
+ * @param int $postId id поста
  *
  * @return string текст с/без блоком-ссылкой "Читать далее"
  */
-function cutText($text, $maxLength = 300)
+function cutText($text, $maxLength = 300, $postId)
 {
     if (strlen($text) > $maxLength) {
         $textArr = explode(' ', $text);
@@ -19,7 +20,7 @@ function cutText($text, $maxLength = 300)
             $j++;
             if ($countLetters > $maxLength) {
                 return implode(' ', array_slice($textArr, 0,
-                        $j)) . '...' . '<br/><a class="post-text__more-link" href="#" style="margin-left: 0">Читать далее</a>';
+                        $j)) . '...' . '<br/><a class="post-text__more-link" href="post.php?postId=' . $postId . '" style="margin-left: 0"> Читать далее </a>';
             }
         }
     }

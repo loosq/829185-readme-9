@@ -559,13 +559,20 @@ function dbNewComment($con, $postId, $commentText, $userId)
  *
  * @return array $rows массив комментариев к посту
  */
-function dbGetCommentsToPost($con, $postId)
+function dbGetCommentsToPost($con, $postId, $num = null)
 {
+
+    if ((int)$num === 1) {
+        $limit = '';
+    } else {
+        $limit = 'LIMIT 3';
+    }
+
     $sql = 'SELECT * FROM comments c
             JOIN users u
             ON c.users_id = u.users_id
             WHERE post_id = ? 
-            ORDER BY c.data_time_of_origin DESC';
+            ORDER BY c.data_time_of_origin DESC ' . $limit;
     $stmt = mysqli_prepare($con, $sql);
     mysqli_stmt_bind_param($stmt, 'i', $postId);
     mysqli_stmt_execute($stmt);
@@ -875,7 +882,7 @@ function dbNewMsg($con, $userId, $userIdGet, $content)
     $res = mysqli_stmt_get_result($stmt);
     $rows = mysqli_fetch_all($res, MYSQLI_ASSOC);
 
-    if (!$rows){
+    if (!$rows) {
         $sql = 'SELECT chat_hash FROM messages WHERE 
                 users_id_send = (?) AND users_id_get = (?)';
         $stmt = mysqli_prepare($con, $sql);
@@ -896,65 +903,145 @@ function dbNewMsg($con, $userId, $userIdGet, $content)
 }
 
 /**
- * Возвращает сообщения между 2мя пользователями.
+ * Возвращает все переписки пользователя.
  * @param mysqli $con ресурс соединения
- * @param int $userId id пользователя отправителя
- * @param int $userIdGet id пользователя получателя
+ * @param int $user id пользователя
  *
- * @return array $rows массив сообщения
+ * @return array $rows массив с переписками
  */
-function dbGetChat($con, $userId, $userIdGet)
+function dbGetAllChatsData($con, $user)
 {
+    $sql = 'SET sql_mode = ""';
+    mysqli_query($con, $sql);
+    $sql = 'SELECT date_of_origin, text, users_id_send, users_id_get,  chat_hash
+           FROM messages 
+           WHERE messages_id IN(
+           SELECT max(messages_id) FROM messages WHERE 
+           users_id_send = ' . $user . ' OR 
+           users_id_get = ' . $user . ' GROUP BY chat_hash) ORDER BY chat_hash';
+    $allChats = mysqli_query($con, $sql);
+    if (!$allChats) {
+        echo mysqli_error($con);
+    }
+    $rows = mysqli_fetch_all($allChats, MYSQLI_ASSOC);
 
-    $sql = 'SELECT  m.date_of_origin, m.text, u.name, m.users_id_get, m.users_id_send, u.avatar 
-            FROM messages m LEFT JOIN users u 
-            ON m.users_id_get = u.users_id 
-            WHERE 
-            (m.users_id_send = (?) AND m.users_id_get = (?)
-            AND
-            m.users_id_get = (?) AND m.users_id_send = (?)) 
-            ORDER BY m.date_of_origin DESC LIMIT 3';
+    return $rows;
+}
 
-    $stmt = mysqli_prepare($con, $sql);
-    mysqli_stmt_bind_param($stmt, 'iiii', $userId, $userIdGet, $userIdGet, $userId);
-    mysqli_stmt_execute($stmt);
-    $res = mysqli_stmt_get_result($stmt);
-    if (!$res) {
-        echo 'Ошибка бд' . mysqli_error($con);
+/**
+ * Возвращает переписку между двумя пользователями лимит 3 последних сообщения.
+ * @param mysqli $con ресурс соединения
+ * @param int $userSend id пользователя отправителя
+ * @param int $userGet id пользователя получателя
+ *
+ * @return array $rows массив переписки
+ */
+function dbGetCurChat($con, $userSend, $userGet)
+{
+    $sql = 'SELECT * FROM messages WHERE 
+            (users_id_send = ' . $userSend . ' AND users_id_get = ' . $userGet . ') 
+             OR 
+            (users_id_get= ' . $userSend . ' AND users_id_send = ' . $userGet . ')
+            ORDER BY date_of_origin DESC
+            LIMIT 3';
+    $chat = mysqli_query($con, $sql);
+    if (!$chat) {
+        echo mysqli_error($con);
+        $rows = false;
     } else {
-        $rows = mysqli_fetch_all($res, MYSQLI_ASSOC);
+        $rows = mysqli_fetch_all($chat, MYSQLI_ASSOC);
     }
 
     return $rows;
 }
 
 /**
- * Возвращает хеши всех чатов.
+ * Возвращает имя пользователя с кем чат.
  * @param mysqli $con ресурс соединения
- * @param int $userId id пользователя отправителя
+ * @param int $userSend id пользователя отправителя
+ * @param int $userGet id пользователя получателя
  *
- * @return array $rows массив данных
+ * @return string $row имя пользователя
  */
-function dbGetAllChats($con, $userId)
+function dbGetUserChatToName($con, $userSend, $userGet)
 {
-    $sql = 'SELECT MAX(messages_id) as messages_id, MIN(text) as text, MAX(date_of_origin) as date,
-            MAX(users_id_send) as users_id_send, MAX(users_id_get) as users_id_get 
-            FROM messages m 
-            WHERE m.chat_hash IN (SELECT DISTINCT m.chat_hash FROM messages m 
-            WHERE m.users_id_send = (?) OR m.users_id_get = (?)) GROUP BY m.chat_hash';
-    $stmt = mysqli_prepare($con, $sql);
-    mysqli_stmt_bind_param($stmt, 'ii', $userId, $userId);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
+    $userSend = (int)$userSend;
+    $userGet = (int)$userGet;
+    $userMe = $_SESSION['user-id'];
+    If ($userGet === $userMe) {
 
-    if ($result) {
-        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        $user = $userSend;
     } else {
-        $rows = false;
+        $user = $userGet;
+
     }
 
-    return $rows;
+    $sql = 'SELECT users.name FROM users WHERE users_id = ' . $user;
+    $userName = mysqli_query($con, $sql);
+    $row = mysqli_fetch_row($userName);
+    if (!$userName) {
+        echo mysqli_error($con);
+    }
+
+    return $row[0];
 }
+
+/**
+ * Возвращает ссылку на аватар пользователя с кем чат.
+ * @param mysqli $con ресурс соединения
+ * @param int $userSend id пользователя отправителя
+ * @param int $userGet id пользователя получателя
+ *
+ * @return string $row ссылка на аватар
+ */
+function dbGetUserChatToAva($con, $userSend, $userGet)
+{
+    $userSend = (int)$userSend;
+    $userGet = (int)$userGet;
+    $userMe = $_SESSION['user-id'];
+    If ($userSend === $userMe) {
+        $sql = 'SELECT users.avatar FROM users WHERE users_id = ' . $userGet;
+    } else {
+        $sql = 'SELECT users.avatar FROM users WHERE users_id = ' . $userSend;
+    }
+
+    $userAva = mysqli_query($con, $sql);
+    $row = mysqli_fetch_row($userAva);
+    if (!$row) {
+        echo mysqli_error($con);
+    }
+
+    return $row[0];
+}
+
+/**
+ * Возвращает id пользователя с кем чат.
+ * @param mysqli $con ресурс соединения
+ * @param int $userSend id пользователя отправителя
+ * @param int $userGet id пользователя получателя
+ *
+ * @return int $row id пользователя
+ */
+function dbGetUserChatToId($con, $userSend, $userGet)
+{
+    $userSend = (int)$userSend;
+    $userGet = (int)$userGet;
+    $userMe = $_SESSION['user-id'];
+    If ($userSend === $userMe) {
+        $sql = 'SELECT users.users_id FROM users WHERE users_id = ' . $userGet;
+    } else {
+        $sql = 'SELECT users.users_id FROM users WHERE users_id = ' . $userSend;
+    }
+
+    $userId = mysqli_query($con, $sql);
+    $row = mysqli_fetch_row($userId);
+    if (!$row) {
+        echo mysqli_error($con);
+    }
+
+    return $row[0];
+}
+
 
 /**
  * Возвращает информацию о пользователях лайкнувших пост пользователя.
@@ -972,7 +1059,7 @@ function dbGetUsersByLike($con, $userId)
             u.users_id = l.user_id
             LEFT JOIN content_types ct ON 
             p.content_types_id = ct.content_types_id
-            WHERE p.users_id = ? AND u.users_id IS NOT NULL';
+            WHERE p.users_id = ? AND u.users_id IS NOT NULL ORDER BY likes_date DESC';
 
     $stmt = mysqli_prepare($con, $sql);
     mysqli_stmt_bind_param($stmt, 'i', $userId);
@@ -1202,7 +1289,7 @@ function multySearch($con, $search)
                 $sql = 'SELECT * FROM posts p
                 LEFT JOIN users u ON p.users_id = u.users_id
                 LEFT JOIN content_types c ON p.content_types_id = c.content_types_id
-                WHERE MATCH(p.content, p.title) AGAINST(?)';
+                WHERE (MATCH(p.content, p.title) AGAINST(?)) GROUP BY post_date';
                 $stmt = db_get_prepare_stmt($con, $sql, [$search]);
                 mysqli_stmt_execute($stmt);
                 $result = mysqli_stmt_get_result($stmt);
@@ -1228,7 +1315,7 @@ function multySearch($con, $search)
                 LEFT JOIN hashtags h ON phh.hashtags_to_posts_id = h.hashtags_id
                 LEFT JOIN content_types t ON p.content_types_id = t.content_types_id
                 LEFT JOIN users u ON p.users_id = u.users_id
-                WHERE MATCH(h.name) AGAINST(?)';
+                WHERE MATCH(h.name) AGAINST(?) ORDER BY p.post_date DESC';
                 $saveSearch = '#' . $search;
             } else {
                 $sql = 'SELECT * FROM posts p 
@@ -1236,7 +1323,7 @@ function multySearch($con, $search)
                 LEFT JOIN hashtags h ON phh.hashtags_to_posts_id = h.hashtags_id
                 LEFT JOIN content_types t ON p.content_types_id = t.content_types_id
                 LEFT JOIN users u ON p.users_id = u.users_id
-                WHERE h.name LIKE (?)';
+                WHERE h.name LIKE (?) ORDER BY p.post_date DESC';
                 $saveSearch = '#' . $search;
                 $search = '%' . $search . '%';
             }
@@ -1267,4 +1354,117 @@ function multySearch($con, $search)
     }
 
     return $content;
+}
+
+/**
+ * Проверяет на уникальность электронную почту при регистрации.
+ * @param mysqli $con ресурс соединения
+ * @param string $newUserEmail почта новго пользователя
+ *
+ * @return bool $result true если новая почта уникальная, false если есть совпадения;
+ */
+function dbIsEmailValid($con, $newUserEmail)
+{
+    $result = false;
+    $sql = 'SELECT email FROM users WHERE email = ?';
+    $stmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($stmt, 's', $newUserEmail);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+
+    if ($res) {
+        $rows = mysqli_fetch_all($res, MYSQLI_ASSOC);
+        if ($rows) {
+            $result = true;
+        }
+    }
+
+    return $result;
+}
+
+/**
+ * Возвращает хеш пароля по введённому адресу почты.
+ * @param mysqli $con ресурс соединения
+ * @param string $email эмейл пользователя
+ *
+ * @return bool $row хеш пароля;
+ */
+function dbGetHashToEmail($con, $email)
+{
+    $row = false;
+    $sql = 'SELECT password FROM users WHERE email = ?';
+    $stmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($stmt, 's', $email);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+
+    if ($res) {
+        $row = mysqli_fetch_row($res);
+    }
+
+    return $row[0];
+}
+
+/**
+ * Возвращает количество просмотров поста.
+ * @param mysqli $con ресурс соединения
+ * @param int $postId id поста
+ *
+ * @return bool $views количество просмотров;
+ */
+function dbGetPostViews($con, $postId)
+{
+    $sql = 'SELECT number_of_views FROM posts WHERE posts_id = ?';
+    $stmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($stmt, 's', $postId);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+
+    if ($res) {
+        $views = mysqli_fetch_row($res);
+    }
+
+    return $views[0];
+}
+
+/**
+ * Возвращает кол-во просмотров поста.
+ * @param mysqli $con ресурс соединения
+ * @param int $postId id поста
+ *
+ * @return int $views количество просмотров;
+ */
+function dbGetViewPost($con, $postId)
+{
+    $postId = (int)$postId;
+    $sql = 'SELECT COUNT(views_id) AS cnt FROM views v WHERE v.post_id = (?)';
+    $stmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($stmt, 'i', $postId);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $views = mysqli_fetch_row($res);
+
+    return $views[0];
+}
+
+/**
+ * Добавляет просмотр поста и возвращает кол во просмотров.
+ * @param mysqli $con ресурс соединения
+ * @param int $postId id поста
+ * @param int $userId id пользователя
+ *
+ * @return bool $res кол-во просмотров;
+ */
+function dbAddViewToPost($con, $userId, $postId)
+{
+    $postId = (int)$postId;
+
+    $sql = 'INSERT INTO views (user_id, post_id)
+                        VALUES(?, ?)';
+    $stmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($stmt, 'ii', $userId, $postId);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+
+    return $res;
 }

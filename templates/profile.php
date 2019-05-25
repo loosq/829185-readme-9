@@ -71,8 +71,10 @@
                        data-user-id="<?= $getUser ?>" data-issub="<?= dbCheckSubscription($con, $userSession['user-id'],
                         $getUser) ? '1' : '0' ?>"><span><?= dbCheckSubscription($con, $userSession['user-id'],
                                 $getUser) ? 'Отписаться' : 'Подписаться' ?></span></a>
+                    <?php if (dbCheckSubscription($con, $userSession['user-id'], $userData['users_id'])): ?>
                     <a class="profile__user-button user__button user__button--writing button button--green"
                        href="messages.php?block=messages&user=<?= $getUser ?>">Сообщение</a>
+                    <?php endif ?>
                 </div>
             </div>
         </div>
@@ -154,7 +156,7 @@
                                     </div>
                                 <?php elseif ($card['content_types_id'] === 1): ?>
                                     <p style="margin-left: 7%">
-                                        <?= cutText($card['content']) ?></p>
+                                        <?= cutText($card['content'], 200, $card['posts_id']) ?></p>
                                 <?php endif ?>
                             </div>
 
@@ -176,7 +178,7 @@
                                                 <svg class="post__indicator-icon" width="19" height="17">
                                                     <use xlink:href="#icon-repost"></use>
                                                 </svg>
-                                                <span><?= dbGetPostReposts($con, $card['posts_id']) ?></span>
+                                                <span><?= $card['isrepost'] ? dbGetPostReposts($con, $card['post_origin_id']) : dbGetPostReposts($con, $card['posts_id']) ?></span>
                                                 <span class="visually-hidden">количество репостов</span>
                                             </a>
                                     </div>
