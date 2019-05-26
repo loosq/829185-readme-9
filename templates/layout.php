@@ -3,10 +3,13 @@
  * @var string $title заголовок страницы
  * @var string $getTab тип контента из строки запроса
  * @var string $getBlock тип странички (лента-feed или популярное-pop)
- *
+ * @vat string $search поисковый запрос
+ * @var array $userSession данные о пользователе у которого открыта сессия
+ * @var string $userSession['user-name'] имя пользователя
+ * @var string $userSession['user-ava'] ссылка на аватар пользователя
+ * @var string $userSession['user-id '] id пользователя
  */
 ?>
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -88,21 +91,24 @@
         </symbol>
     </svg>
 </div>
+<div id="preloader">
+    <div id="preloader__icon"></div>
+</div>
 
 <header class="header">
     <div class="header__wrapper container">
         <div class="header__logo-wrapper">
-            <a class="header__logo-link" href="<?= isset($_SESSION) ? 'feed.php?block=feed&tab=all' : '/' ?>">
+            <a class="header__logo-link" href="<?= isset($userSession) ? 'feed.php?block=feed&tab=all' : '/' ?>">
                 <img class="header__logo" src="img/logo.svg" alt="Логотип readme" width="128" height="24">
             </a>
             <p class="header__topic">
                 micro blogging
             </p>
         </div>
-        <form class="header__search-form form" action="#" method="get">
+        <form class="header__search-form form" action="search.php?q=<?= htmlspecialchars($search) ?>" method="get">
             <div class="header__search">
                 <label class="visually-hidden">Поиск</label>
-                <input class="header__search-input form__input" type="search">
+                <input class="header__search-input form__input" type="search" name="q" value="<?= htmlspecialchars($search) ?>">
                 <button class="header__search-button button" type="submit">
                     <svg class="header__search-icon" width="18" height="18">
                         <use xlink:href="#icon-search"></use>
@@ -115,12 +121,12 @@
             <nav class="header__nav">
                 <?php
                 session_start();
-                if (isset($_SESSION['user-name'])) :
+                if (isset($userSession['user-name'])) :
                     ?>
                     <ul class="header__my-nav">
                         <li class="header__my-page header__my-page--popular">
                             <a class="header__page-link<?= ($getBlock === 'pop') ? ' header__page-link--active' : '' ?>"
-                               href="popular.php?block=pop&tab=all&page=1" title="Популярный контент">
+                               href="popular.php?block=pop&sort=pop&tab=all&page=1" title="Популярный контент">
                                 <span class="visually-hidden">Популярный контент</span>
                             </a>
                         </li>
@@ -131,20 +137,20 @@
                             </a>
                         </li>
                         <li class="header__my-page header__my-page--messages">
-                            <a class="header__page-link" href="messages.html" title="Личные сообщения">
+                            <a class="header__page-link<?= ($getBlock === 'messages') ? ' header__page-link--active' : '' ?>" href="messages.php?block=messages" title="Личные сообщения">
                                 <span class="visually-hidden">Личные сообщения</span>
                             </a>
                         </li>
                     </ul>
                     <ul class="header__user-nav">
                         <li class="header__profile">
-                            <a class="header__profile-link" href="profile.php?user=<?= $_SESSION['user-id']?>">
+                            <a class="header__profile-link" href="profile.php?user=<?= $userSession['user-id']?>&tab=posts">
                                 <div class="header__avatar-wrapper">
-                                    <img class="header__profile-avatar" src="<?= $_SESSION['user-ava'] ?>"
-                                         alt="Аватар профиля">
+                                    <img class="header__profile-avatar" src="<?= $userSession['user-ava'] ?>"
+                                         alt="">
                                 </div>
                                 <div class="header__profile-name">
-                                    <span><?= $_SESSION['user-name'] ?></span>
+                                    <span><?= $userSession['user-name'] ?></span>
                                     <svg class="header__link-arrow" width="10" height="6">
                                         <use xlink:href="#icon-arrow-right-ad"></use>
                                     </svg>
@@ -154,14 +160,14 @@
                                 <div class="header__profile-tooltip">
                                     <ul class="header__profile-nav">
                                         <li class="header__profile-nav-item">
-                                            <a class="header__profile-nav-link" href="profile.php?user=<?= $_SESSION['user-id']?>&tab=posts">
+                                            <a class="header__profile-nav-link" href="profile.php?user=<?= $userSession['user-id']?>&tab=posts">
                           <span class="header__profile-nav-text">
                             Мой профиль
                           </span>
                                             </a>
                                         </li>
                                         <li class="header__profile-nav-item">
-                                            <a class="header__profile-nav-link" href="#">
+                                            <a class="header__profile-nav-link" href="messages.php?block=messages">
                           <span class="header__profile-nav-text">
                             Сообщения
                             <i class="header__profile-indicator">2</i>
@@ -187,7 +193,7 @@
                             </div>
                         </li>
                         <li>
-                            <a class="header__post-button button button--transparent" href="add.php">Пост</a>
+                            <a class="header__post-button button button--transparent" href="add.php?tab=text">Пост</a>
                         </li>
                     </ul>
                 <?php else: ?>
@@ -249,7 +255,7 @@
                         <a class="footer__page-link" href="popular.php?tab=all">Популярный контент</a>
                     </li>
                     <li class="footer__my-page footer__my-page--messages">
-                        <a class="footer__page-link" href="messages.html">Личные сообщения</a>
+                        <a class="footer__page-link" href="messages.php?block=messages">Личные сообщения</a>
                     </li>
                 </ul>
                 <div class="footer__copyright">

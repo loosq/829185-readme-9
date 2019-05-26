@@ -2,12 +2,19 @@
 
 include_once 'init.php';
 
-$userSub = $_GET['user'];
-$userId = $_SESSION['user-id'];
-
-if (!db_check_subscription($con, $userId , $userSub)) {
-    db_ins_subscription($con, $userId, $userSub);
-} else {
-    db_del_sub($con, $userId , $userSub);
+if (!isUserLoggedIn()) {
+    redirectHome();
 }
-redirectBack();
+
+$userSub = $_GET['user'] ?? '';
+$userId = $_SESSION['user-id'] ?? '';
+$userName = $_SESSION['user-name'];
+
+if ($userSub && $userId) {
+    if (!dbCheckSubscription($con, $userId, $userSub)) {
+        dbInsSubscription($con, $userId, $userSub);
+        sendEmailSub($con, $userId, $userName, $userSub);
+    } else {
+        dbDelSub($con, $userId, $userSub);
+    }
+}

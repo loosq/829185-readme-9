@@ -2,13 +2,14 @@
 
 /**
  * Проверяет текст на количество символов, если символов больше, то
- * подставляет ссылку "Читать далее" с открытием по клику.
+ * подставляет ссылку "Читать далее" с открытием по клику переадресовывает на пост.
  * @param string $text текст
  * @param int $maxLength количество символов (по умолчанию 300)
+ * @param int $postId id поста
  *
  * @return string текст с/без блоком-ссылкой "Читать далее"
  */
-function cutText($text, $maxLength = 300)
+function cutText($text, $maxLength = 300, $postId)
 {
     if (strlen($text) > $maxLength) {
         $textArr = explode(' ', $text);
@@ -19,7 +20,7 @@ function cutText($text, $maxLength = 300)
             $j++;
             if ($countLetters > $maxLength) {
                 return implode(' ', array_slice($textArr, 0,
-                        $j)) . '...' . '<br/><a class="post-text__more-link" href="#" style="margin-left: 0">Читать далее</a>';
+                        $j)) . '...' . '<br/><a class="post-text__more-link" href="post.php?postId=' . $postId . '" style="margin-left: 0"> Читать далее </a>';
             }
         }
     }
@@ -66,35 +67,78 @@ function showTimeGap($datePoint)
  * @param string $path путь переадресации
  *
  */
-function redirect($path){
+function redirect($path)
+{
     header('Location: ' . $path);
     die;
 }
 
 /**
  * Перенаправляет пользователя на главную.
- *
  */
-function redirectHome(){
+function redirectHome()
+{
     redirect('/');
 }
 
 /**
  * Перенаправляет пользователя на страницу назад.
- *
  */
-function redirectBack(){
+function redirectBack()
+{
     redirect($_SERVER['HTTP_REFERER']);
 }
 
 /**
  * Проверяет залогинин ли пользователь.
- *
  */
-function isUserLoggedIn(){
-    if ($_SESSION['user-name']){
+function isUserLoggedIn()
+{
+    if ($_SESSION['user-name']) {
         return true;
     }
 
     return false;
+}
+
+/**
+ * Показывает ЧП дату сообщений.
+ * @param string $datePoint дата
+ *
+ * @return string $res Текст, ЧП дата
+ */
+function showTimeOfMsg($datePoint)
+{
+    $date = strtotime($datePoint);
+    $nowTime = time();
+    $diffTime = $nowTime - $date;
+
+    if ($diffTime > 0 && $diffTime < 86400) {
+        $res = strftime('%H:%M', $date);
+
+    } elseif ($diffTime >= 86400 && $diffTime < 604800) {
+        $res = strftime('%e %h', $date);
+    } elseif ($diffTime >= 604800 && $diffTime < 31556926) {
+        $res = strftime('%d %m %Y', $date);
+    }
+
+    return $res;
+}
+
+/**
+ * Обрезает сообщение и добавляет "..." в конце.
+ * @param string $text текст сообщения
+ * @param int $len количество символов
+ *
+ * @return string $res обрезанный текст
+ */
+function msgTextCut($text, $len = null)
+{
+    if (strlen($text) > $len) {
+        $res = substr($text, 0, $len) . '...';
+    } else {
+        $res = $text;
+    }
+
+    return $res;
 }

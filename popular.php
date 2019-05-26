@@ -7,31 +7,33 @@ if (!isUserLoggedIn()) {
 }
 
 $title = 'readme: популярное';
-$getBlock = $_GET['block'];
-$getTab = $_GET['tab'] ?? 'all';
-$itemCount = db_read_users_posts_by_tab($con, $getTab);
+$getBlock = $_GET['block'] ?? '';
+$getTab = $_GET['tab'] ?? '';
 $curPage = $_GET['page'] ?? 1;
-$pageItems = 6;
+$getSort = $_GET['sort'] ?? '';
+$userSession = $_SESSION;
+$itemCount = dbReadUsersPostsByTab($con, $getTab);
+$pageItems = 9;
 $pagesCount = ceil($itemCount / $pageItems);
 $offset = ($curPage - 1) * $pageItems;
 $pages = range(1, $pagesCount);
-$cards = db_read_users_posts($con, $getTab, 'number_of_views', $pageItems, $offset);
+$cards = dbReadUsersPosts($con, $getTab, $getSort, $pageItems, $offset);
 
-if (isset($getTab)) {
+$content = include_template('popular.php', [
+    'con'        => $con,
+    'cards'      => $cards,
+    'getTab'     => $getTab,
+    'getBlock'   => $getBlock,
+    'getSort'    => $getSort,
+    'pagesCount' => $pagesCount,
+    'curPage'    => $curPage,
+]);
 
-    $content = include_template('popular.php', [
-        'con'             => $con,
-        'cards'           => $cards,
-        'getTab'          => $getTab,
-        'pagesCount'      => $pagesCount,
-        'curPage'         => $curPage,
-    ]);
+$html = include_template('layout.php', [
+    'userSession' => $userSession,
+    'content'     => $content,
+    'getBlock'    => $getBlock,
+    'title'       => $title,
+]);
 
-    $html = include_template('layout.php', [
-        'content' => $content,
-        'getBlock'  => $getBlock,
-        'title'   => $title,
-    ]);
-
-    echo $html;
-}
+echo $html;

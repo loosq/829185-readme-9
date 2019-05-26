@@ -10,16 +10,21 @@ if (!isUserLoggedIn()) {
 }
 
 $title = 'readme: публикация';
+$userSession = $_SESSION;
 $getUser = $_GET['user'];
-$cards = db_read_posts_id($con, $postId);
-$comments = db_get_comments_to_post($con, $postId);
+$cards = dbReadPostsId($con, $postId);
+$allComments = $_GET['all'] ?? '';
+$addView = dbAddViewToPost($con, $userSession['user-id'], $postId);
+$comments = dbGetCommentsToPost($con, $postId, $allComments);
 $commentText = $_POST['comment-text'];
+
 foreach ($cards as $card) {
-    $userDataPosts = db_get_user_posts($con, $card['users_id']);
+    $userDataPosts = dbGetUserPosts($con, $card['users_id']);
 }
-$userDataSubs = db_get_user_subs($con, $card['users_id']);
-$user = db_get_user_info($con, $card['users_id']);
+$userDataSubs = dbGetUserSubs($con, $card['users_id']);
+$user = dbGetUserInfo($con, $card['users_id']);
 $content = include_template('post.php', [
+    'userSession'   => $userSession,
     'commentText'   => $commentText,
     'cards'         => $cards,
     'comments'      => $comments,
@@ -29,6 +34,7 @@ $content = include_template('post.php', [
     'postId'        => $postId,
     'con'           => $con,
     'getUser'       => $getUser,
+    'allComments'   => $allComments,
 ]);
 
 
@@ -41,6 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!empty($errors)) {
         $content = include_template('post.php', [
+            'userSession'   => $userSession,
             'commentText'   => $commentText,
             'errors'        => $errors,
             'cards'         => $cards,
@@ -53,14 +60,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'con'           => $con,
         ]);
     } else {
-        db_new_comment($con, $postId, $commentText, $_SESSION['user-id']);
+        dbNewComment($con, $postId, $commentText, $_SESSION['user-id']);
     }
 }
 
-$layoutContent = include_template('layout.php', [
-    'getTab'  => $getTab,
-    'content' => $content,
-    'title'   => $title,
+$html = include_template('layout.php', [
+    'userSession' => $userSession,
+    'getTab'      => $getTab,
+    'content'     => $content,
+    'title'       => $title,
 ]);
 
-echo $layoutContent;
+echo $html;

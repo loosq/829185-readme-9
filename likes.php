@@ -2,14 +2,16 @@
 
 include_once 'init.php';
 
+if (!isUserLoggedIn()) {
+    redirectHome();
+}
+
 $userId = $_SESSION['user-id'];
 $postId = $_GET['postId'];
-$getLike = db_get_like($con, $postId, $userId);
+$getLike = dbGetLike($con, $postId, $userId);
 
 if ($getLike) {
-    db_del_like($con, $postId, $userId);
-    return true;
+    dbDelLike($con, $postId, $userId);
 } else {
-    db_add_like($con, $postId, $userId);
-    return false;
+    dbAddLike($con, $postId, $userId);
 }

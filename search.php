@@ -2,17 +2,23 @@
 
 include_once 'init.php';
 
-if (isUserLoggedIn()) {
+if (!isUserLoggedIn()) {
     redirectHome();
 }
 
-$title = 'Registration';
+$title = 'readme: страница результатов поиска';
 $userSession = $_SESSION;
-$content = regFormValidation($con);
+
+$search = $_GET['q'] ?? '';
+
+$content = multySearch($con, $search);
+
 $html = include_template('layout.php', [
     'userSession' => $userSession,
-    'getTab'  => $getTab,
     'content' => $content,
     'title'   => $title,
+    'search'  => $search,
+    'con'     => $con,
 ]);
+
 echo $html;

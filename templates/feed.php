@@ -28,7 +28,6 @@
             <div class="feed__main-wrapper">
                 <div class="feed__wrapper">
                     <?php foreach ($cards
-
                     as $key => $card): ?>
                     <?php
                     $cardType = $card['type'];
@@ -43,6 +42,7 @@
                     $cardUserSiteId = $card['users_site_url'];
                     $cardVideoUrl = $card['video_url'];
                     $cardImgUrl = $card['img_url'];
+                    $cardRepost = $card['isrepost'];
                     ?>
                     <article class="feed__post post post-photo">
                         <header class="post__header post__author">
@@ -50,7 +50,7 @@
                                title="<?= $cardName ?>">
                                 <div class="post__avatar-wrapper">
                                     <img class="post__author-avatar" src="<?= $cardAva ?>"
-                                         alt="Аватар пользователя" width="60" height="60">
+                                         alt="" width="60" height="60">
                                 </div>
                                 <div class="post__info">
                                     <b class="post__author-name"><?= $cardName ?></b>
@@ -68,12 +68,12 @@
                             <?php endif ?>
                             <?php if ($cardType === 'text'): ?>
                                 <h2><a href="post.php?postId=<?= $cardPostId ?>" ><?= $cardTitle ?></a></h2>
-                                <p style="margin-left: 7%" ><?= cutText($cardContent) ?></p>
+                                <p style="margin-left: 7%" ><?= cutText($cardContent, 200, $cardPostId) ?></p>
                             <?php endif ?>
                             <?php if ($cardType === 'video'): ?>
-                                    <iframe width="100%" height="240" src="<?= $cardVideoUrl ?>" frameborder="0"
-                                            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                                            allowfullscreen></iframe>
+                                <div class="post-photo__image-wrapper">
+                                    <div style="width: 100%" class="post__iframe"><?= embed_youtube_video($cardVideoUrl) ?></div>
+                                </div>
                             <?php endif ?>
                             <?php if ($cardType === 'quote'): ?>
                                 <blockquote>
@@ -103,39 +103,44 @@
                             <?php endif ?>
                         </div>
                         <footer class="post__footer post__indicators">
+
                             <div class="post__buttons">
                                 <a class="post__indicator post__indicator--likes button" title="Лайк"
                                    data-post-id='<?= $cardPostId ?>'>
                                     <svg class="post__indicator-icon" width="20" height="17">
-                                        <use xlink:href="#icon-heart<?= db_get_like($con, $cardPostId,
-                                            $_SESSION['user-id']) ? '-active' : '' ?>"></use>
+                                        <use xlink:href="#icon-heart<?= dbGetLike($con, $cardPostId,
+                                            $userSession['user-id']) ? '-active' : '' ?>"></use>
                                     </svg>
-                                    <span class="<?= db_get_like($con, $cardPostId,
-                                        $_SESSION['user-id']) ? '' : 'like-counter' ?>"><?= db_count_likes_to_post($con,
+                                    <span class="<?= dbGetLike($con, $cardPostId,
+                                        $userSession['user-id']) ? '' : 'like-counter' ?>"><?= dbCountLikesToPost($con,
                                             $cardPostId) ?></span>
                                     <span class="visually-hidden">количество лайков</span>
                                 </a>
-                                <a class="post__indicator post__indicator--comments button" href="post.php?postId=<?= $cardPostId ?>"
+                                <a class="post__indicator post__indicator--comments button" href="post.php?postId=<?= $cardPostId ?>#comments"
                                    title="Комментарии">
                                     <svg class="post__indicator-icon" width="19" height="17">
                                         <use xlink:href="#icon-comment"></use>
                                     </svg>
-                                    <span><?= db_count_comments_to_post($con, $cardPostId) ?></span>
+                                    <span><?= dbCountCommentsToPost($con, $cardPostId) ?></span>
                                     <span class="visually-hidden">количество комментариев</span>
                                 </a>
-                                <a class="post__indicator post__indicator--repost button" href="#"
-                                   title="Репост">
-                                    <svg class="post__indicator-icon" width="19" height="17">
-                                        <use xlink:href="#icon-repost"></use>
-                                    </svg>
-                                    <span>5</span>
-                                    <span class="visually-hidden">количество репостов</span>
-                                </a>
+                                    <a class="post__indicator post__indicator--repost button" href="profile.php?postId=<?= $card['posts_id'] ?>&repost=1&tab=posts" title="Репост">
+                                        <svg class="post__indicator-icon" width="19" height="17">
+                                            <use xlink:href="#icon-repost"></use>
+                                        </svg>
+                                        <span><?= dbGetPostReposts($con, $card['posts_id']) ?></span>
+                                        <span class="visually-hidden">количество репостов</span>
+                                    </a>
                             </div>
                         </footer>
+                        <?php $hashtags = dbGetAllHashtagsToPost($con, $cardPostId) ?>
+                        <ul class="post__tags">
+                            <?php foreach ($hashtags as $hashtag): ?>
+                                <li><a class="post__tags-btn" title="Поиск по тэгу <?= $hashtag['name'] ?>">#<?= $hashtag['name'] ?></a></li>
+                            <?php endforeach ?>
+                        </ul>
                     </article>
                         <?php endforeach ?>
-
                 </div>
             </div>
             <ul class="feed__filters filters">
