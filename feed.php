@@ -1,20 +1,29 @@
 <?php
 
-session_start();
+include_once 'init.php';
 
-if ($_SESSION) {
-    include_once 'init.php';
-    include_once 'helpers.php';
-    include_once 'functions.php';
 
-    $title = 'readme: моя лента';
-
-    $content = include_template('feed.php');
-    $html = include_template('layout.php', [
-        'content' => $content,
-        'title'   => $title,
-    ]);
-    echo $html;
-} else {
-    header('Location:/');
+if (!isUserLoggedIn()) {
+    redirectHome();
 }
+$title = 'readme: моя лента';
+$getTab = $_GET['tab'];
+$getBlock = $_GET['block'];
+$myUserId = $_SESSION['user-id'];
+
+$cards = db_read_users_sub_posts($con, $getTab, $myUserId);
+
+
+
+$content = include_template('feed.php', [
+    'getTab' => $getTab,
+    'cards'  => $cards,
+    'con'    => $con,
+]);
+$html = include_template('layout.php', [
+    'getBlock'   => $getBlock,
+    'content'    => $content,
+    'title'      => $title,
+]);
+
+echo $html;

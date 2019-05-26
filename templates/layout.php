@@ -1,3 +1,12 @@
+<?php
+/**
+ * @var string $title заголовок страницы
+ * @var string $getTab тип контента из строки запроса
+ * @var string $getBlock тип странички (лента-feed или популярное-pop)
+ *
+ */
+?>
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -83,7 +92,7 @@
 <header class="header">
     <div class="header__wrapper container">
         <div class="header__logo-wrapper">
-            <a class="header__logo-link" href="/">
+            <a class="header__logo-link" href="<?= isset($_SESSION) ? 'feed.php?block=feed&tab=all' : '/' ?>">
                 <img class="header__logo" src="img/logo.svg" alt="Логотип readme" width="128" height="24">
             </a>
             <p class="header__topic">
@@ -110,19 +119,14 @@
                     ?>
                     <ul class="header__my-nav">
                         <li class="header__my-page header__my-page--popular">
-                            <a class="header__page-link<?= (($_GET['tab'] === 'all')
-                                || ($_GET['tab'] === 'photo')
-                                || ($_GET['tab'] === 'video')
-                                || ($_GET['tab'] === 'url')
-                                || ($_GET['tab'] === 'quote')
-                                || ($_GET['tab'] === 'text')) ? ' header__page-link--active' : '' ?>"
-                               href="popular.php?tab=all" title="Популярный контент">
+                            <a class="header__page-link<?= ($getBlock === 'pop') ? ' header__page-link--active' : '' ?>"
+                               href="popular.php?block=pop&tab=all&page=1" title="Популярный контент">
                                 <span class="visually-hidden">Популярный контент</span>
                             </a>
                         </li>
                         <li class="header__my-page header__my-page--feed">
-                            <a class="header__page-link<?= ($_GET['tab'] === 'feed') ? ' header__page-link--active' : '' ?>"
-                               title="Моя лента" href="feed.php?tab=feed">
+                            <a class="header__page-link<?= ($getBlock === 'feed') ? ' header__page-link--active' : '' ?>"
+                               title="Моя лента" href="feed.php?block=feed&tab=all">
                                 <span class="visually-hidden">Моя лента</span>
                             </a>
                         </li>
@@ -134,7 +138,7 @@
                     </ul>
                     <ul class="header__user-nav">
                         <li class="header__profile">
-                            <a class="header__profile-link" href="">
+                            <a class="header__profile-link" href="profile.php?user=<?= $_SESSION['user-id']?>">
                                 <div class="header__avatar-wrapper">
                                     <img class="header__profile-avatar" src="<?= $_SESSION['user-ava'] ?>"
                                          alt="Аватар профиля">
@@ -150,7 +154,7 @@
                                 <div class="header__profile-tooltip">
                                     <ul class="header__profile-nav">
                                         <li class="header__profile-nav-item">
-                                            <a class="header__profile-nav-link" href="#">
+                                            <a class="header__profile-nav-link" href="profile.php?user=<?= $_SESSION['user-id']?>&tab=posts">
                           <span class="header__profile-nav-text">
                             Мой профиль
                           </span>
@@ -239,10 +243,10 @@
             <div class="footer__my-info">
                 <ul class="footer__my-pages">
                     <li class="footer__my-page footer__my-page--feed">
-                        <a class="footer__page-link" href="feed.html">Моя лента</a>
+                        <a class="footer__page-link" href="feed.php">Моя лента</a>
                     </li>
                     <li class="footer__my-page footer__my-page--popular">
-                        <a class="footer__page-link" href="popular.html">Популярный контент</a>
+                        <a class="footer__page-link" href="popular.php?tab=all">Популярный контент</a>
                     </li>
                     <li class="footer__my-page footer__my-page--messages">
                         <a class="footer__page-link" href="messages.html">Личные сообщения</a>
@@ -260,5 +264,8 @@
         </div>
     </div>
 </footer>
+<script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript" src="../js/blocksit.min.js"></script>
+<script type="text/javascript" src="../js/add.js"></script>
 </body>
 </html>

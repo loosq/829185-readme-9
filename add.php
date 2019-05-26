@@ -1,13 +1,14 @@
 <?php
 
 include_once 'init.php';
-include_once 'helpers.php';
-include_once 'functions.php';
 
-$content = validForm($con, $_GET['tab']);
+if (!isUserLoggedIn()) {
+    redirectHome();
+}
 
+$getTab = $_GET['tab'];
+$content = validForm($con, $getTab);
 $title = 'readme: публикация';
-
 $html = include_template('layout.php', [
     'content' => $content,
     'title'   => $title,
