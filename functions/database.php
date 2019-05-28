@@ -7,7 +7,7 @@
  * @param string $db_password пароль для входа в базу
  * @param string $db_name имя базы данных
  *
- * @return mysqli $con ресурс соединения при удачном соединении или строку с ошибкой
+ * @return mysqli ресурс соединения при удачном соединении или строку с ошибкой
  */
 function dbConnect($db_host = 'localhost', $db_user, $db_password, $db_name)
 {
@@ -17,48 +17,6 @@ function dbConnect($db_host = 'localhost', $db_user, $db_password, $db_name)
     }
 
     return $con;
-}
-
-/**
- * Создаёт подготовленное выражение для просмотра записей в бд и получает результат его выполнения.
- * @param mysqli $con ресурс соединения
- * @param string $sql sql запрос
- * @param array $data данные
- *
- * @return array $result массив с данными из бд;
- */
-function dbFetchData($con, $sql, $data = [])
-{
-    $result = [];
-    $stmt = db_get_prepare_stmt($con, $sql, $data);
-    mysqli_stmt_execute($stmt);
-    $res = mysqli_stmt_get_result($stmt);
-
-    if ($res) {
-        $result = mysqli_fetch_all($res, MYSQLI_ASSOC);
-    }
-
-    return $result;
-}
-
-/**
- * Создаёт подготовленное выражение для добавления записи в бд и получает результат его выполнения.
- * @param mysqli $con ресурс соединения
- * @param string $sql sql запрос
- * @param array $data данные
- *
- * @return int $result массив с данными из бд;
- */
-function dbInsertData($con, $sql, $data = [])
-{
-    $stmt = db_get_prepare_stmt($con, $sql, $data);
-    $result = mysqli_stmt_execute($stmt);
-
-    if ($result) {
-        $result = mysqli_insert_id($con);
-    }
-
-    return $result;
 }
 
 /**
@@ -74,7 +32,7 @@ function dbInsertData($con, $sql, $data = [])
  * @param string $hashtags хештеги поста, по умолчанию пустая строка
  * @param int $contentType тип контента
  *
- * @return int $postId id только что созданного поста;
+ * @return int id только что созданного поста;
  */
 function dbNewPost(
     $con,
@@ -124,7 +82,6 @@ function dbNewPost(
 
     }
 
-
     if ($postId) {
         sendEmailNewPost($con, $userId, $_SESSION['user-name'], $postTitle);
         redirect('post.php?postId=' . $postId);
@@ -144,7 +101,7 @@ function dbNewPost(
  * @param string $newUserAva аватар нового пользователя
  * @param string $newUserInfo информация о новом пользователе
  *
- * @return int $result если true, то добавление прошло успешно.;
+ * @return int если true, то добавление прошло успешно.;
  */
 function dbNewUser($con, $newUserEmail, $newUserName, $newUserPwd, $newUserAva = '', $newUserInfo = '')
 {
@@ -158,9 +115,7 @@ function dbNewUser($con, $newUserEmail, $newUserName, $newUserPwd, $newUserAva =
     $result = mysqli_insert_id($con);
 
     if ($result) {
-        session_start();
         dbUserSessionByEmail($con, $newUserEmail);
-        header('Location:/feed.php?block=feed&tab=all');
     } else {
         echo 'Ошибка базы данных' . mysqli_error($con);
     }
@@ -182,7 +137,7 @@ function dbNewUser($con, $newUserEmail, $newUserName, $newUserPwd, $newUserAva =
  * @param int $limit Лимит на запрос
  * @param int $offset сдвиг в таблице
  *
- * @return array $rows посты, сгруппированные по установленному типу контента
+ * @return array посты, сгруппированные по установленному типу контента
  */
 function dbReadUsersPosts($con, $tab = 'all', $sort = null, $limit = 0, $offset = 0)
 {
@@ -192,7 +147,7 @@ function dbReadUsersPosts($con, $tab = 'all', $sort = null, $limit = 0, $offset 
     } elseif ($sort === 'date') {
         $srt = ' ORDER BY post_date DESC ';
     } elseif ($sort === 'likes') {
-        $srt = ' ORDER BY likes ';
+        $srt = ' ORDER BY likes DESC';
     } else {
         $srt = '';
     }
@@ -213,18 +168,16 @@ function dbReadUsersPosts($con, $tab = 'all', $sort = null, $limit = 0, $offset 
     }
 
     $sql = 'SELECT p.posts_id, p.post_date, p.title, p.content, p.quote_author, p.img_url, p.video_url,
-                        p.users_site_url, p.number_of_views, p.users_id, p.content_types_id, u.users_id,
-                         u.registration_date, u.email, u.name, u.password, u.avatar, u.contact_info, c.type,
-                        (SELECT COUNT(l.post_id) FROM likes l) AS likes
-                FROM posts p 
-                LEFT JOIN users u
-                ON p.users_id = u.users_id
-                LEFT JOIN content_types c
-                ON p.content_types_id = c.content_types_id
-                LEFT JOIN likes l
-                ON p.posts_id = l.post_id WHERE p.isrepost = 0' .
+            p.users_site_url, p.number_of_views, p.users_id, p.content_types_id, u.users_id,
+            u.registration_date, u.email, u.name, u.password, u.avatar, u.contact_info, c.type,
+            (SELECT COUNT(l.post_id) FROM likes l WHERE l.post_id = posts_id) AS likes
+            FROM posts p 
+            LEFT JOIN users u
+            ON p.users_id = u.users_id
+            LEFT JOIN content_types c
+            ON p.content_types_id = c.content_types_id
+            WHERE p.isrepost = 0 ' .
         $contentId . $srt . ' LIMIT ' . $limit . ' OFFSET ' . $offset;
-
 
     $result = mysqli_query($con, $sql);
 
@@ -249,7 +202,7 @@ function dbReadUsersPosts($con, $tab = 'all', $sort = null, $limit = 0, $offset 
  *                                               all  - будут показаны все посты.
  * @param int $myUserId id пользователя для кого формируется запрос
  *
- * @return array $rows посты, сгруппированные по установленному типу контента
+ * @return array посты, сгруппированные по установленному типу контента
  */
 function dbReadUsersSubPosts($con, $contentType = 'all', $myUserId)
 {
@@ -287,7 +240,6 @@ function dbReadUsersSubPosts($con, $contentType = 'all', $myUserId)
         } else {
             echo 'Ошибка базы данных ' . mysqli_error($con);
         }
-
     } else {
 
         $sql = 'SELECT * FROM posts p  
@@ -312,7 +264,6 @@ function dbReadUsersSubPosts($con, $contentType = 'all', $myUserId)
         }
     }
 
-
     return $rows;
 }
 
@@ -327,7 +278,7 @@ function dbReadUsersSubPosts($con, $contentType = 'all', $myUserId)
  *                                               quote  - будут показаны посты с типом контента цитата;
  *                                               all  - будут показаны все посты.
  *
- * @return int $rows число постов.
+ * @return int число постов.
  */
 function dbReadUsersPostsByTab($con, $contentType = 'all')
 {
@@ -361,7 +312,6 @@ function dbReadUsersPostsByTab($con, $contentType = 'all')
         } else {
             echo 'Ошибка базы данных ' . mysqli_error($con);
         }
-
     } else {
 
         $sql = 'SELECT COUNT(*) AS cnt FROM posts p 
@@ -379,7 +329,6 @@ function dbReadUsersPostsByTab($con, $contentType = 'all')
         }
     }
 
-
     return $row;
 }
 
@@ -388,7 +337,7 @@ function dbReadUsersPostsByTab($con, $contentType = 'all')
  * @param mysqli $con ресурс соединения
  * @param int $postId id поста в базе данных
  *
- * @return array $rows данные о посте по id;
+ * @return array данные о посте по id;
  */
 function dbReadPostsId($con, $postId)
 {
@@ -411,11 +360,11 @@ function dbReadPostsId($con, $postId)
 }
 
 /**
- * Записывает в сессию данные о пользователе по электронной почте.
+ * Проверяет данные о пользователе по электронной почте.
  * @param mysqli $con ресурс соединения
  * @param string $email электронная почта пользователя
  *
- * @return array $rows данные пользователя
+ * @return array данные пользователя
  */
 function dbUserSessionByEmail($con, $email)
 {
@@ -428,21 +377,10 @@ function dbUserSessionByEmail($con, $email)
 
     if ($result) {
         $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        startNewSession($con, $rows);
     } else {
         echo 'Ошибка базы данных ' . mysqli_error($con);
-    }
-
-
-    foreach ($rows as $row) {
-
-        $_SESSION['user-id'] = $row['users_id'];
-        $_SESSION['user-posts'] = dbGetUserPosts($con, $row['users_id']);
-        $_SESSION['user-reg-date'] = $row['registration_date'];
-        $_SESSION['user-name'] = $row['name'];
-        $_SESSION['user-ava'] = $row['avatar'];
-        $_SESSION['user-contact-info'] = $row['contact_info'];
-        $_SESSION['users-subs'] = dbGetUserSubs($con, $row['users_id']);
-        $_SESSION['user-active'] = showTimeGap($row['registration_date']);
+        return false;
     }
 
     return $rows;
@@ -453,7 +391,7 @@ function dbUserSessionByEmail($con, $email)
  * @param mysqli $con ресурс соединения
  * @param int $userId id пользователя
  *
- * @return int $res количество постов
+ * @return int количество постов
  */
 function dbGetUserPosts($con, $userId)
 {
@@ -478,7 +416,7 @@ function dbGetUserPosts($con, $userId)
  * @param mysqli $con ресурс соединения
  * @param int $userId id пользователя
  *
- * @return array $rows вся информация о пользователе из таблицы пользователи
+ * @return array вся информация о пользователе из таблицы пользователи
  */
 function dbGetUserInfo($con, $userId)
 {
@@ -503,7 +441,7 @@ function dbGetUserInfo($con, $userId)
  * @param mysqli $con ресурс соединения
  * @param int $userId id пользователя
  *
- * @return int $res количество подписчиков
+ * @return int количество подписчиков
  */
 function dbGetUserSubs($con, $userId)
 {
@@ -530,7 +468,7 @@ function dbGetUserSubs($con, $userId)
  * @param string $commentText текст комментария
  * @param string $userId id пользователя кто оставил комментарий
  *
- * @return bool $result если true, то добавление прошло успешно
+ * @return bool если true, то добавление прошло успешно
  */
 function dbNewComment($con, $postId, $commentText, $userId)
 {
@@ -557,7 +495,7 @@ function dbNewComment($con, $postId, $commentText, $userId)
  * @param mysqli $con ресурс соединения
  * @param int $postId id поста
  *
- * @return array $rows массив комментариев к посту
+ * @return array массив комментариев к посту
  */
 function dbGetCommentsToPost($con, $postId, $num = null)
 {
@@ -592,7 +530,7 @@ function dbGetCommentsToPost($con, $postId, $num = null)
  * @param mysqli $con ресурс соединения
  * @param int $postId id поста
  *
- * @return int $res количество лайков
+ * @return int количество лайков
  */
 function dbCountLikesToPost($con, $postId)
 {
@@ -615,7 +553,7 @@ function dbCountLikesToPost($con, $postId)
  * @param mysqli $con ресурс соединения
  * @param int $postId id поста
  *
- * @return int $res количество комментариев
+ * @return int количество комментариев
  */
 function dbCountCommentsToPost($con, $postId)
 {
@@ -638,7 +576,7 @@ function dbCountCommentsToPost($con, $postId)
  * @param mysqli $con ресурс соединения
  * @param int $userId id пользователя
  *
- * @return array $res ассоциатиынй массив данных с постами пользователя
+ * @return array ассоциатиынй массив данных с постами пользователя
  */
 function dbGetUserArrPosts($con, $userId)
 {
@@ -664,7 +602,7 @@ function dbGetUserArrPosts($con, $userId)
  * @param int $postId id поста
  * @param int $userId id пользователя
  *
- * @return bool $res результат выполнения ф-ии
+ * @return bool результат выполнения ф-ии
  */
 function dbAddLike($con, $postId, $userId)
 {
@@ -694,7 +632,7 @@ function dbAddLike($con, $postId, $userId)
  * @param int $postId id поста
  * @param int $userId id пользователя
  *
- * @return bool $result результат выполнения ф-ии, если лайк есть возвращает true, если нет false
+ * @return bool результат выполнения ф-ии, если лайк есть возвращает true, если нет false
  */
 function dbGetLike($con, $postId, $userId)
 {
@@ -705,6 +643,7 @@ function dbGetLike($con, $postId, $userId)
     if ($res) {
         $row = mysqli_fetch_row($res);
     }
+
     return $row[0];
 }
 
@@ -714,7 +653,7 @@ function dbGetLike($con, $postId, $userId)
  * @param int $postId id поста
  * @param int $userId id пользователя
  *
- * @return bool $result результат выполнения ф-ии
+ * @return bool результат выполнения ф-ии
  */
 function dbDelLike($con, $postId, $userId)
 {
@@ -737,7 +676,7 @@ function dbDelLike($con, $postId, $userId)
  * @param int $userId id пользователя
  * @param int $userSudId id пользователя на которого проверяется подписка
  *
- * @return bool $res результат выполнения ф-ии, если есть подписка возвращает true, если нет false
+ * @return bool результат выполнения ф-ии, если есть подписка возвращает true, если нет false
  */
 function dbCheckSubscription($con, $userId, $userSudId)
 {
@@ -759,7 +698,7 @@ function dbCheckSubscription($con, $userId, $userSudId)
  * @param mysqli $con ресурс соединения
  * @param int $userId id пользователя
  *
- * @return array $rows ассоциативный массив
+ * @return array ассоциативный массив
  */
 function dbGetAllSubs($con, $userId)
 {
@@ -790,7 +729,7 @@ function dbGetAllSubs($con, $userId)
  * @param int $userId id пользователя
  * @param int $userSudId id пользователя на которого подписываемся
  *
- * @return bool $res результат выполнения ф-ии, если есть подписка возвращает true, если нет false
+ * @return bool результат выполнения ф-ии, если есть подписка возвращает true, если нет false
  */
 function dbInsSubscription($con, $userId, $userSudId)
 {
@@ -804,6 +743,8 @@ function dbInsSubscription($con, $userId, $userSudId)
         if (!$res) {
             echo 'Ошибка бд' . mysqli_error($con);
         }
+    } else {
+        $res = false;
     }
 
     return $res;
@@ -815,7 +756,7 @@ function dbInsSubscription($con, $userId, $userSudId)
  * @param int $userId id пользователя
  * @param int $userSudId id пользователя на которого удаляем подписку
  *
- * @return bool $result результат выполнения ф-ии
+ * @return bool результат выполнения ф-ии
  */
 function dbDelSub($con, $userId, $userSudId)
 {
@@ -830,6 +771,8 @@ function dbDelSub($con, $userId, $userSudId)
         if ($res) {
             $res = 'удалили успешно';
         }
+    } else {
+        $res = false;
     }
 
     return $res;
@@ -840,7 +783,7 @@ function dbDelSub($con, $userId, $userSudId)
  * @param mysqli $con ресурс соединения
  * @param int $postId id поста
  *
- * @return array $row массив хештегов
+ * @return array массив хештегов
  */
 function dbGetAllHashtagsToPost($con, $postId)
 {
@@ -855,6 +798,8 @@ function dbGetAllHashtagsToPost($con, $postId)
     $res = mysqli_stmt_get_result($stmt);
     if ($res) {
         $rows = mysqli_fetch_all($res, MYSQLI_ASSOC);
+    } else {
+        $rows = false;
     }
 
     return $rows;
@@ -868,7 +813,7 @@ function dbGetAllHashtagsToPost($con, $postId)
  * @param int $userIdGet id пользователя получателя
  * @param string $content текст сообщения
  *
- * @return bool $res результат выполнения ф-ии
+ * @return bool результат выполнения ф-ии
  */
 function dbNewMsg($con, $userId, $userIdGet, $content)
 {
@@ -891,15 +836,89 @@ function dbNewMsg($con, $userId, $userIdGet, $content)
         $res = mysqli_stmt_get_result($stmt);
         $rows = mysqli_fetch_all($res, MYSQLI_ASSOC);
     }
-
-    $sql = 'INSERT INTO messages (date_of_origin, users_id_send, users_id_get, text, chat_hash)
-                              VALUES (NOW(), ?, ?, ?, ?)';
+    $status = 'unread';
+    $sql = 'INSERT INTO messages (date_of_origin, users_id_send, users_id_get, text, chat_hash, status)
+                              VALUES (NOW(), ?, ?, ?, ?, ?)';
     $chatHash = $rows[0]['chat_hash'] ?? uniqid();
     $stmt = mysqli_prepare($con, $sql);
-    mysqli_stmt_bind_param($stmt, 'iiss', $userId, $userIdGet, $content, $chatHash);
+    mysqli_stmt_bind_param($stmt, 'iisss', $userId, $userIdGet, $content, $chatHash, $status);
     $res = mysqli_stmt_execute($stmt);
 
     return $res;
+}
+
+/**
+ * Возвращает количество непрочитанных сообщений от пользователя.
+ * @param mysqli $con ресурс соединения
+ * @param int $userSend id пользователя отправителя
+ * @param int $userGet id пользователя получателя
+ *
+ * @return int Количество сообщений
+ */
+function dbGetUnreadMsgFromUser($con, $userSend, $userGet)
+{
+    $userSend = (int)$userSend;
+    $userGet = (int)$userGet;
+    $sql = 'SELECT COUNT(status) AS cnt
+           FROM messages WHERE users_id_send = (?) AND users_id_get = (?) AND status = (?)';
+    $status = 'unread';
+    $stmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($stmt, 'iis', $userSend, $userGet, $status);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    if (!$result) {
+        echo mysqli_error($con);
+    }
+    $count = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+    return $count[0]['cnt'];
+}
+
+/**
+ * Возвращает количество непрочитанных сообщений от пользователя.
+ * @param mysqli $con ресурс соединения
+ * @param int $userGet id пользователя получателя
+ *
+ * @return int Количество сообщений
+ */
+function dbGetAllUnreadMsg($con, $userGet)
+{
+    $userGet = (int)$userGet;
+    $sql = 'SELECT COUNT(status) AS cnt
+           FROM messages WHERE users_id_get = (?) AND status = (?)';
+    $status = 'unread';
+    $stmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($stmt, 'is', $userGet, $status);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    if (!$result) {
+        echo mysqli_error($con);
+    }
+    $count = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+    return $count[0]['cnt'];
+}
+
+/**
+ * Делает сообщения прочитанными.
+ * @param mysqli $con ресурс соединения
+ * @param int $userSend id пользователя отправителя
+ * @param int id пользователя получателя
+ *
+ */
+function dbUpdateMsg($con, $userSend, $userGet)
+{
+    $userSend = (int)$userSend;
+    $userGet = (int)$userGet;
+    $sql = 'UPDATE readme.messages SET messages.status = (?) WHERE users_id_send = (?) AND users_id_get = (?)';
+    $status = 'read';
+    $stmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($stmt, 'sii', $status, $userSend, $userGet);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    if (!$result) {
+        echo mysqli_error($con);
+    }
 }
 
 /**
@@ -907,7 +926,7 @@ function dbNewMsg($con, $userId, $userIdGet, $content)
  * @param mysqli $con ресурс соединения
  * @param int $user id пользователя
  *
- * @return array $rows массив с переписками
+ * @return array массив с переписками
  */
 function dbGetAllChatsData($con, $user)
 {
@@ -920,10 +939,12 @@ function dbGetAllChatsData($con, $user)
            users_id_send = ' . $user . ' OR 
            users_id_get = ' . $user . ' GROUP BY chat_hash) ORDER BY chat_hash';
     $allChats = mysqli_query($con, $sql);
-    if (!$allChats) {
+    if ($allChats) {
+        $rows = mysqli_fetch_all($allChats, MYSQLI_ASSOC);
+    } else {
+        $rows = false;
         echo mysqli_error($con);
     }
-    $rows = mysqli_fetch_all($allChats, MYSQLI_ASSOC);
 
     return $rows;
 }
@@ -934,7 +955,7 @@ function dbGetAllChatsData($con, $user)
  * @param int $userSend id пользователя отправителя
  * @param int $userGet id пользователя получателя
  *
- * @return array $rows массив переписки
+ * @return array массив переписки
  */
 function dbGetCurChat($con, $userSend, $userGet)
 {
@@ -961,7 +982,7 @@ function dbGetCurChat($con, $userSend, $userGet)
  * @param int $userSend id пользователя отправителя
  * @param int $userGet id пользователя получателя
  *
- * @return string $row имя пользователя
+ * @return string имя пользователя
  */
 function dbGetUserChatToName($con, $userSend, $userGet)
 {
@@ -973,7 +994,6 @@ function dbGetUserChatToName($con, $userSend, $userGet)
         $user = $userSend;
     } else {
         $user = $userGet;
-
     }
 
     $sql = 'SELECT users.name FROM users WHERE users_id = ' . $user;
@@ -992,7 +1012,7 @@ function dbGetUserChatToName($con, $userSend, $userGet)
  * @param int $userSend id пользователя отправителя
  * @param int $userGet id пользователя получателя
  *
- * @return string $row ссылка на аватар
+ * @return string ссылка на аватар
  */
 function dbGetUserChatToAva($con, $userSend, $userGet)
 {
@@ -1020,7 +1040,7 @@ function dbGetUserChatToAva($con, $userSend, $userGet)
  * @param int $userSend id пользователя отправителя
  * @param int $userGet id пользователя получателя
  *
- * @return int $row id пользователя
+ * @return int id пользователя
  */
 function dbGetUserChatToId($con, $userSend, $userGet)
 {
@@ -1048,7 +1068,7 @@ function dbGetUserChatToId($con, $userSend, $userGet)
  * @param mysqli $con ресурс соединения
  * @param int $userId id пользователя
  *
- * @return array $rows массив с данными
+ * @return array массив с данными
  */
 function dbGetUsersByLike($con, $userId)
 {
@@ -1080,7 +1100,7 @@ function dbGetUsersByLike($con, $userId)
  * Создаёт новый репост и переадресовывает пользователя на страницу своего профиля.
  * @param mysqli $con ресурс соединения
  * @param int $postId id поста который репостим
- * @param int $userId id пользователя кто делает репост
+ * @param int id пользователя кто делает репост
  */
 function dbNewRepost($con, $postId, $userId)
 {
@@ -1141,39 +1161,11 @@ function dbNewRepost($con, $postId, $userId)
 }
 
 /**
- * Возвращает информацию о пользователях с которого сделан репост.
- * @param mysqli $con ресурс соединения
- * @param int $userId id пользователя
- *
- * @return array $rows массив с данными
- */
-function dbGetUsersRepostInfo($con, $userId)
-{
-    $sql = 'SELECT u.name, u.avatar, p.post_date FROM users u
-            LEFT JOIN posts p ON u.users_id = p.users_id 
-            WHERE p.user_author_id = (?)';
-
-    $stmt = mysqli_prepare($con, $sql);
-    mysqli_stmt_bind_param($stmt, 'i', $userId);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-
-    if ($result) {
-        $res = mysqli_fetch_all($result, MYSQLI_ASSOC);
-    } else {
-        echo 'Ошибка базы данных ' . mysqli_error($con);
-        $res = false;
-    }
-
-    return $res;
-}
-
-/**
  * Возвращает имя пользователя по id.
  * @param mysqli $con ресурс соединения
  * @param int $userId id пользователя
  *
- * @return string $name имя пользователя
+ * @return string имя пользователя
  */
 function dbGetUserName($con, $userId)
 {
@@ -1199,7 +1191,7 @@ function dbGetUserName($con, $userId)
  * @param mysqli $con ресурс соединения
  * @param int $userId id пользователя
  *
- * @return string $ava ссылка на аватар
+ * @return string ссылка на аватар
  */
 function dbGetUserAva($con, $userId)
 {
@@ -1225,7 +1217,7 @@ function dbGetUserAva($con, $userId)
  * @param mysqli $con ресурс соединения
  * @param int $postId id поста
  *
- * @return string $date ссылка на аватар
+ * @return string ссылка на аватар
  */
 function dbGetPostDate($con, $postId)
 {
@@ -1251,7 +1243,7 @@ function dbGetPostDate($con, $postId)
  * @param mysqli $con ресурс соединения
  * @param int $postId id поста
  *
- * @return string $countReposts ссылка на аватар
+ * @return string ссылка на аватар
  */
 function dbGetPostReposts($con, $postId)
 {
@@ -1277,7 +1269,7 @@ function dbGetPostReposts($con, $postId)
  * @param mysqli $con ресурс соединения
  * @param string $search поисковый запрос
  *
- * @return string $coтеуте данные для шаблона
+ * @return string данные для шаблона
  */
 function multySearch($con, $search)
 {
@@ -1289,7 +1281,7 @@ function multySearch($con, $search)
                 $sql = 'SELECT * FROM posts p
                 LEFT JOIN users u ON p.users_id = u.users_id
                 LEFT JOIN content_types c ON p.content_types_id = c.content_types_id
-                WHERE (MATCH(p.content, p.title) AGAINST(?)) GROUP BY post_date';
+                WHERE (MATCH(p.content, p.title) AGAINST(?))';
                 $stmt = db_get_prepare_stmt($con, $sql, [$search]);
                 mysqli_stmt_execute($stmt);
                 $result = mysqli_stmt_get_result($stmt);
@@ -1300,11 +1292,14 @@ function multySearch($con, $search)
                 LEFT JOIN users u ON p.users_id = u.users_id
                 LEFT JOIN content_types c ON p.content_types_id = c.content_types_id
                 WHERE p.content LIKE (?) OR p.title LIKE (?)';
+                $saveSearch = $search;
+                $search = '%' . $search . '%';
                 $stmt = mysqli_prepare($con, $sql);
-                mysqli_stmt_bind_param($stmt, 'dd', $search, $search);
+                mysqli_stmt_bind_param($stmt, 'ss', $search, $search);
                 mysqli_stmt_execute($stmt);
                 $result = mysqli_stmt_get_result($stmt);
                 $cards = mysqli_fetch_all($result, MYSQLI_ASSOC);
+                $search = $saveSearch;
             }
         } else {
             $search = substr($search, 1);
@@ -1327,7 +1322,6 @@ function multySearch($con, $search)
                 $saveSearch = '#' . $search;
                 $search = '%' . $search . '%';
             }
-
             $stmt = db_get_prepare_stmt($con, $sql, [$search]);
             mysqli_stmt_execute($stmt);
             $result = mysqli_stmt_get_result($stmt);
@@ -1346,7 +1340,6 @@ function multySearch($con, $search)
                 'con'    => $con,
             ]);
         }
-
     } else {
         $content = include_template('search-no-results.php', [
             'search' => $search,
@@ -1361,7 +1354,7 @@ function multySearch($con, $search)
  * @param mysqli $con ресурс соединения
  * @param string $newUserEmail почта новго пользователя
  *
- * @return bool $result true если новая почта уникальная, false если есть совпадения;
+ * @return bool true если новая почта уникальная, false если есть совпадения;
  */
 function dbIsEmailValid($con, $newUserEmail)
 {
@@ -1387,7 +1380,7 @@ function dbIsEmailValid($con, $newUserEmail)
  * @param mysqli $con ресурс соединения
  * @param string $email эмейл пользователя
  *
- * @return bool $row хеш пароля;
+ * @return bool хеш пароля;
  */
 function dbGetHashToEmail($con, $email)
 {
@@ -1410,7 +1403,7 @@ function dbGetHashToEmail($con, $email)
  * @param mysqli $con ресурс соединения
  * @param int $postId id поста
  *
- * @return bool $views количество просмотров;
+ * @return bool количество просмотров;
  */
 function dbGetPostViews($con, $postId)
 {
@@ -1422,6 +1415,8 @@ function dbGetPostViews($con, $postId)
 
     if ($res) {
         $views = mysqli_fetch_row($res);
+    } else {
+        $views[0] = 0;
     }
 
     return $views[0];
@@ -1432,7 +1427,7 @@ function dbGetPostViews($con, $postId)
  * @param mysqli $con ресурс соединения
  * @param int $postId id поста
  *
- * @return int $views количество просмотров;
+ * @return int количество просмотров;
  */
 function dbGetViewPost($con, $postId)
 {
@@ -1448,12 +1443,12 @@ function dbGetViewPost($con, $postId)
 }
 
 /**
- * Добавляет просмотр поста и возвращает кол во просмотров.
+ * Добавляет просмотр поста.
  * @param mysqli $con ресурс соединения
  * @param int $postId id поста
  * @param int $userId id пользователя
  *
- * @return bool $res кол-во просмотров;
+ * @return bool true;
  */
 function dbAddViewToPost($con, $userId, $postId)
 {
@@ -1466,5 +1461,11 @@ function dbAddViewToPost($con, $userId, $postId)
     mysqli_stmt_execute($stmt);
     $res = mysqli_stmt_get_result($stmt);
 
-    return $res;
+    if ($res){
+        $result = true;
+    } else {
+        $result = false;
+    }
+
+    return $result;
 }

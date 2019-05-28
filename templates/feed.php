@@ -87,9 +87,6 @@
                                 <div class="post-link__wrapper">
                                     <a class="<?= $cardUserSiteId ?>" href="<?= $cardUserSiteId ?>"
                                        title="Перейти по ссылке">
-<!--                                        <div class="post-link__icon-wrapper">-->
-<!--                                            <img src="img/logo-vita.jpg" alt="Иконка">-->
-<!--                                        </div>-->
                                         <div class="post-link__info">
                                             <h3><?= $cardTitle ?></h3>
                                             <p><?= $cardContent ?></p>

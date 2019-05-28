@@ -8,7 +8,9 @@ if (!isUserLoggedIn()) {
 
 $title = 'readme: профиль';
 $userSession = $_SESSION;
+$search = $_GET['q'] ?? '';
 $getTab = $_GET['tab'] ?? '';
+$getblock = $_GET['block'] ?? '';
 $getUser = $_GET['user'] ?? '';
 $getPostId = $_GET['postId'] ?? '';
 $getRepost = $_GET['repost'] ?? '';
@@ -41,6 +43,9 @@ $html = include_template('layout.php', [
     'getTab'      => $getTab,
     'content'     => $content,
     'title'       => $title,
+    'con'         => $con,
+    'search'      => $search,
+    'getBlock'    => $getblock,
 ]);
 
 echo $html;

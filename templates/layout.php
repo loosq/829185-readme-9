@@ -119,10 +119,7 @@
         </form>
         <div class="header__nav-wrapper">
             <nav class="header__nav">
-                <?php
-                session_start();
-                if (isset($userSession['user-name'])) :
-                    ?>
+                <?php if (isUserLoggedIn()): ?>
                     <ul class="header__my-nav">
                         <li class="header__my-page header__my-page--popular">
                             <a class="header__page-link<?= ($getBlock === 'pop') ? ' header__page-link--active' : '' ?>"
@@ -144,7 +141,7 @@
                     </ul>
                     <ul class="header__user-nav">
                         <li class="header__profile">
-                            <a class="header__profile-link" href="profile.php?user=<?= $userSession['user-id']?>&tab=posts">
+                            <a class="header__profile-link" href="profile.php?user=<?= $userSession['user-id'] ?>&tab=posts">
                                 <div class="header__avatar-wrapper">
                                     <img class="header__profile-avatar" src="<?= $userSession['user-ava'] ?>"
                                          alt="">
@@ -160,7 +157,7 @@
                                 <div class="header__profile-tooltip">
                                     <ul class="header__profile-nav">
                                         <li class="header__profile-nav-item">
-                                            <a class="header__profile-nav-link" href="profile.php?user=<?= $userSession['user-id']?>&tab=posts">
+                                            <a class="header__profile-nav-link" href="profile.php?user=<?= $userSession['user-id'] ?>&tab=posts">
                           <span class="header__profile-nav-text">
                             Мой профиль
                           </span>
@@ -170,7 +167,9 @@
                                             <a class="header__profile-nav-link" href="messages.php?block=messages">
                           <span class="header__profile-nav-text">
                             Сообщения
-                            <i class="header__profile-indicator">2</i>
+                              <?php if(dbGetAllUnreadMsg($con, $userSession['user-id'])): ?>
+                            <i class="header__profile-indicator"><?= dbGetAllUnreadMsg($con, $userSession['user-id']) ?></i>
+                                <?php endif ?>
                           </span>
                                             </a>
                                         </li>
@@ -249,10 +248,10 @@
             <div class="footer__my-info">
                 <ul class="footer__my-pages">
                     <li class="footer__my-page footer__my-page--feed">
-                        <a class="footer__page-link" href="feed.php">Моя лента</a>
+                        <a class="footer__page-link" href="feed.php?block=feed&tab=all">Моя лента</a>
                     </li>
                     <li class="footer__my-page footer__my-page--popular">
-                        <a class="footer__page-link" href="popular.php?tab=all">Популярный контент</a>
+                        <a class="footer__page-link" href="popular.php?block=&tab=all&sort=pop&page=1">Популярный контент</a>
                     </li>
                     <li class="footer__my-page footer__my-page--messages">
                         <a class="footer__page-link" href="messages.php?block=messages">Личные сообщения</a>
