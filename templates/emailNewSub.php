@@ -14,7 +14,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-<h1>Новый работяга!</h1>
 <p>Здравствуйте, <?= $nameUserToSub ?>. На вас подписался новый пользователь
     <?= $nameUser ?>. Вот <a href="http://readme.loc/profile.php?user=<?= $idUser ?>&tab=posts">ссылка</a> на его профиль.</p>
 </body>

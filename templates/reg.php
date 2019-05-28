@@ -13,7 +13,7 @@
                         <div class="form__input-section<?= isset($errors['email']) ? ' form__input-section--error' : '' ?>">
                             <input class="registration__input form__input" id="registration-email" type="email"
                                    name="email" placeholder="Укажите эл.почту"
-                                   value="<?= htmlspecialchars($_POST['email']) ?>">
+                                   value="<?= htmlspecialchars($email) ?>">
                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span>
                             </button>
                             <div class="form__error-text">
@@ -26,10 +26,10 @@
                     <div class="registration__input-wrapper form__input-wrapper">
                         <label class="registration__label form__label" for="registration-login">Логин <span
                                     class="form__input-required">*</span></label>
-                        <div class="form__input-section<?= isset($errors['name']) ? ' form__input-section--error' : '' ?>">
+                        <div class="form__input-section<?= isset($errors['userName']) ? ' form__input-section--error' : '' ?>">
                             <input class="registration__input form__input" id="registration-login" type="text"
-                                   name="name" placeholder="Укажите логин"
-                                   value="<?= htmlspecialchars($_POST['name']) ?>">
+                                   name="userName" placeholder="Укажите логин"
+                                       value="<?= htmlspecialchars($userName) ?>">
                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span>
                             </button>
                             <div class="form__error-text">
@@ -44,7 +44,7 @@
                         <div class="form__input-section<?= isset($errors['password']) ? ' form__input-section--error' : '' ?>">
                             <input class="registration__input form__input" id="registration-password" type="password"
                                    name="password" placeholder="Придумайте пароль"
-                                   value="<?= htmlspecialchars($_POST['password']) ?>">
+                                   value="<?= htmlspecialchars($pwd) ?>">
                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span>
                             </button>
                             <div class="form__error-text">
@@ -59,7 +59,7 @@
                         <div class="form__input-section<?= isset($errors['password-repeat']) ? ' form__input-section--error' : '' ?>">
                             <input class="registration__input form__input" id="registration-password-repeat"
                                    type="password" name="password-repeat" placeholder="Повторите пароль"
-                                   value="<?= htmlspecialchars($_POST['password-repeat']) ?>">
+                                   value="<?= htmlspecialchars($copyPwd) ?>">
                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span>
                             </button>
                             <div class="form__error-text">
@@ -71,8 +71,8 @@
                     <div class="registration__textarea-wrapper form__textarea-wrapper">
                         <label class="registration__label form__label" for="text-info">Информация о себе</label>
                         <div class="form__input-section">
-                            <textarea class="registration__textarea form__textarea form__input" id="text-info"
-                                      placeholder="Коротко о себе в свободной форме"><?= htmlspecialchars($_POST['contact-info']) ?></textarea>
+                            <textarea class="registration__textarea form__textarea form__input" id="text-info" name="contact-info"
+                                      placeholder="Коротко о себе в свободной форме"><?= htmlspecialchars($contactInfo) ?></textarea>
                         </div>
                     </div>
                 </div>

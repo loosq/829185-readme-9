@@ -94,7 +94,8 @@ function redirectBack()
  */
 function isUserLoggedIn()
 {
-    if ($_SESSION['user-name']) {
+    $userName = $_SESSION['user-name'] ?? '';
+    if ($userName) {
         return true;
     }
 
@@ -141,4 +142,28 @@ function msgTextCut($text, $len = null)
     }
 
     return $res;
+}
+
+/**
+ * Добавляет данные пользователя в сессию.
+ * @param array $userData массив с данными пользователя
+ * @param mysqli $con подключение к бд
+ *
+ * @return array сессия.
+ */
+function startNewSession($con, $userData)
+{
+    foreach ($userData as $userRow) {
+
+        $_SESSION['user-id'] = $userRow['users_id'];
+        $_SESSION['user-posts'] = dbGetUserPosts($con, $userRow['users_id']);
+        $_SESSION['user-reg-date'] = $userRow['registration_date'];
+        $_SESSION['user-name'] = $userRow['name'];
+        $_SESSION['user-ava'] = $userRow['avatar'];
+        $_SESSION['user-contact-info'] = $userRow['contact_info'];
+        $_SESSION['users-subs'] = dbGetUserSubs($con, $userRow['users_id']);
+        $_SESSION['user-active'] = showTimeGap($userRow['registration_date']);
+    }
+
+    return $_SESSION;
 }

@@ -6,8 +6,8 @@ if (!isUserLoggedIn()) {
     redirectHome();
 }
 
-$userId = $_SESSION['user-id'];
-$postId = $_GET['postId'];
+$userId = $_SESSION['user-id'] ?? '';
+$postId = $_GET['postId'] ?? '';
 $getLike = dbGetLike($con, $postId, $userId);
 
 if ($getLike) {

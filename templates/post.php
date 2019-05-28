@@ -106,7 +106,7 @@
                                 <svg class="post__indicator-icon" width="19" height="17">
                                     <use xlink:href="#icon-repost"></use>
                                 </svg>
-                                <span>5</span>
+                                <span><?= dbGetPostReposts($con, $postId) ?></span>
                                 <span class="visually-hidden">количество репостов</span>
                             </a>
                             <?php endif ?>
