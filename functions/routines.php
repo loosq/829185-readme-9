@@ -114,9 +114,8 @@ function showTimeOfMsg($datePoint)
     $nowTime = time();
     $diffTime = $nowTime - $date;
 
-    if ($diffTime > 0 && $diffTime < 86400) {
+    if ($diffTime < 86400) {
         $res = strftime('%H:%M', $date);
-
     } elseif ($diffTime >= 86400 && $diffTime < 604800) {
         $res = strftime('%e %h', $date);
     } elseif ($diffTime >= 604800 && $diffTime < 31556926) {

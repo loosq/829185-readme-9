@@ -140,7 +140,7 @@
                 <div class="authorization__input-wrapper form__input-wrapper">
                     <div class="form__input-section<?= isset($errors['email']) ? ' form__input-section--error' : '' ?>">
                         <input class="authorization__input authorization__input--login form__input" type="text"
-                               name="email" placeholder="email" value="<?= htmlspecialchars($userEmail) ?>">
+                               name="email" placeholder="email" value="<?= htmlspecialchars($email) ?>">
                         <svg class="form__input-icon" width="19" height="18">
                             <use xlink:href="#icon-input-user"></use>
                         </svg>
