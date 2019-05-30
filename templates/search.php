@@ -51,7 +51,7 @@
                         <header class="post__header post__author">
                             <a class="post__author-link" href="post.php?postId=<?= $cardPostId ?>" title="<?= $cardName ?>">
                                 <div class="post__avatar-wrapper">
-                                    <img class="post__author-avatar" src="<?= $cardAva ?>" alt="Аватар пользователя" width="60" height="60">
+                                    <img class="post__author-avatar" src="<?= $cardAva ?>" alt="" width="60" height="60">
                                 </div>
                                 <div class="post__info">
                                     <b class="post__author-name"><?= $cardName ?></b>
@@ -90,9 +90,6 @@
                                 <div class="post-link__wrapper">
                                     <a class="<?= $cardUserSiteId ?>" href="<?= $cardUserSiteId ?>"
                                        title="Перейти по ссылке">
-                                        <!--                                        <div class="post-link__icon-wrapper">-->
-                                        <!--                                            <img src="img/logo-vita.jpg" alt="Иконка">-->
-                                        <!--                                        </div>-->
                                         <div class="post-link__info">
                                             <h3><?= $cardTitle ?></h3>
                                             <p><?= $cardContent ?></p>

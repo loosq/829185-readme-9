@@ -26,11 +26,13 @@
                 <?php foreach ($allChats as $allChatsVal): ?>
                     <li class="messages__contacts-item">
                         <a class="messages__contacts-tab tabs__item tabs__item--active <?= dbGetUserChatToId($con, $allChatsVal['users_id_send'], $allChatsVal['users_id_get']) === $userOther ? ' messages__contacts-tab--active' : '' ?>"
-                           href="messages.php?block=messages&user=<?= dbGetUserChatToId($con, $allChatsVal['users_id_send'], $allChatsVal['users_id_get']) ?>">
-
+                           href="messages.php?block=messages&user=<?= dbGetUserChatToId($con, $allChatsVal['users_id_send'], $allChatsVal['users_id_get']) ?>" data-user-caht-to="<?= dbGetUserChatToId($con, $allChatsVal['users_id_send'], $allChatsVal['users_id_get']) ?>">
                             <div class="messages__avatar-wrapper">
                                 <img class="messages__avatar" src="<?= dbGetUserChatToAva($con ,$allChatsVal['users_id_get'] ,$allChatsVal['users_id_send']) ?>"
                                      alt="">
+                                <?php if (dbGetUnreadMsgFromUser($con,dbGetUserChatToId($con, $allChatsVal['users_id_send'], $allChatsVal['users_id_get']), $userSession['user-id']) && !(dbGetUserChatToId($con, $allChatsVal['users_id_send'], $allChatsVal['users_id_get']) === $userOther)): ?>
+                                <i class="messages__indicator"><?= dbGetUnreadMsgFromUser($con,dbGetUserChatToId($con, $allChatsVal['users_id_send'], $allChatsVal['users_id_get']), $userSession['user-id']) ?></i>
+                                <?php endif ?>
                             </div>
                             <div class="messages__info">
                   <span class="messages__contact-name">

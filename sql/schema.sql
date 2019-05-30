@@ -117,6 +117,7 @@ CREATE TABLE IF NOT EXISTS `readme`.`messages` (
   `users_id_send` INT NOT NULL,
   `users_id_get` INT NOT NULL,
   `chat_hash` VARCHAR(255) DEFAULT NULL,
+  `status` TINYTEXT,
   PRIMARY KEY (`messages_id`),
   UNIQUE INDEX `id_UNIQUE` (`messages_id` ASC),
   INDEX `fk_message_users1_idx` (`users_id_send` ASC),

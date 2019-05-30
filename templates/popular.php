@@ -191,8 +191,7 @@
                                 <a class="post__indicator post__indicator--likes button" title="Лайк"
                                    data-post-id='<?= $cardPostId ?>'>
                                     <svg class="post__indicator-icon" width="20" height="17">
-                                        <use xlink:href="#icon-heart<?= dbGetLike($con, $cardPostId,
-                                            $userSession['user-id']) ? '-active' : '' ?>"></use>
+                                        <use xlink:href="#icon-heart<?= dbGetLike($con, $cardPostId, $userSession['user-id']) ? '-active' : '' ?>"></use>
                                     </svg>
                                     <span class="<?= dbGetLike($con, $cardPostId,
                                         $userSession['user-id']) ? '' : 'like-counter' ?>"><?= dbCountLikesToPost($con,
@@ -216,15 +215,19 @@
             <p class="<?= isset($cardTitle) ? 'visually-hidden' : '' ?>">По данному запросу ни одного поста не
                 найдено</p>
         </div>
+        <?php if($curPage <= $pagesCount && is_numeric($curPage)): ?>
         <?php if($pagesCount > 1): ?>
         <div class="popular__page-links">
             <?php if($curPage > 1): ?>
-            <a class="popular__page-link popular__page-link--prev button button--gray" href="?block=<?= $getblock ?>&tab=<?= $getTab ?>&sort=<?= $getSort ?>&page=<?= $curPage - 1 ?>">Предыдущая страница</a>
+            <a class="popular__page-link popular__page-link--prev button button--gray" href="?block=<?= $getBlock ?>&tab=<?= $getTab ?>&sort=<?= $getSort ?>&page=<?= $curPage - 1 ?>">Предыдущая страница</a>
             <?php endif; ?>
             <?php if($pagesCount - $curPage): ?>
-            <a class="popular__page-link popular__page-link--next button button--gray" href="?block=<?= $getblock ?>&tab=<?= $getTab ?>&sort=<?= $getSort ?>&page=<?= $curPage + 1 ?>">Следующая страница</a>
+            <a class="popular__page-link popular__page-link--next button button--gray" href="?block=<?= $getBlock ?>&tab=<?= $getTab ?>&sort=<?= $getSort ?>&page=<?= $curPage + 1 ?>">Следующая страница</a>
             <?php endif; ?>
         </div>
+        <?php endif ?>
+        <?php else: ?>
+        <p class="<?= isset($cardTitle) ? 'visually-hidden' : '' ?>">По такому номеру страницы ничего не найдено</p>
         <?php endif ?>
     </div>
 </section>

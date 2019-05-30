@@ -2,7 +2,13 @@
 
 include_once 'init.php';
 
-$userEmail = $_POST['email'];
-$userPassword = $_POST['password'];
+$userName = $_SESSION['user-name'] ?? '';
+$email = $_POST['email'] ?? '';
+$password = $_POST['password'] ?? '';
 
-echo loginFormValidation($con, $userEmail , $userPassword);
+if (isUserLoggedIn()) {
+    redirect('feed.php?block=feed&tab=all');
+} else {
+    $html = loginFormValidation($con, $email, $password);
+    echo $html;
+}

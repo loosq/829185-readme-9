@@ -10,6 +10,7 @@ $title = 'readme: популярное';
 $getBlock = $_GET['block'] ?? '';
 $getTab = $_GET['tab'] ?? '';
 $curPage = $_GET['page'] ?? 1;
+$search = $_GET['q'] ?? '';
 $getSort = $_GET['sort'] ?? '';
 $userSession = $_SESSION;
 $itemCount = dbReadUsersPostsByTab($con, $getTab);
@@ -27,6 +28,7 @@ $content = include_template('popular.php', [
     'getSort'    => $getSort,
     'pagesCount' => $pagesCount,
     'curPage'    => $curPage,
+    'userSession' => $userSession,
 ]);
 
 $html = include_template('layout.php', [
@@ -34,6 +36,8 @@ $html = include_template('layout.php', [
     'content'     => $content,
     'getBlock'    => $getBlock,
     'title'       => $title,
+    'con'         => $con,
+    'search'      => $search,
 ]);
 
 echo $html;

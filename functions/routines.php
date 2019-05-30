@@ -94,7 +94,8 @@ function redirectBack()
  */
 function isUserLoggedIn()
 {
-    if ($_SESSION['user-name']) {
+    $userName = $_SESSION['user-name'] ?? '';
+    if ($userName) {
         return true;
     }
 
@@ -113,9 +114,8 @@ function showTimeOfMsg($datePoint)
     $nowTime = time();
     $diffTime = $nowTime - $date;
 
-    if ($diffTime > 0 && $diffTime < 86400) {
+    if ($diffTime < 86400) {
         $res = strftime('%H:%M', $date);
-
     } elseif ($diffTime >= 86400 && $diffTime < 604800) {
         $res = strftime('%e %h', $date);
     } elseif ($diffTime >= 604800 && $diffTime < 31556926) {
@@ -141,4 +141,28 @@ function msgTextCut($text, $len = null)
     }
 
     return $res;
+}
+
+/**
+ * Добавляет данные пользователя в сессию.
+ * @param array $userData массив с данными пользователя
+ * @param mysqli $con подключение к бд
+ *
+ * @return array сессия.
+ */
+function startNewSession($con, $userData)
+{
+    foreach ($userData as $userRow) {
+
+        $_SESSION['user-id'] = $userRow['users_id'];
+        $_SESSION['user-posts'] = dbGetUserPosts($con, $userRow['users_id']);
+        $_SESSION['user-reg-date'] = $userRow['registration_date'];
+        $_SESSION['user-name'] = $userRow['name'];
+        $_SESSION['user-ava'] = $userRow['avatar'];
+        $_SESSION['user-contact-info'] = $userRow['contact_info'];
+        $_SESSION['users-subs'] = dbGetUserSubs($con, $userRow['users_id']);
+        $_SESSION['user-active'] = showTimeGap($userRow['registration_date']);
+    }
+
+    return $_SESSION;
 }

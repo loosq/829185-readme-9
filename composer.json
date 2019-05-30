@@ -1,0 +1,13 @@
+{
+    "name": "mi/readme.loc",
+    "description": "readme",
+    "authors": [
+        {
+            "name": "loosq",
+            "email": "ipsa87@gmail.com"
+        }
+    ],
+    "require": {
+        "swiftmailer/swiftmailer": "^6.2"
+    }
+}
