@@ -105,6 +105,7 @@
                 micro blogging
             </p>
         </div>
+        <?php if (isUserLoggedIn()): ?>
         <form class="header__search-form form" action="search.php?q=<?= htmlspecialchars($search) ?>" method="get">
             <div class="header__search">
                 <label class="visually-hidden">Поиск</label>
@@ -119,7 +120,6 @@
         </form>
         <div class="header__nav-wrapper">
             <nav class="header__nav">
-                <?php if (isUserLoggedIn()): ?>
                     <ul class="header__my-nav">
                         <li class="header__my-page header__my-page--popular">
                             <a class="header__page-link<?= ($getBlock === 'pop') ? ' header__page-link--active' : '' ?>"
