@@ -10,6 +10,8 @@
  */
 function loginFormValidation($con, $email, $password)
 {
+    $title = 'readme: блог, каким он должен быть';
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors = [];
         if (empty($email)) {
@@ -32,11 +34,18 @@ function loginFormValidation($con, $email, $password)
             header('Location:/feed.php?block=feed&tab=all');
         } else {
             $html = include_template('index.php', [
-                'errors'       => $errors,
-                'userPassword' => $password,
-                'userEmail'    => $email,
+                'errors'   => $errors,
+                'password' => $password,
+                'email'    => $email,
+                'title'    => $title,
             ]);
         }
+    } else {
+        $html = include_template('index.php', [
+            'password' => $password,
+            'email'    => $email,
+            'title'    => $title,
+        ]);
     }
 
     return $html;
@@ -56,8 +65,16 @@ function loginFormValidation($con, $email, $password)
  * @return string при ошибках валидации возвращает форму с ошибками, при успехе делает
  * соответствующую запись в бд и перенаправляет пользователя на главную страницу;
  */
-function regFormValidation($con, $contactInfo, $copyPwd, $pwd, $userName, $email, $userPicFilePath = null, $userPicFile = null)
-{
+function regFormValidation(
+    $con,
+    $contactInfo,
+    $copyPwd,
+    $pwd,
+    $userName,
+    $email,
+    $userPicFilePath = null,
+    $userPicFile = null
+) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $required = ['userName', 'password', 'password-repeat', 'email'];
         $dict = [
@@ -65,6 +82,9 @@ function regFormValidation($con, $contactInfo, $copyPwd, $pwd, $userName, $email
             'password'        => 'Пароль.',
             'password-repeat' => 'Повтор пароля.',
             'email'           => 'Электронная почта.',
+            'user-pic-size'   => 'Размер изображения.',
+            'user-pic-format' => 'Формат изображения.',
+
         ];
 
         $errors = [];
@@ -172,13 +192,15 @@ function photoFormValidation($con)
     $getTab = $_GET['tab'];
     $userSession = $_SESSION;
     $required = ['photo-heading'];
-    $dict = ['photo-heading' => 'Заголовок.', 'file-or-url' => 'Файл или ссылка.'];
+    $dict = ['photo-heading' => 'Заголовок.', 'file-or-url' => 'Файл или ссылка.', 'file-size' => 'Размер картинки.'];
     $photoHeading = $_POST['photo-heading'] ?? '';
     $photoTags = $_POST['photo-tags'] ?? '';
     $picture = $_FILES['photo-file-img']['name'] ?? '';
     $url = $_POST['photo-url'] ?? '';
     $tmpPath = $_FILES['photo-file-img']['tmp_name'] ?? '';
     $tmpName = $_FILES['photo-file-img']['name'] ?? '';
+    $fileSize = $_FILES['photo-file-img']['size'] ?? '';
+
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -189,7 +211,7 @@ function photoFormValidation($con)
             }
         }
 
-        if (strlen($photoHeading) > 70) {
+        if (strlen($photoHeading) > 10240) {
             $errors['photo-heading'] = 'Максимальная величина текста с пробелами 70 символов';
         }
 
@@ -199,7 +221,7 @@ function photoFormValidation($con)
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $fileType = finfo_file($finfo, $tmpPath);
 
-            if (filesize($tmpPath) > 10485760) {
+            if ($fileSize > 10485760) {
                 $errors['file-size'] = 'Максимально допустимый размер изображения 10 мегабайт';
             } elseif ($fileType === 'image/gif' || $fileType === 'image/png' || $fileType === 'image/jpeg') {
                 $fileInfo = pathinfo($tmpName, PATHINFO_EXTENSION);
@@ -219,7 +241,7 @@ function photoFormValidation($con)
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $fileType = finfo_file($finfo, $tmpPath);
 
-            if (filesize($tmpPath) > 10485760) {
+            if ($fileSize > 10485760) {
                 $errors['file-size'] = 'Максимально допустимый размер изображения 10 мегабайт';
             } elseif ($fileType === 'image/gif' || $fileType === 'image/png' || $fileType === 'image/jpeg') {
                 $fileInfo = pathinfo($tmpName, PATHINFO_EXTENSION);
