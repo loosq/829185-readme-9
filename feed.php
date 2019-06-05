@@ -11,11 +11,12 @@ $getTab = $_GET['tab'] ?? '';
 $getBlock = $_GET['block'] ?? '';
 $myUserId = $_SESSION['user-id'];
 $search = $_GET['q'] ?? '';
-$cards = array_reverse(dbReadUsersSubPosts($con, $getTab, $myUserId));
+$cards = array_reverse(dbReadUsersSubPosts($sqlReadUsersSubPostsType, $sqlReadUsersSubPosts, $con, $getTab, $myUserId));
 $content = include_template('feed.php', [
-    'getTab' => $getTab,
-    'cards'  => $cards,
-    'con'    => $con,
+    'userSession' => $userSession,
+    'getTab'      => $getTab,
+    'cards'       => $cards,
+    'con'         => $con,
 ]);
 
 $html = include_template('layout.php', [

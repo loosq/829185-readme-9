@@ -38,7 +38,6 @@ function showTimeGap($datePoint)
 {
     $nowTime = time();
     $diffTime = $nowTime - strtotime($datePoint);
-
     if ($diffTime < 3600) {
         $num = ceil($diffTime / 60);
         $word = get_noun_plural_form(ceil($diffTime / 60), 'минута', 'минуты', 'минут');
@@ -113,7 +112,6 @@ function showTimeOfMsg($datePoint)
     $date = strtotime($datePoint);
     $nowTime = time();
     $diffTime = $nowTime - $date;
-
     if ($diffTime < 86400) {
         $res = strftime('%H:%M', $date);
     } elseif ($diffTime >= 86400 && $diffTime < 604800) {
@@ -130,17 +128,15 @@ function showTimeOfMsg($datePoint)
  * @param string $text текст сообщения
  * @param int $len количество символов
  *
- * @return string $res обрезанный текст
+ * @return string обрезанный текст
  */
 function msgTextCut($text, $len = null)
 {
     if (strlen($text) > $len) {
-        $res = substr($text, 0, $len) . '...';
-    } else {
-        $res = $text;
+        $text = substr($text, 0, $len) . '...';
     }
 
-    return $res;
+    return $text;
 }
 
 /**
@@ -153,7 +149,6 @@ function msgTextCut($text, $len = null)
 function startNewSession($con, $userData)
 {
     foreach ($userData as $userRow) {
-
         $_SESSION['user-id'] = $userRow['users_id'];
         $_SESSION['user-posts'] = dbGetUserPosts($con, $userRow['users_id']);
         $_SESSION['user-reg-date'] = $userRow['registration_date'];

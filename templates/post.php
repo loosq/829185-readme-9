@@ -26,7 +26,9 @@
  */
 ?>
 <?php foreach ($cards as $key => $card) ?>
-<?php foreach ($user as $key => $userData) ?>
+<?php foreach ($user
+
+as $key => $userData) ?>
 <main class="page__main page__main--publication">
     <div class="container">
         <h1 class="page__title page__title--publication"><?= $card['title'] ?></h1>
@@ -48,7 +50,7 @@
                     <?php elseif ($card['type'] === 'video'): ?>
                         <div class="post-photo__image-wrapper">
                             <div class="post__main post__iframe">
-                            <?= embed_youtube_video($card['video_url']) ?>
+                                <?= embed_youtube_video($card['video_url']) ?>
                             </div>
                         </div>
                     <?php elseif ($card['type'] === 'text'): ?>
@@ -101,22 +103,25 @@
                                 <span><?= dbCountCommentsToPost($con, $postId) ?></span>
                                 <span class="visually-hidden">количество комментариев</span>
                             </a>
-                            <?php if($card['isrepost']) : ?>
-                            <a class="post__indicator post__indicator--repost button" href="#" title="Репост">
-                                <svg class="post__indicator-icon" width="19" height="17">
-                                    <use xlink:href="#icon-repost"></use>
-                                </svg>
-                                <span><?= dbGetPostReposts($con, $postId) ?></span>
-                                <span class="visually-hidden">количество репостов</span>
-                            </a>
+                            <?php if ($card['isrepost']) : ?>
+                                <a class="post__indicator post__indicator--repost button" href="#" title="Репост">
+                                    <svg class="post__indicator-icon" width="19" height="17">
+                                        <use xlink:href="#icon-repost"></use>
+                                    </svg>
+                                    <span><?= dbGetPostReposts($con, $postId) ?></span>
+                                    <span class="visually-hidden">количество репостов</span>
+                                </a>
                             <?php endif ?>
                         </div>
-                        <span class="post__view"><?= dbGetViewPost($con, $postId) . ' ' . get_noun_plural_form( dbGetPostViews($con, $postId), 'просмотр', 'просмотры', 'просмотров') ?></span>
+                        <span class="post__view"><?= dbGetViewPost($con,
+                                $postId) . ' ' . get_noun_plural_form(dbGetPostViews($con, $postId), 'просмотр',
+                                'просмотры', 'просмотров') ?></span>
                     </div>
                     <?php $hashtags = dbGetAllHashtagsToPost($con, $postId) ?>
                     <ul class="post__tags">
                         <?php foreach ($hashtags as $hashtag): ?>
-                            <li><a class="post__tags-btn" title="Поиск по тэгу <?= $hashtag['name'] ?>">#<?= $hashtag['name'] ?></a></li>
+                            <li><a class="post__tags-btn"
+                                   title="Поиск по тэгу <?= $hashtag['name'] ?>">#<?= $hashtag['name'] ?></a></li>
                         <?php endforeach ?>
                     </ul>
                     <div class="comments" id="comments">
@@ -161,11 +166,12 @@
                                     </li>
                                 <?php endforeach ?>
                             </ul>
-                            <?php if (dbCountCommentsToPost($con, $postId) > 3 && (int)$allComments  === 0): ?>
-                            <a class="comments__more-link" href="post.php?postId=<?= $postId ?>&all=1&#end-of-comments">
-                                <span>Показать все комментарии</span>
-                                <sup class="comments__amount"><?= dbCountCommentsToPost($con, $postId) ?></sup>
-                            </a>
+                            <?php if (dbCountCommentsToPost($con, $postId) > 3 && (int)$allComments === 0): ?>
+                                <a class="comments__more-link"
+                                   href="post.php?postId=<?= $postId ?>&all=1&#end-of-comments">
+                                    <span>Показать все комментарии</span>
+                                    <sup class="comments__amount"><?= dbCountCommentsToPost($con, $postId) ?></sup>
+                                </a>
                             <?php endif ?>
                             <div id="end-of-comments"></div>
                         </div>
@@ -207,8 +213,8 @@
                                     $userSession['user-id'],
                                     $userData['users_id']) ? 'Отписаться' : 'Подписаться' ?></span></a>
                         <?php if (dbCheckSubscription($con, $userSession['user-id'], $userData['users_id'])): ?>
-                        <a class="profile__user-button user__button user__button--writing button button--green"
-                           href="messages.php?block=messages&user=<?= $userData['users_id'] ?>">Сообщение</a>
+                            <a class="profile__user-button user__button user__button--writing button button--green"
+                               href="messages.php?block=messages&user=<?= $userData['users_id'] ?>">Сообщение</a>
                         <?php endif ?>
                     </div>
                 </div>

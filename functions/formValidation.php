@@ -11,7 +11,6 @@
 function loginFormValidation($con, $email, $password)
 {
     $title = 'readme: блог, каким он должен быть';
-
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors = [];
         if (empty($email)) {
@@ -27,7 +26,6 @@ function loginFormValidation($con, $email, $password)
         } elseif (!password_verify($password, $hashToEmail)) {
             $errors['password'] = 'Пароль указан неверно';
         }
-
         if (!count($errors)) {
             $rows = dbUserSessionByEmail($con, $email);
             startNewSession($con, $rows);
@@ -84,16 +82,13 @@ function regFormValidation(
             'email'           => 'Электронная почта.',
             'user-pic-size'   => 'Размер изображения.',
             'user-pic-format' => 'Формат изображения.',
-
         ];
-
         $errors = [];
         foreach ($required as $key) {
             if (empty($_POST[$key])) {
                 $errors[$key] = 'Это поле необходимо заполнить';
             }
         }
-
         if (empty($email)) {
             $errors['email'] = 'Это поле необходимо заполнить';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -103,35 +98,28 @@ function regFormValidation(
         } elseif (dbIsEmailValid($con, $email)) {
             $errors['email'] = 'Этот адрес уже занят';
         }
-
         if (empty($userName)) {
             $errors['userName'] = 'Это поле необходимо заполнить';
         } elseif (strlen($userName) > 70) {
             $errors['userName'] = 'Это поле не может быть длиннее 70 символов';
         }
-
         if (empty($pwd)) {
             $errors['password'] = 'Это поле необходимо заполнить';
         } elseif (strlen($pwd) > 70) {
             $errors['password'] = 'Это поле не может быть длиннее 70 символов';
         }
-
         if (empty($copyPwd)) {
             $errors['password-repeat'] = 'Это поле необходимо заполнить';
         } elseif (strlen($copyPwd) > 70) {
             $errors['password-repeat'] = 'Это поле не может быть длиннее 70 символов';
         }
-
         $passwordHash = password_hash($pwd, PASSWORD_DEFAULT);
-
         if (!password_verify($copyPwd, $passwordHash)) {
             $errors['password-repeat'] = 'Пароли отличаются';
         }
-
         if ($userPicFile) {
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $fileType = finfo_file($finfo, $userPicFilePath);
-
             if (filesize($userPicFilePath) > 10485760) {
                 $errors['user-pic-size'] = 'Максимально допустимый размер изображения 10 мегабайт';
             } elseif ($fileType === 'image/gif' || $fileType === 'image/png' || $fileType === 'image/jpeg') {
@@ -145,7 +133,6 @@ function regFormValidation(
         } else {
             $newUserPicPath = '';
         }
-
         $contactInfo = trim(htmlspecialchars($contactInfo)) ?? '';
         if (count($errors)) {
             $content = include_template('reg.php', [
@@ -173,7 +160,6 @@ function regFormValidation(
             'pwd'             => $pwd,
             'copyPwd'         => $copyPwd,
             'contactInfo'     => $contactInfo,
-
         ]);
     }
 
@@ -200,27 +186,21 @@ function photoFormValidation($con)
     $tmpPath = $_FILES['photo-file-img']['tmp_name'] ?? '';
     $tmpName = $_FILES['photo-file-img']['name'] ?? '';
     $fileSize = $_FILES['photo-file-img']['size'] ?? '';
-
-
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
         $errors = [];
         foreach ($required as $key) {
             if (empty($_POST[$key])) {
                 $errors[$key] = 'Это поле необходимо заполнить';
             }
         }
-
         if (strlen($photoHeading) > 10240) {
             $errors['photo-heading'] = 'Максимальная величина текста с пробелами 70 символов';
         }
-
         if (!$url && !$picture) {
             $errors['file-or-url'] = 'Укажите ссылку или загрузите изображение';
         } elseif (isset($picture) && !$url) {
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $fileType = finfo_file($finfo, $tmpPath);
-
             if ($fileSize > 10485760) {
                 $errors['file-size'] = 'Максимально допустимый размер изображения 10 мегабайт';
             } elseif ($fileType === 'image/gif' || $fileType === 'image/png' || $fileType === 'image/jpeg') {
@@ -252,7 +232,6 @@ function photoFormValidation($con)
                 $errors['file'] = 'Загрузите картинку в формате на выбор: .jpg, .png, .gif';
             }
         }
-
         if (count($errors)) {
             $photoForm = include_template('add.php', [
                 'userSession'  => $userSession,
@@ -293,24 +272,20 @@ function videoFormValidation($con)
     $videoHeading = $_POST['video-heading'] ?? '';
     $videoUrl = $_POST['video-url'] ?? '';
     $videoTags = $_POST['video-tags'] ?? '';
-
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $required = ['video-heading', 'video-url'];
         $dict = ['video-heading' => 'Заголовок.', 'video-url' => 'Ссылка.'];
-
         $errors = [];
         foreach ($required as $key) {
             if (empty($_POST[$key])) {
                 $errors[$key] = 'Это поле необходимо заполнить';
             }
         }
-
         if (!$videoHeading) {
             $errors['video-heading'] = 'Это поле необходимо заполнить';
         } elseif (strlen($videoHeading) > 70) {
             $errors['video-heading'] = 'Максимальная величина текста с пробелами 70 символов';
         }
-
         if (!$videoUrl) {
             $errors['video-url'] = 'Это поле необходимо заполнить';
         } elseif (!filter_var($videoUrl, FILTER_VALIDATE_URL)) {
@@ -318,7 +293,6 @@ function videoFormValidation($con)
         } elseif (!check_youtube_url($videoUrl)) {
             $errors['video-url'] = 'Укажите ссылку на http://youtube.com';
         }
-
         if (count($errors)) {
             $videoForm = include_template('add.php', [
                 'videoHeading' => $videoHeading,
@@ -358,7 +332,6 @@ function textFormValidation($con)
     $textHeading = $_POST['text-heading'] ?? '';
     $textContent = $_POST['text-content'] ?? '';
     $textTags = $_POST['text-tags'] ?? '';
-
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $required = ['text-heading', 'text-content'];
         $dict = ['text-heading' => 'Заголовок.', 'text-content' => 'Текст поста.'];
@@ -368,19 +341,16 @@ function textFormValidation($con)
                 $errors[$key] = 'Это поле необходимо заполнить';
             }
         }
-
         if (empty($textHeading)) {
             $errors['text-heading'] = 'Это поле необходимо заполнить';
         } elseif (strlen($textHeading) > 70) {
             $errors['text-heading'] = 'Максимальная величина текста с пробелами 70 символов';
         }
-
         if (empty($textContent)) {
             $errors['text-content'] = 'Это поле необходимо заполнить';
         } elseif (strlen($textContent) > 70) {
             $errors['text-content'] = 'Максимальная величина текста с пробелами 70 символов';
         }
-
         if (count($errors)) {
             $textForm = include_template('add.php', [
                 'textHeading' => $textHeading,
@@ -421,7 +391,6 @@ function quoteFormValidation($con)
     $quoteText = $_POST['quote-text'] ?? '';
     $quoteAuthor = $_POST['quote-author'] ?? '';
     $quoteTags = $_POST['quote-tags'] ?? '';
-
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $required = ['quote-heading', 'quote-text', 'quote-author'];
         $dict = [
@@ -429,14 +398,12 @@ function quoteFormValidation($con)
             'quote-text'    => 'Текст поста.',
             'quote-author'  => 'Автор цитаты.',
         ];
-
         $errors = [];
         foreach ($required as $key) {
             if (empty($_POST[$key])) {
                 $errors[$key] = 'Это поле необходимо заполнить';
             }
         }
-
         if (empty($quoteHeading)) {
             $errors['quote-heading'] = 'Это поле необходимо заполнить';
         } elseif (strlen($quoteHeading) > 70) {
@@ -448,13 +415,11 @@ function quoteFormValidation($con)
         } elseif (strlen($quoteText) > 70) {
             $errors['quote-text'] = 'Максимальная величина текста с пробелами 70 символов';
         }
-
         if (empty($quoteAuthor)) {
             $errors['quote-author'] = 'Это поле необходимо заполнить';
         } elseif (strlen($quoteAuthor) > 70) {
             $errors['quote-author'] = 'Максимальная величина текста с пробелами 70 символов';
         }
-
         if (count($errors)) {
             $quoteForm = include_template('add.php', [
                 'getTab'       => $getTab,
@@ -495,31 +460,25 @@ function urlFormValidation($con)
     $linkHeading = $_POST['link-heading'] ?? '';
     $linkUrl = $_POST['link-url'] ?? '';
     $linkTags = $_POST['link-tags'] ?? '';
-
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
         $required = ['link-heading', 'link-url'];
         $dict = ['link-heading' => 'Заголовок.', 'link-url' => 'Ссылка.'];
-
         $errors = [];
         foreach ($required as $key) {
             if (empty($_POST[$key])) {
                 $errors[$key] = 'Это поле необходимо заполнить';
             }
         }
-
         if (empty($linkHeading)) {
             $errors['link-heading'] = 'Это поле необходимо заполнить';
         } elseif (strlen($linkHeading) > 70) {
             $errors['link-heading'] = 'Максимальная величина текста с пробелами 70 символов';
         }
-
         if (empty($linkUrl)) {
             $errors['link-url'] = 'Это поле необходимо заполнить';
         } elseif (!filter_var($linkUrl, FILTER_VALIDATE_URL)) {
             $errors['link-url'] = 'Укажите ссылку в правильном формате';
         }
-
         if (count($errors)) {
             $linkForm = include_template('add.php', [
                 'getTab'      => $getTab,
@@ -588,14 +547,14 @@ function validForm($con, $tab)
  */
 function msgFormValidation($con, $userSend, $userGet, $text)
 {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($text !== '') && $userGet) {
-        $msgLong = htmlspecialchars($text);
+    $msgWide = trim($text);
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && $text) {
+        $msgLong = htmlspecialchars($msgWide);
         $msg = substr($msgLong, 0, 220);
-        $res = dbNewMsg($con, $userSend, $userGet, $msg);
-        redirectBack();
+        $result = dbNewMsg($con, $userSend, $userGet, $msg);
     } else {
-        $res = false;
+        $result = false;
     }
 
-    return $res;
+    return $result;
 }

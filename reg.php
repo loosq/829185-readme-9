@@ -13,7 +13,6 @@ $userName = $_POST['userName'] ?? '';
 $pwd = $_POST['password'] ?? '';
 $copyPwd = $_POST['password-repeat'] ?? '';
 $contactInfo = $_POST['contact-info'] ?? '';
-
 if (!isUserLoggedIn()) {
 
     $content = regFormValidation($con, $contactInfo, $copyPwd, $pwd, $userName, $email, $userPicFilePath, $userPicFile);

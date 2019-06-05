@@ -6,7 +6,7 @@
  * @var int $curPage текущая страница
  *
  * @var array $cards массив постов
- * @var string $cardType  тип поста
+ * @var string $cardType тип поста
  * @var string $cardPostId id поста
  * @var string $cardPostDate дата поста
  * @var string $cardAva ссылка на картинку аватар автора поста
@@ -33,7 +33,8 @@
                 <b class="popular__sorting-caption sorting__caption">Сортировка:</b>
                 <ul class="popular__sorting-list sorting__list">
                     <li class="sorting__item sorting__item--popular">
-                        <a class="sorting__link<?= $getSort === 'pop' ? ' sorting__link--active' : '' ?>" href="popular.php?block=<?= $getBlock ?>&tab=<?= $getTab ?>&sort=pop&page=<?= $curPage ?>">
+                        <a class="sorting__link<?= $getSort === 'pop' ? ' sorting__link--active' : '' ?>"
+                           href="popular.php?block=<?= $getBlock ?>&tab=<?= $getTab ?>&sort=pop&page=<?= $curPage ?>">
                             <span>Популярность</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -41,7 +42,8 @@
                         </a>
                     </li>
                     <li class="sorting__item">
-                        <a class="sorting__link<?= $getSort === 'likes' ? ' sorting__link--active' : '' ?>" href="popular.php?block=<?= $getBlock ?>&tab=<?= $getTab ?>&sort=likes&page=<?= $curPage ?>">
+                        <a class="sorting__link<?= $getSort === 'likes' ? ' sorting__link--active' : '' ?>"
+                           href="popular.php?block=<?= $getBlock ?>&tab=<?= $getTab ?>&sort=likes&page=<?= $curPage ?>">
                             <span>Лайки</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -49,7 +51,8 @@
                         </a>
                     </li>
                     <li class="sorting__item">
-                        <a class="sorting__link<?= $getSort === 'date' ? ' sorting__link--active' : '' ?>" href="popular.php?block=<?= $getBlock ?>&tab=<?= $getTab ?>&sort=date&page=<?= $curPage ?>">
+                        <a class="sorting__link<?= $getSort === 'date' ? ' sorting__link--active' : '' ?>"
+                           href="popular.php?block=<?= $getBlock ?>&tab=<?= $getTab ?>&sort=date&page=<?= $curPage ?>">
                             <span>Дата</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -117,7 +120,7 @@
         </div>
         <div class="popular__posts" id="popular__posts">
             <?php foreach ($cards as $key => $card): ?>
-            <?php
+                <?php
                 $cardType = $card['type'];
                 $cardPostId = $card['posts_id'];
                 $cardPostDate = $card['post_date'];
@@ -162,12 +165,12 @@
                         <?php elseif ($cardType === 'video'): ?>
                             <div class="post-photo__image-wrapper">
                                 <div class="pop__video">
-                                <?= embed_youtube_video($cardVideoUrl) ?>
+                                    <?= embed_youtube_video($cardVideoUrl) ?>
                                 </div>
                             </div>
                         <?php elseif ($cardType === 'text'): ?>
                             <p style="margin-left: 7%; margin-right: 10%">
-                                <?= cutText( $cardContent, 60, $cardPostId) ?></p>
+                                <?= cutText($cardContent, 60, $cardPostId) ?></p>
                         <?php endif ?>
                     </div>
                     <footer class="post__footer">
@@ -191,7 +194,8 @@
                                 <a class="post__indicator post__indicator--likes button" title="Лайк"
                                    data-post-id='<?= $cardPostId ?>'>
                                     <svg class="post__indicator-icon" width="20" height="17">
-                                        <use xlink:href="#icon-heart<?= dbGetLike($con, $cardPostId, $userSession['user-id']) ? '-active' : '' ?>"></use>
+                                        <use xlink:href="#icon-heart<?= dbGetLike($con, $cardPostId,
+                                            $userSession['user-id']) ? '-active' : '' ?>"></use>
                                     </svg>
                                     <span class="<?= dbGetLike($con, $cardPostId,
                                         $userSession['user-id']) ? '' : 'like-counter' ?>"><?= dbCountLikesToPost($con,
@@ -215,19 +219,23 @@
             <p class="<?= isset($cardTitle) ? 'visually-hidden' : '' ?>">По данному запросу ни одного поста не
                 найдено</p>
         </div>
-        <?php if($curPage <= $pagesCount && is_numeric($curPage)): ?>
-        <?php if($pagesCount > 1): ?>
-        <div class="popular__page-links">
-            <?php if($curPage > 1): ?>
-            <a class="popular__page-link popular__page-link--prev button button--gray" href="?block=<?= $getBlock ?>&tab=<?= $getTab ?>&sort=<?= $getSort ?>&page=<?= $curPage - 1 ?>">Предыдущая страница</a>
-            <?php endif; ?>
-            <?php if($pagesCount - $curPage): ?>
-            <a class="popular__page-link popular__page-link--next button button--gray" href="?block=<?= $getBlock ?>&tab=<?= $getTab ?>&sort=<?= $getSort ?>&page=<?= $curPage + 1 ?>">Следующая страница</a>
-            <?php endif; ?>
-        </div>
-        <?php endif ?>
+        <?php if ($curPage <= $pagesCount && is_numeric($curPage)): ?>
+            <?php if ($pagesCount > 1): ?>
+                <div class="popular__page-links">
+                    <?php if ($curPage > 1): ?>
+                        <a class="popular__page-link popular__page-link--prev button button--gray"
+                           href="?block=<?= $getBlock ?>&tab=<?= $getTab ?>&sort=<?= $getSort ?>&page=<?= $curPage - 1 ?>">Предыдущая
+                            страница</a>
+                    <?php endif; ?>
+                    <?php if ($pagesCount - $curPage): ?>
+                        <a class="popular__page-link popular__page-link--next button button--gray"
+                           href="?block=<?= $getBlock ?>&tab=<?= $getTab ?>&sort=<?= $getSort ?>&page=<?= $curPage + 1 ?>">Следующая
+                            страница</a>
+                    <?php endif; ?>
+                </div>
+            <?php endif ?>
         <?php else: ?>
-        <p class="<?= isset($cardTitle) ? 'visually-hidden' : '' ?>">По такому номеру страницы ничего не найдено</p>
+            <p class="<?= isset($cardTitle) ? 'visually-hidden' : '' ?>">По такому номеру страницы ничего не найдено</p>
         <?php endif ?>
     </div>
 </section>

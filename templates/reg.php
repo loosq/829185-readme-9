@@ -29,7 +29,7 @@
                         <div class="form__input-section<?= isset($errors['userName']) ? ' form__input-section--error' : '' ?>">
                             <input class="registration__input form__input" id="registration-login" type="text"
                                    name="userName" placeholder="Укажите логин"
-                                       value="<?= htmlspecialchars($userName) ?>">
+                                   value="<?= htmlspecialchars($userName) ?>">
                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span>
                             </button>
                             <div class="form__error-text">
@@ -71,7 +71,8 @@
                     <div class="registration__textarea-wrapper form__textarea-wrapper">
                         <label class="registration__label form__label" for="text-info">Информация о себе</label>
                         <div class="form__input-section">
-                            <textarea class="registration__textarea form__textarea form__input" id="text-info" name="contact-info"
+                            <textarea class="registration__textarea form__textarea form__input" id="text-info"
+                                      name="contact-info"
                                       placeholder="Коротко о себе в свободной форме"><?= htmlspecialchars($contactInfo) ?></textarea>
                         </div>
                     </div>

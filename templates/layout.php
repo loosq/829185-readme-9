@@ -5,9 +5,9 @@
  * @var string $getBlock тип странички (лента-feed или популярное-pop)
  * @vat string $search поисковый запрос
  * @var array $userSession данные о пользователе у которого открыта сессия
- * @var string $userSession['user-name'] имя пользователя
- * @var string $userSession['user-ava'] ссылка на аватар пользователя
- * @var string $userSession['user-id '] id пользователя
+ * @var string $userSession ['user-name'] имя пользователя
+ * @var string $userSession ['user-ava'] ссылка на аватар пользователя
+ * @var string $userSession ['user-id '] id пользователя
  */
 ?>
 <!DOCTYPE html>
@@ -109,7 +109,8 @@
         <form class="header__search-form form" action="search.php?q=<?= htmlspecialchars($search) ?>" method="get">
             <div class="header__search">
                 <label class="visually-hidden">Поиск</label>
-                <input class="header__search-input form__input" type="search" name="q" value="<?= htmlspecialchars($search) ?>">
+                <input class="header__search-input form__input" type="search" name="q"
+                       value="<?= htmlspecialchars($search) ?>">
                 <button class="header__search-button button" type="submit">
                     <svg class="header__search-icon" width="18" height="18">
                         <use xlink:href="#icon-search"></use>
@@ -120,81 +121,85 @@
         </form>
         <div class="header__nav-wrapper">
             <nav class="header__nav">
-                    <ul class="header__my-nav">
-                        <li class="header__my-page header__my-page--popular">
-                            <a class="header__page-link<?= ($getBlock === 'pop') ? ' header__page-link--active' : '' ?>"
-                               href="popular.php?block=pop&sort=pop&tab=all&page=1" title="Популярный контент">
-                                <span class="visually-hidden">Популярный контент</span>
-                            </a>
-                        </li>
-                        <li class="header__my-page header__my-page--feed">
-                            <a class="header__page-link<?= ($getBlock === 'feed') ? ' header__page-link--active' : '' ?>"
-                               title="Моя лента" href="feed.php?block=feed&tab=all">
-                                <span class="visually-hidden">Моя лента</span>
-                            </a>
-                        </li>
-                        <li class="header__my-page header__my-page--messages">
-                            <a class="header__page-link<?= ($getBlock === 'messages') ? ' header__page-link--active' : '' ?>" href="messages.php?block=messages" title="Личные сообщения">
-                                <span class="visually-hidden">Личные сообщения</span>
-                            </a>
-                        </li>
-                    </ul>
-                    <ul class="header__user-nav">
-                        <li class="header__profile">
-                            <a class="header__profile-link" href="profile.php?user=<?= $userSession['user-id'] ?>&tab=posts">
-                                <div class="header__avatar-wrapper">
-                                    <img class="header__profile-avatar" src="<?= $userSession['user-ava'] ?>"
-                                         alt="">
-                                </div>
-                                <div class="header__profile-name">
-                                    <span><?= $userSession['user-name'] ?></span>
-                                    <svg class="header__link-arrow" width="10" height="6">
-                                        <use xlink:href="#icon-arrow-right-ad"></use>
-                                    </svg>
-                                </div>
-                            </a>
-                            <div class="header__tooltip-wrapper">
-                                <div class="header__profile-tooltip">
-                                    <ul class="header__profile-nav">
-                                        <li class="header__profile-nav-item">
-                                            <a class="header__profile-nav-link" href="profile.php?user=<?= $userSession['user-id'] ?>&tab=posts">
+                <ul class="header__my-nav">
+                    <li class="header__my-page header__my-page--popular">
+                        <a class="header__page-link<?= ($getBlock === 'pop') ? ' header__page-link--active' : '' ?>"
+                           href="popular.php?block=pop&sort=pop&tab=all&page=1" title="Популярный контент">
+                            <span class="visually-hidden">Популярный контент</span>
+                        </a>
+                    </li>
+                    <li class="header__my-page header__my-page--feed">
+                        <a class="header__page-link<?= ($getBlock === 'feed') ? ' header__page-link--active' : '' ?>"
+                           title="Моя лента" href="feed.php?block=feed&tab=all">
+                            <span class="visually-hidden">Моя лента</span>
+                        </a>
+                    </li>
+                    <li class="header__my-page header__my-page--messages">
+                        <a class="header__page-link<?= ($getBlock === 'messages') ? ' header__page-link--active' : '' ?>"
+                           href="messages.php?block=messages" title="Личные сообщения">
+                            <span class="visually-hidden">Личные сообщения</span>
+                        </a>
+                    </li>
+                </ul>
+                <ul class="header__user-nav">
+                    <li class="header__profile">
+                        <a class="header__profile-link"
+                           href="profile.php?user=<?= $userSession['user-id'] ?>&tab=posts">
+                            <div class="header__avatar-wrapper">
+                                <img class="header__profile-avatar" src="<?= $userSession['user-ava'] ?>"
+                                     alt="">
+                            </div>
+                            <div class="header__profile-name">
+                                <span><?= $userSession['user-name'] ?></span>
+                                <svg class="header__link-arrow" width="10" height="6">
+                                    <use xlink:href="#icon-arrow-right-ad"></use>
+                                </svg>
+                            </div>
+                        </a>
+                        <div class="header__tooltip-wrapper">
+                            <div class="header__profile-tooltip">
+                                <ul class="header__profile-nav">
+                                    <li class="header__profile-nav-item">
+                                        <a class="header__profile-nav-link"
+                                           href="profile.php?user=<?= $userSession['user-id'] ?>&tab=posts">
                           <span class="header__profile-nav-text">
                             Мой профиль
                           </span>
-                                            </a>
-                                        </li>
-                                        <li class="header__profile-nav-item">
-                                            <a class="header__profile-nav-link" href="messages.php?block=messages">
+                                        </a>
+                                    </li>
+                                    <li class="header__profile-nav-item">
+                                        <a class="header__profile-nav-link" href="messages.php?block=messages">
                           <span class="header__profile-nav-text">
                             Сообщения
-                              <?php if(dbGetAllUnreadMsg($con, $userSession['user-id'])): ?>
-                            <i class="header__profile-indicator"><?= dbGetAllUnreadMsg($con, $userSession['user-id']) ?></i>
-                                <?php endif ?>
+                              <?php if (dbGetAllUnreadMsg($con, $userSession['user-id'])): ?>
+                                  <i class="header__profile-indicator"><?= dbGetAllUnreadMsg($con,
+                                          $userSession['user-id']) ?></i>
+                              <?php endif ?>
                           </span>
-                                            </a>
-                                        </li>
-                                        <li class="header__profile-nav-item">
-                                            <a class="header__profile-nav-link" href="#">
+                                        </a>
+                                    </li>
+                                    <li class="header__profile-nav-item">
+                                        <a class="header__profile-nav-link" href="#">
                           <span class="header__profile-nav-text">
                             Настройки
                           </span>
-                                            </a>
-                                        </li>
-                                        <li class="header__profile-nav-item">
-                                            <a class="header__profile-nav-link" href="../logout.php">
+                                        </a>
+                                    </li>
+                                    <li class="header__profile-nav-item">
+                                        <a class="header__profile-nav-link" href="../logout.php">
                           <span class="header__profile-nav-text">
                             Выход
                           </span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
+                                        </a>
+                                    </li>
+                                </ul>
                             </div>
-                        </li>
-                        <li>
-                            <a class="header__post-button button button--transparent" href="add.php?tab=text">Пост</a>
-                        </li>
-                    </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <a class="header__post-button button button--transparent" href="add.php?tab=text">Пост</a>
+                    </li>
+                </ul>
                 <?php else: ?>
                     <ul class="header__user-nav">
                         <li class="header__authorization">
@@ -251,7 +256,8 @@
                         <a class="footer__page-link" href="feed.php?block=feed&tab=all">Моя лента</a>
                     </li>
                     <li class="footer__my-page footer__my-page--popular">
-                        <a class="footer__page-link" href="popular.php?block=&tab=all&sort=pop&page=1">Популярный контент</a>
+                        <a class="footer__page-link" href="popular.php?block=&tab=all&sort=pop&page=1">Популярный
+                            контент</a>
                     </li>
                     <li class="footer__my-page footer__my-page--messages">
                         <a class="footer__page-link" href="messages.php?block=messages">Личные сообщения</a>

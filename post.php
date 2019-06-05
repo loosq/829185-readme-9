@@ -4,22 +4,19 @@ include_once 'init.php';
 
 $postId = $_GET['postId'] ?? '';
 $getTab = $_GET['tab'] ?? '';
-
 if (!isUserLoggedIn()) {
     redirectHome();
 }
-
 $title = 'readme: публикация';
 $userSession = $_SESSION;
 $getUser = $_GET['user'] ?? '';
 $getBlock = $_GET['block'] ?? '';
 $search = $_GET['q'] ?? '';
-$cards = dbReadPostsId($con, $postId);
+$cards = dbReadPostsId($sqlReadPostsId, $con, $postId);
 $allComments = $_GET['all'] ?? '';
 $addView = dbAddViewToPost($con, $userSession['user-id'], $postId);
-$comments = dbGetCommentsToPost($con, $postId, $allComments);
+$comments = dbGetCommentsToPost($sqlGetCommentsToPost, $con, $postId, $allComments);
 $commentText = $_POST['comment-text'] ?? '';
-
 foreach ($cards as $card) {
     $userDataPosts = dbGetUserPosts($con, $card['users_id']);
 }
@@ -38,7 +35,6 @@ $content = include_template('post.php', [
     'getUser'       => $getUser,
     'allComments'   => $allComments,
 ]);
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = [];
 
@@ -64,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         dbNewComment($con, $postId, $commentText, $_SESSION['user-id']);
     }
 }
-
 $html = include_template('layout.php', [
     'userSession' => $userSession,
     'getTab'      => $getTab,
@@ -74,5 +69,4 @@ $html = include_template('layout.php', [
     'search'      => $search,
     'getBlock'    => $getBlock,
 ]);
-
 echo $html;

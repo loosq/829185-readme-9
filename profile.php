@@ -5,7 +5,6 @@ include_once 'init.php';
 if (!isUserLoggedIn()) {
     redirectHome();
 }
-
 $title = 'readme: профиль';
 $userSession = $_SESSION;
 $search = $_GET['q'] ?? '';
@@ -18,13 +17,11 @@ $user = dbGetUserInfo($con, $getUser);
 $userDataPosts = dbGetUserPosts($con, $getUser);
 $userDataSubs = dbGetUserSubs($con, $getUser);
 $cards = dbGetUserArrPosts($con, $getUser);
-$likers = dbGetUsersByLike($con, $getUser);
+$likers = dbGetUsersByLike($sqlGetUsersByLike, $con, $getUser);
 $subsList = dbGetAllSubs($con, $getUser);
-
-if($getUser !== $userSession['user-id'] && $getRepost){
-    dbNewRepost($con, $getPostId, $userSession['user-id']);
+if ($getUser !== $userSession['user-id'] && $getRepost) {
+    dbNewRepost($sqlNewRepost, $con, $getPostId, $userSession['user-id']);
 }
-
 $content = include_template('profile.php', [
     'likers'        => $likers,
     'subsList'      => $subsList,
@@ -37,7 +34,6 @@ $content = include_template('profile.php', [
     'userDataPosts' => $userDataPosts,
     'userDataSubs'  => $userDataSubs,
 ]);
-
 $html = include_template('layout.php', [
     'userSession' => $userSession,
     'getTab'      => $getTab,
@@ -47,5 +43,4 @@ $html = include_template('layout.php', [
     'search'      => $search,
     'getBlock'    => $getblock,
 ]);
-
 echo $html;

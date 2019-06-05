@@ -1,18 +1,19 @@
-.popular__posts {
+.popular__posts{
     position: relative;
     left: 20px;
     margin: 0;
 }
 
-.popular__post {
+.popular__post{
     margin: 0 !important;
 }
 
-.comments__form {
+.comments__form,
+.form__textarea{
     position: relative;
 }
 
-.comments__error {
+.comments__error{
     position: absolute;
     bottom: 10px;
     left: 100px;
@@ -21,22 +22,33 @@
     font-size: 8px;
 }
 
-.form__textarea--error {
+.msg-error{
+    width: 100%;
+    margin: 0;
+    position: relative;
+    left: 56px;
+    top: -10px;
+    color: red;
+    font-size: 8px;
+}
+
+.form__textarea--error,
+.form__textarea--error{
     border: 1px solid red;
 }
 
-#preloader {
+#preloader{
     position: fixed;
     left: 0;
     top: 0;
     right: 0;
     bottom: 0;
-    background: rgba(222,224,231, 0.5);
+    background: rgba(222, 224, 231, 0.5);
     z-index: 1001;
 }
 
-#preloader__icon {
-    background: url("../img/preloader.svg")no-repeat center center;
+#preloader__icon{
+    background: url("../img/preloader.svg") no-repeat center center;
     position: absolute;
     width: 250px;
     height: 64px;
@@ -45,20 +57,19 @@
     margin: -50px 0 0 -122px;
 }
 
-.user__button--subscription {
+.user__button--subscription{
     position: relative;
 }
 
-#sub__preloader {
+#sub__preloader{
     position: absolute;
     left: 50%;
     top: 50%;
-    transform:translate(-50%, -50%);
-    background: url("../img/sub-preloader.svg")no-repeat center center;
+    transform: translate(-50%, -50%);
+    background: url("../img/sub-preloader.svg") no-repeat center center;
     width: 130px;
     height: 42px;
 }
-
 
 .post__iframe iframe{
     height: 400px;

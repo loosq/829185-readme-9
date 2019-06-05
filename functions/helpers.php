@@ -13,7 +13,8 @@
  *
  * @return bool true при совпадении с форматом 'ГГГГ-ММ-ДД', иначе false
  */
-function is_date_valid(string $date) : bool {
+function is_date_valid(string $date): bool
+{
     $format_to_check = 'Y-m-d';
     $dateTimeObj = date_create_from_format($format_to_check, $date);
 
@@ -29,7 +30,8 @@ function is_date_valid(string $date) : bool {
  *
  * @return mysqli_stmt Подготовленное выражение
  */
-function db_get_prepare_stmt($link, $sql, $data = []) {
+function db_get_prepare_stmt($link, $sql, $data = [])
+{
     $stmt = mysqli_prepare($link, $sql);
 
     if ($stmt === false) {
@@ -46,12 +48,14 @@ function db_get_prepare_stmt($link, $sql, $data = []) {
 
             if (is_int($value)) {
                 $type = 'i';
-            }
-            else if (is_string($value)) {
-                $type = 's';
-            }
-            else if (is_double($value)) {
-                $type = 'd';
+            } else {
+                if (is_string($value)) {
+                    $type = 's';
+                } else {
+                    if (is_double($value)) {
+                        $type = 'd';
+                    }
+                }
             }
 
             if ($type) {
@@ -96,9 +100,9 @@ function db_get_prepare_stmt($link, $sql, $data = []) {
  *
  * @return string Рассчитанная форма множественнго числа
  */
-function get_noun_plural_form (int $number, string $one, string $two, string $many): string
+function get_noun_plural_form(int $number, string $one, string $two, string $many): string
 {
-    $number = (int) $number;
+    $number = (int)$number;
     $mod10 = $number % 10;
     $mod100 = $number % 100;
 
@@ -126,7 +130,8 @@ function get_noun_plural_form (int $number, string $one, string $two, string $ma
  * @param array $data Ассоциативный массив с данными для шаблона
  * @return string Итоговый HTML
  */
-function include_template($name, array $data = []) {
+function include_template($name, array $data = [])
+{
     $name = 'templates/' . $name;
     $result = '';
 
@@ -148,7 +153,8 @@ function include_template($name, array $data = []) {
  * @param string $youtube_url Ссылка на youtube видео
  * @return bool
  */
-function check_youtube_url($youtube_url) {
+function check_youtube_url($youtube_url)
+{
     $res = false;
     $id = extract_youtube_id($youtube_url);
 
@@ -171,7 +177,8 @@ function check_youtube_url($youtube_url) {
  * @param string $youtube_url Ссылка на youtube видео
  * @return string
  */
-function embed_youtube_video($youtube_url) {
+function embed_youtube_video($youtube_url)
+{
     $res = "";
     $id = extract_youtube_id($youtube_url);
 
@@ -188,7 +195,8 @@ function embed_youtube_video($youtube_url) {
  * @param string $youtube_url Ссылка на youtube видео
  * @return array
  */
-function extract_youtube_id($youtube_url){
+function extract_youtube_id($youtube_url)
+{
     $id = false;
 
     $parts = parse_url($youtube_url);
@@ -197,8 +205,10 @@ function extract_youtube_id($youtube_url){
         if ($parts['path'] == '/watch') {
             parse_str($parts['query'], $vars);
             $id = $vars['v'] ?? null;
-        } else if ($parts['host'] == 'youtu.be') {
-            $id = substr($parts['path'], 1);
+        } else {
+            if ($parts['host'] == 'youtu.be') {
+                $id = substr($parts['path'], 1);
+            }
         }
     }
 
@@ -209,7 +219,8 @@ function extract_youtube_id($youtube_url){
  * @param $index
  * @return false|string
  */
-function generate_random_date($index) {
+function generate_random_date($index)
+{
     $deltas = [['minutes' => 59], ['hours' => 23], ['days' => 6], ['weeks' => 4], ['months' => 11]];
     $dcnt = count($deltas);
 

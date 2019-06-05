@@ -18,6 +18,7 @@
 <body>
 <h1>Новый пост!</h1>
 <p>Здравствуйте, <?= $adrName ?>. Пользователь <?= $userName ?> только что опубликовал новую запись
-    <?= $postTitle ?>. <a href="http://readme.loc/profile.php?user=<?= $userId ?>&tab=posts">Посмотрите её на странице пользователя</a>.</p>
+    <?= $postTitle ?>. <a href="http://readme.loc/profile.php?user=<?= $userId ?>&tab=posts">Посмотрите её на странице
+        пользователя</a>.</p>
 </body>
 </html>

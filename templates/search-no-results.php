@@ -17,11 +17,13 @@
             <div class="search__no-results container">
                 <p class="search__no-results-info">К сожалению, ничего не найдено.</p>
                 <p class="search__no-results-desc">
-                    Попробуйте изменить поисковый запрос или просто зайти в раздел &laquo;Популярное&raquo;, там живет самый крутой контент.
+                    Попробуйте изменить поисковый запрос или просто зайти в раздел &laquo;Популярное&raquo;, там живет
+                    самый крутой контент.
                 </p>
                 <div class="search__links">
-                    <a class="search__popular-link button button--main" href="popular.php?block=pop&sort=pop&tab=all&page=1">Популярное</a>
-                    <a class="search__back-link" onclick="history.go(-1); return false;" >Вернуться назад</a>
+                    <a class="search__popular-link button button--main"
+                       href="popular.php?block=pop&sort=pop&tab=all&page=1">Популярное</a>
+                    <a class="search__back-link" onclick="history.go(-1); return false;">Вернуться назад</a>
                 </div>
             </div>
         </div>

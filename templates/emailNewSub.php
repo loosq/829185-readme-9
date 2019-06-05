@@ -1,8 +1,8 @@
 <?php
 /**
  * @var string $nameUserToSub имя пользователя кому оптравляется шаблон эмейла
- * @var string $nameUser      имя пользователя который подписался
- * @var string $idUser        id пользователя который подписался
+ * @var string $nameUser имя пользователя который подписался
+ * @var string $idUser id пользователя который подписался
  */
 ?>
 
@@ -15,6 +15,7 @@
 </head>
 <body>
 <p>Здравствуйте, <?= $nameUserToSub ?>. На вас подписался новый пользователь
-    <?= $nameUser ?>. Вот <a href="http://readme.loc/profile.php?user=<?= $idUser ?>&tab=posts">ссылка</a> на его профиль.</p>
+    <?= $nameUser ?>. Вот <a href="http://readme.loc/profile.php?user=<?= $idUser ?>&tab=posts">ссылка</a> на его
+    профиль.</p>
 </body>
 </html>

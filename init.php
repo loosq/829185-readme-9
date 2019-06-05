@@ -9,6 +9,7 @@ setlocale(LC_ALL, 'ru_RU');
 
 //Подключение внешних файлов
 include_once 'vendor/autoload.php';
+include_once 'functions/sqlQueries.php';
 include_once 'functions/notify.php';
 include_once 'functions/helpers.php';
 include_once 'functions/database.php';
